@@ -91,11 +91,11 @@ export const exportToDocx = async (
   // Build the items tables
   const createItemTable = (filteredRows: TestRow[]) => {
     const tableHeaderCells = [
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Test Case / Module', bold: true, color: 'FFFFFF' })] })], width: { size: 35, type: WidthType.PERCENTAGE }, backgroundColor: '4F46E5' }),
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Dev Status', bold: true, color: 'FFFFFF' })] })], width: { size: 20, type: WidthType.PERCENTAGE }, backgroundColor: '4F46E5' }),
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'QA Status', bold: true, color: 'FFFFFF' })] })], width: { size: 20, type: WidthType.PERCENTAGE }, backgroundColor: '4F46E5' }),
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Priority', bold: true, color: 'FFFFFF' })] })], width: { size: 10, type: WidthType.PERCENTAGE }, backgroundColor: '4F46E5' }),
-      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Assignee', bold: true, color: 'FFFFFF' })] })], width: { size: 15, type: WidthType.PERCENTAGE }, backgroundColor: '4F46E5' })
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Test Case / Module', bold: true, color: 'FFFFFF' })] })], width: { size: 35, type: WidthType.PERCENTAGE }, shading: { fill: '4F46E5' } }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Dev Status', bold: true, color: 'FFFFFF' })] })], width: { size: 20, type: WidthType.PERCENTAGE }, shading: { fill: '4F46E5' } }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'QA Status', bold: true, color: 'FFFFFF' })] })], width: { size: 20, type: WidthType.PERCENTAGE }, shading: { fill: '4F46E5' } }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Priority', bold: true, color: 'FFFFFF' })] })], width: { size: 10, type: WidthType.PERCENTAGE }, shading: { fill: '4F46E5' } }),
+      new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: 'Assignee', bold: true, color: 'FFFFFF' })] })], width: { size: 15, type: WidthType.PERCENTAGE }, shading: { fill: '4F46E5' } })
     ];
 
     const tableRows = filteredRows.map((row) => {

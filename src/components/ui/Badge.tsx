@@ -13,11 +13,11 @@ export const Badge: React.FC<BadgeProps> = ({ type, value, className = '' }) => 
     
     if (type === 'functionality') {
       switch (val as FunctionalityStatus) {
-        case 'Done':
+        case 'Working':
           return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30';
-        case 'In Progress':
+        case 'Partially Working':
           return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 dark:border-amber-500/30';
-        case 'Blocked':
+        case 'Not Working':
           return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 dark:border-rose-500/30';
         case 'Pending':
         default:
@@ -31,9 +31,9 @@ export const Badge: React.FC<BadgeProps> = ({ type, value, className = '' }) => 
           return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 dark:border-emerald-500/30';
         case 'Failed':
           return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 dark:border-rose-500/30';
-        case 'Testing In Progress':
+        case 'In Progress':
           return 'bg-sky-500/10 text-sky-600 dark:text-sky-400 border-sky-500/20 dark:border-sky-500/30';
-        case 'Testing Pending':
+        case 'Pending':
         default:
           return 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20 dark:border-indigo-500/30';
       }

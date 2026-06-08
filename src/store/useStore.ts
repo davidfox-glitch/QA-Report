@@ -615,7 +615,7 @@ export const useStore = create<DashboardState>((set, get) => {
       });
     },
 
-    users: savedState?.users || defaultUsers,
+
     addUser: (newUser) => {
       set((state) => {
         const user: User = {
