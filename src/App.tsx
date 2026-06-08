@@ -248,14 +248,14 @@ export default function App() {
             <div className="relative">
               <button
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
-                className={`relative flex items-center justify-center p-2 text-slate-500 dark:text-slate-400 bg-slate-100/80 hover:bg-slate-200 dark:bg-slate-900/60 dark:hover:bg-slate-850 border border-slate-250 dark:border-slate-800 rounded-xl transition-all ${
+                className={`relative flex items-center justify-center p-2 text-slate-500 dark:text-slate-400 bg-slate-100/80 hover:bg-slate-200 dark:bg-slate-900/60 dark:hover:bg-slate-850 border border-slate-250 dark:border-slate-800 rounded-full transition-all ${
                   isNotificationsOpen ? 'ring-2 ring-indigo-500/20' : ''
                 }`}
                 title="Activity Notifications"
               >
-                <Bell className="h-4 w-4" />
+                <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4 w-4 bg-rose-500 text-white rounded-full text-[8px] font-bold flex items-center justify-center shadow">
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white ring-2 ring-white dark:ring-slate-900 shadow-sm">
                     {unreadCount}
                   </span>
                 )}

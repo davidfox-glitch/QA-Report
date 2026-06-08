@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useStore, User, TestRow } from '../../store/useStore';
+import { supabase } from '../../lib/supabase';
 import { 
   Users, 
   Mail, 
@@ -29,18 +30,51 @@ export const UserManagementView: React.FC = () => {
   // Filter rows assigned to selected user
   const assignedRows = rows.filter(r => r.assignedUser === selectedUser?.name);
 
-  const handleCreateUser = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUserName.trim() || !newUserEmail.trim()) {
       alert('Please fill out all fields.');
       return;
     }
-    addUser({
-      name: newUserName,
-      email: newUserEmail,
-      role: newUserRole,
-      avatar: newUserAvatar
-    });
+
+    setLoading(true);
+    
+    // 1. Insert the record into Supabase
+    // Make sure 'team_members' table exists in your Supabase database
+    const { data, error } = await supabase
+      .from('team_members')
+      .insert([{ 
+        name: newUserName, 
+        email: newUserEmail, 
+        role: newUserRole, 
+        avatar: newUserAvatar 
+      }])
+      .select();
+
+    setLoading(false);
+
+    if (error) {
+      console.error("Error creating invite:", error.message);
+      // Fallback: still add to local store so UI works during development
+      addUser({
+        name: newUserName,
+        email: newUserEmail,
+        role: newUserRole,
+        avatar: newUserAvatar
+      });
+      alert("Failed to sync to Supabase (check your table), but added locally: " + error.message);
+    } else {
+      // 2. Add to local store and close
+      addUser({
+        name: newUserName,
+        email: newUserEmail,
+        role: newUserRole,
+        avatar: newUserAvatar
+      });
+    }
+
     // Reset form
     setNewUserName('');
     setNewUserEmail('');
@@ -289,9 +323,12 @@ export const UserManagementView: React.FC = () => {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all"
+              disabled={loading}
+              className={`px-4 py-2 text-xs font-semibold text-white rounded-xl shadow-sm transition-all ${
+                loading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow'
+              }`}
             >
-              Create Invite
+              {loading ? 'Sending Invite...' : 'Create Invite'}
             </button>
           </div>
         </form>
