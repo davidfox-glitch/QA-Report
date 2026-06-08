@@ -9,8 +9,11 @@ export const LoginView: React.FC = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // Redirect right into your dashboard layout workspace once approved
-        redirectTo: `${window.location.origin}/`, 
+        // Force the authentication loop to land on your live domain in production
+        // but keep local development working automatically
+        redirectTo: import.meta.env.DEV 
+          ? 'http://localhost:5173/' 
+          : 'https://qa-report-seven.vercel.app/', 
       },
     });
     
