@@ -59,7 +59,7 @@ serve(async (req) => {
           '      <p style="margin: 0; font-size: 12px; color: #64748B; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Your Access Role</p>',
           '      <p style="margin: 4px 0 0; font-size: 18px; font-weight: 800; color: #818CF8;">' + role + '</p>',
           '    </div>',
-          '    <a href="' + (Deno.env.get('APP_URL') || 'https://qa-report.vercel.app') + '" ',
+          '    <a href="' + (Deno.env.get('APP_URL') || 'https://qa-report-seven.vercel.app') + '/login" ',
           '       style="display: block; text-align: center; background: #4F46E5; color: white; padding: 14px 24px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 15px; margin: 24px 0;">',
           '      Accept Invitation & Sign In →',
           '    </a>',
