@@ -1,0 +1,678 @@
+import { create } from 'zustand'
+
+export type FunctionalityStatus = 'Working' | 'Partially Working' | 'Not Working' | 'Pending';
+export type TestingStatus = 'Passed' | 'Failed' | 'Pending' | 'In Progress';
+export type Priority = 'Critical' | 'High' | 'Medium' | 'Low';
+
+export interface Note {
+  id: string;
+  text: string;
+  timestamp: string;
+}
+
+export interface Attachment {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  date: string;
+  url: string; // Base64 data or mock object URL
+}
+
+export interface CustomFieldDef {
+  id: string;
+  name: string;
+  type: 'text' | 'number' | 'date';
+}
+
+export interface TestRow {
+  id: string;
+  testPoint: string;
+  moduleName: string;
+  url: string;
+  howToTest: string;
+  expectedResult: string;
+  actualResult: string;
+  functionalityStatus: FunctionalityStatus;
+  testingStatus: TestingStatus;
+  priority: Priority;
+  assignedUser?: string; // User Name
+  notes: Note[];
+  attachments: Attachment[];
+  customFields: Record<string, string | number>;
+  lastUpdated: string;
+  startDate?: string;
+  releaseDate?: string;
+}
+
+export interface ProjectSettings {
+  projectName: string;
+  clientName: string; // Company Name
+  clientLogo: string; // base64
+  projectDescription: string;
+  aiProvider: 'gemini' | 'openai';
+  apiKey: string;
+  reportBranding: {
+    primaryColor: string;
+    showLogo: boolean;
+    headerTemplate: string;
+  };
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  avatar: string;
+  role: 'QA Lead' | 'QA Engineer' | 'Developer' | 'Client' | 'Project Manager';
+  completedTests: number;
+}
+
+export interface Notification {
+  id: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  type: 'status_change' | 'assignment' | 'general';
+}
+
+export type ActiveView = 'dashboard' | 'table' | 'kanban' | 'timeline' | 'analytics' | 'users' | 'settings';
+
+interface DashboardState {
+  // Project settings
+  settings: ProjectSettings;
+  updateSettings: (settings: Partial<ProjectSettings>) => void;
+
+  // View state
+  currentView: ActiveView;
+  setCurrentView: (view: ActiveView) => void;
+
+  // Dark mode
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+
+  // Selected items for bulk operations
+  selectedRowIds: string[];
+  toggleSelectRow: (id: string) => void;
+  toggleSelectAllRows: (ids: string[]) => void;
+  clearSelection: () => void;
+
+  // Custom Fields Schema
+  customFieldsDef: CustomFieldDef[];
+  addCustomFieldDef: (name: string, type: 'text' | 'number' | 'date') => void;
+  deleteCustomFieldDef: (id: string) => void;
+
+  // Test rows (items) data
+  rows: TestRow[];
+  addRow: (row: Omit<TestRow, 'id' | 'lastUpdated' | 'notes' | 'attachments' | 'customFields'>) => void;
+  updateRow: (id: string, updates: Partial<TestRow>) => void;
+  deleteRow: (id: string) => void;
+  deleteMultipleRows: (ids: string[]) => void;
+  bulkUpdateStatus: (ids: string[], functionality?: FunctionalityStatus, testing?: TestingStatus, priority?: Priority) => void;
+  importRows: (newRows: TestRow[], fieldDefs?: CustomFieldDef[]) => void;
+
+  // Notes management
+  addNote: (rowId: string, text: string) => void;
+  updateNote: (rowId: string, noteId: string, text: string) => void;
+  deleteNote: (rowId: string, noteId: string) => void;
+
+  // Attachments management
+  addAttachment: (rowId: string, file: Attachment) => void;
+  deleteAttachment: (rowId: string, attachmentId: string) => void;
+
+  // Users management
+  users: User[];
+  addUser: (user: Omit<User, 'id' | 'completedTests'>) => void;
+  deleteUser: (id: string) => void;
+
+  // Notifications management
+  notifications: Notification[];
+  addNotification: (message: string, type: Notification['type']) => void;
+  clearNotifications: () => void;
+  markNotificationRead: (id: string) => void;
+
+  // AI Summary caching
+  lastAiSummary?: {
+    testingSummary: string;
+    progressSummary: string;
+    riskAssessment: string;
+    pendingTasksSummary: string;
+  };
+  setAiSummary: (summary: any) => void;
+}
+
+// Initial Mock Users
+const defaultUsers: User[] = [
+  { id: 'user-1', name: 'Affan Ahmad', email: 'affan@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', role: 'QA Lead', completedTests: 5 },
+  { id: 'user-2', name: 'Sarah Connor', email: 'sarah@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', role: 'QA Engineer', completedTests: 3 },
+  { id: 'user-3', name: 'John Doe', email: 'john@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', role: 'Developer', completedTests: 2 },
+  { id: 'user-4', name: 'Alice Smith', email: 'alice@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', role: 'Project Manager', completedTests: 1 }
+];
+
+// Initial Mock Rows
+const defaultRows: TestRow[] = [
+  {
+    id: 'row-1',
+    testPoint: 'Verify Google Oauth Login Flow',
+    moduleName: 'Authentication - Login',
+    url: 'https://qaflow.teamofgenus.com/beta/auth/login',
+    howToTest: 'Click on Google Login button. Enter credentials. Check redirection.',
+    expectedResult: 'User should be authenticated successfully and redirected to dashboard.',
+    actualResult: 'Redirects successfully, but session cookie lacks Secure attribute.',
+    functionalityStatus: 'Partially Working',
+    testingStatus: 'Failed',
+    priority: 'Critical',
+    assignedUser: 'Affan Ahmad',
+    notes: [
+      { id: 'note-1-1', text: 'Auth flow works, but security header review flagged cookie config.', timestamp: '2026-06-08 14:30' }
+    ],
+    attachments: [],
+    customFields: {},
+    lastUpdated: '2026-06-08 14:30',
+    startDate: '2026-06-01',
+    releaseDate: '2026-06-15'
+  },
+  {
+    id: 'row-2',
+    testPoint: 'Verify real-time updates in Analytics graph',
+    moduleName: 'Social Manager - Analytics',
+    url: 'https://qaflow.teamofgenus.com/beta/dashboard/social-manager/analytics/',
+    howToTest: 'Generate mock data trigger from backend. Verify UI updates automatically without reload.',
+    expectedResult: 'Chart data increments by delta and updates smooth transitions.',
+    actualResult: 'Endpoint returns 403 authorization failed on WebSockets connection.',
+    functionalityStatus: 'Not Working',
+    testingStatus: 'Failed',
+    priority: 'High',
+    assignedUser: 'Sarah Connor',
+    notes: [
+      { id: 'note-2-1', text: 'Discussed with backend dev, JWT authentication scopes are missing in WebSocket handshake.', timestamp: '2026-06-08 11:20' }
+    ],
+    attachments: [],
+    customFields: {},
+    lastUpdated: '2026-06-08 11:20',
+    startDate: '2026-06-05',
+    releaseDate: '2026-06-18'
+  },
+  {
+    id: 'row-3',
+    testPoint: 'Ensure published post matches scheduled metadata',
+    moduleName: 'Published Posts Feed',
+    url: 'https://qaflow.teamofgenus.com/beta/dashboard/social-manager/published-posts/',
+    howToTest: 'Schedule a post for +5 mins. Allow publisher runner to execute. Confirm image and text.',
+    expectedResult: 'Post appears in feed with exact scheduled parameters.',
+    actualResult: 'Post published on time, metadata verified correctly.',
+    functionalityStatus: 'Working',
+    testingStatus: 'Passed',
+    priority: 'Medium',
+    assignedUser: 'John Doe',
+    notes: [],
+    attachments: [],
+    customFields: {},
+    lastUpdated: '2026-06-08 09:00',
+    startDate: '2026-06-02',
+    releaseDate: '2026-06-12'
+  },
+  {
+    id: 'row-4',
+    testPoint: 'Add custom field column sorting support',
+    moduleName: 'Custom Field System',
+    url: 'https://qaflow.teamofgenus.com/beta/dashboard/settings/custom-fields',
+    howToTest: 'Click on Custom Column header. Confirm sorting ascends and descends properly.',
+    expectedResult: 'Sort order shifts and table re-renders within 100ms.',
+    actualResult: 'Not yet implemented.',
+    functionalityStatus: 'Pending',
+    testingStatus: 'Pending',
+    priority: 'Medium',
+    assignedUser: 'Alice Smith',
+    notes: [],
+    attachments: [],
+    customFields: {},
+    lastUpdated: '2026-06-08 08:30',
+    startDate: '2026-06-10',
+    releaseDate: '2026-06-25'
+  }
+];
+
+const loadLocalStorageState = () => {
+  try {
+    const saved = localStorage.getItem('qaflow_pro_state');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Failed to load local storage state', e);
+  }
+  return null;
+};
+
+const savedState = loadLocalStorageState();
+
+export const useStore = create<DashboardState>((set, get) => {
+  const saveToLocal = (updatedState: Partial<DashboardState>) => {
+    const currentState = get();
+    localStorage.setItem(
+      'qaflow_pro_state',
+      JSON.stringify({
+        settings: updatedState.settings || currentState.settings,
+        currentView: updatedState.currentView || currentState.currentView,
+        darkMode: updatedState.darkMode ?? currentState.darkMode,
+        customFieldsDef: updatedState.customFieldsDef || currentState.customFieldsDef,
+        rows: updatedState.rows || currentState.rows,
+        users: updatedState.users || currentState.users,
+        notifications: updatedState.notifications || currentState.notifications
+      })
+    );
+  };
+
+  return {
+    settings: savedState?.settings || {
+      projectName: 'QAFlow Pro Platform',
+      clientName: 'Genus Tech Inc',
+      clientLogo: '',
+      projectDescription: 'Comprehensive QA tracking, automated workflows, and status analysis report for Genus platforms.',
+      aiProvider: 'gemini',
+      apiKey: '',
+      reportBranding: {
+        primaryColor: '#6366f1',
+        showLogo: true,
+        headerTemplate: 'QAFlow Pro Executive Testing Audit'
+      }
+    },
+    currentView: savedState?.currentView || 'dashboard',
+    darkMode: savedState?.darkMode ?? true,
+    selectedRowIds: [],
+    customFieldsDef: savedState?.customFieldsDef || [
+      { id: 'cf-bug-id', name: 'Bug ID', type: 'text' }
+    ],
+    rows: savedState?.rows || defaultRows,
+    users: savedState?.users || defaultUsers,
+    notifications: savedState?.notifications || [
+      { id: 'notif-1', message: 'Welcome to QAFlow Pro Testing Platform', timestamp: '2026-06-08 08:00', read: false, type: 'general' }
+    ],
+
+    updateSettings: (newSettings) => {
+      set((state) => {
+        const settings = { ...state.settings, ...newSettings };
+        const nextState = { ...state, settings };
+        saveToLocal(nextState);
+        return { settings };
+      });
+    },
+
+    setCurrentView: (view) => {
+      set((state) => {
+        const nextState = { ...state, currentView: view };
+        saveToLocal(nextState);
+        return { currentView: view };
+      });
+    },
+
+    toggleDarkMode: () => {
+      set((state) => {
+        const darkMode = !state.darkMode;
+        const nextState = { ...state, darkMode };
+        if (darkMode) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+        saveToLocal(nextState);
+        return { darkMode };
+      });
+    },
+
+    toggleSelectRow: (id) => {
+      set((state) => {
+        const selectedRowIds = state.selectedRowIds.includes(id)
+          ? state.selectedRowIds.filter((x) => x !== id)
+          : [...state.selectedRowIds, id];
+        return { selectedRowIds };
+      });
+    },
+
+    toggleSelectAllRows: (ids) => {
+      set((state) => {
+        const allSelected = ids.every((id) => state.selectedRowIds.includes(id));
+        const selectedRowIds = allSelected
+          ? state.selectedRowIds.filter((id) => !ids.includes(id))
+          : Array.from(new Set([...state.selectedRowIds, ...ids]));
+        return { selectedRowIds };
+      });
+    },
+
+    clearSelection: () => set({ selectedRowIds: [] }),
+
+    addCustomFieldDef: (name, type) => {
+      set((state) => {
+        const id = `cf-${Date.now()}`;
+        const customFieldsDef = [...state.customFieldsDef, { id, name, type }];
+        const nextState = { ...state, customFieldsDef };
+        saveToLocal(nextState);
+        return { customFieldsDef };
+      });
+    },
+
+    deleteCustomFieldDef: (id) => {
+      set((state) => {
+        const customFieldsDef = state.customFieldsDef.filter((x) => x.id !== id);
+        const rows = state.rows.map((row) => {
+          const customFields = { ...row.customFields };
+          delete customFields[id];
+          return { ...row, customFields };
+        });
+        const nextState = { ...state, customFieldsDef, rows };
+        saveToLocal(nextState);
+        return { customFieldsDef, rows };
+      });
+    },
+
+    addRow: (newRow) => {
+      set((state) => {
+        const id = `row-${Date.now()}`;
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const row: TestRow = {
+          ...newRow,
+          id,
+          notes: [],
+          attachments: [],
+          customFields: {},
+          lastUpdated: nowStr
+        };
+        const rows = [row, ...state.rows];
+        const nextState = { ...state, rows };
+        
+        // Add Notification
+        const activeNotifs = [
+          {
+            id: `notif-${Date.now()}`,
+            message: `New Test Point assigned: "${row.testPoint}"`,
+            timestamp: nowStr,
+            read: false,
+            type: 'assignment' as const
+          },
+          ...state.notifications
+        ];
+        
+        saveToLocal({ ...nextState, notifications: activeNotifs });
+        return { rows, notifications: activeNotifs };
+      });
+    },
+
+    updateRow: (id, updates) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        let statusChangedMessage = '';
+        let assignmentChangedMessage = '';
+
+        const rows = state.rows.map((row) => {
+          if (row.id === id) {
+            if (updates.testingStatus && updates.testingStatus !== row.testingStatus) {
+              statusChangedMessage = `Test Point "${row.testPoint}" changed testing status to "${updates.testingStatus}"`;
+            }
+            if (updates.assignedUser && updates.assignedUser !== row.assignedUser) {
+              assignmentChangedMessage = `Test Point "${row.testPoint}" assigned to ${updates.assignedUser}`;
+            }
+            return { ...row, ...updates, lastUpdated: nowStr };
+          }
+          return row;
+        });
+
+        const nextState = { ...state, rows };
+        let activeNotifs = [...state.notifications];
+
+        if (statusChangedMessage) {
+          activeNotifs = [
+            {
+              id: `notif-${Date.now()}-1`,
+              message: statusChangedMessage,
+              timestamp: nowStr,
+              read: false,
+              type: 'status_change' as const
+            },
+            ...activeNotifs
+          ];
+        }
+
+        if (assignmentChangedMessage) {
+          activeNotifs = [
+            {
+              id: `notif-${Date.now()}-2`,
+              message: assignmentChangedMessage,
+              timestamp: nowStr,
+              read: false,
+              type: 'assignment' as const
+            },
+            ...activeNotifs
+          ];
+        }
+
+        saveToLocal({ ...nextState, notifications: activeNotifs });
+        return { rows, notifications: activeNotifs };
+      });
+    },
+
+    deleteRow: (id) => {
+      set((state) => {
+        const rows = state.rows.filter((x) => x.id !== id);
+        const selectedRowIds = state.selectedRowIds.filter((x) => x !== id);
+        const nextState = { ...state, rows };
+        saveToLocal(nextState);
+        return { rows, selectedRowIds };
+      });
+    },
+
+    deleteMultipleRows: (ids) => {
+      set((state) => {
+        const rows = state.rows.filter((x) => !ids.includes(x.id));
+        const selectedRowIds = state.selectedRowIds.filter((x) => !ids.includes(x));
+        const nextState = { ...state, rows };
+        saveToLocal(nextState);
+        return { rows, selectedRowIds };
+      });
+    },
+
+    bulkUpdateStatus: (ids, functionality, testing, priority) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const rows = state.rows.map((row) => {
+          if (ids.includes(row.id)) {
+            const updates: Partial<TestRow> = { lastUpdated: nowStr };
+            if (functionality) updates.functionalityStatus = functionality;
+            if (testing) updates.testingStatus = testing;
+            if (priority) updates.priority = priority;
+            return { ...row, ...updates };
+          }
+          return row;
+        });
+        const nextState = { ...state, rows };
+        saveToLocal(nextState);
+        return { rows };
+      });
+    },
+
+    importRows: (newRows, newFieldDefs) => {
+      set((state) => {
+        const rows = [...newRows, ...state.rows];
+        const customFieldsDef = newFieldDefs 
+          ? [...state.customFieldsDef, ...newFieldDefs.filter((n) => !state.customFieldsDef.some((e) => e.name === n.name))]
+          : state.customFieldsDef;
+        const nextState = { ...state, rows, customFieldsDef };
+        
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const activeNotifs = [
+          {
+            id: `notif-${Date.now()}`,
+            message: `Successfully imported ${newRows.length} testing records from Excel/CSV`,
+            timestamp: nowStr,
+            read: false,
+            type: 'general' as const
+          },
+          ...state.notifications
+        ];
+
+        saveToLocal({ ...nextState, notifications: activeNotifs });
+        return { rows, customFieldsDef, notifications: activeNotifs };
+      });
+    },
+
+    addNote: (rowId, text) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const note: Note = {
+          id: `note-${Date.now()}`,
+          text,
+          timestamp: nowStr
+        };
+        const rows = state.rows.map((row) => {
+          if (row.id === rowId) {
+            return {
+              ...row,
+              notes: [...row.notes, note],
+              lastUpdated: nowStr
+            };
+          }
+          return row;
+        });
+        const nextState = { ...state, rows };
+        saveToLocal(nextState);
+        return { rows };
+      });
+    },
+
+    updateNote: (rowId, noteId, text) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const rows = state.rows.map((row) => {
+          if (row.id === rowId) {
+            return {
+              ...row,
+              notes: row.notes.map((n) => n.id === noteId ? { ...n, text, timestamp: nowStr } : n),
+              lastUpdated: nowStr
+            };
+          }
+          return row;
+        });
+        const nextState = { ...state, rows };
+        saveToLocal(nextState);
+        return { rows };
+      });
+    },
+
+    deleteNote: (rowId, noteId) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const rows = state.rows.map((row) => {
+          if (row.id === rowId) {
+            return {
+              ...row,
+              notes: row.notes.filter((n) => n.id !== noteId),
+              lastUpdated: nowStr
+            };
+          }
+          return row;
+        });
+        const nextState = { ...state, rows };
+        saveToLocal(nextState);
+        return { rows };
+      });
+    },
+
+    addAttachment: (rowId, attachment) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const rows = state.rows.map((row) => {
+          if (row.id === rowId) {
+            return {
+              ...row,
+              attachments: [...row.attachments, attachment],
+              lastUpdated: nowStr
+            };
+          }
+          return row;
+        });
+        const nextState = { ...state, rows };
+        saveToLocal(nextState);
+        return { rows };
+      });
+    },
+
+    deleteAttachment: (rowId, attachmentId) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const rows = state.rows.map((row) => {
+          if (row.id === rowId) {
+            return {
+              ...row,
+              attachments: row.attachments.filter((a) => a.id !== attachmentId),
+              lastUpdated: nowStr
+            };
+          }
+          return row;
+        });
+        const nextState = { ...state, rows };
+        saveToLocal(nextState);
+        return { rows };
+      });
+    },
+
+    users: savedState?.users || defaultUsers,
+    addUser: (newUser) => {
+      set((state) => {
+        const user: User = {
+          ...newUser,
+          id: `user-${Date.now()}`,
+          completedTests: 0
+        };
+        const users = [...state.users, user];
+        const nextState = { ...state, users };
+        saveToLocal(nextState);
+        return { users };
+      });
+    },
+    deleteUser: (id) => {
+      set((state) => {
+        const users = state.users.filter((u) => u.id !== id);
+        const nextState = { ...state, users };
+        saveToLocal(nextState);
+        return { users };
+      });
+    },
+
+    addNotification: (message, type) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const notifications = [
+          { id: `notif-${Date.now()}`, message, timestamp: nowStr, read: false, type },
+          ...state.notifications
+        ];
+        const nextState = { ...state, notifications };
+        saveToLocal(nextState);
+        return { notifications };
+      });
+    },
+    clearNotifications: () => {
+      set((state) => {
+        const nextState = { ...state, notifications: [] };
+        saveToLocal(nextState);
+        return { notifications: [] };
+      });
+    },
+    markNotificationRead: (id) => {
+      set((state) => {
+        const notifications = state.notifications.map((n) =>
+          n.id === id ? { ...n, read: true } : n
+        );
+        const nextState = { ...state, notifications };
+        saveToLocal(nextState);
+        return { notifications };
+      });
+    },
+    setAiSummary: (summary) => {
+      set((state) => {
+        const nextState = { ...state, lastAiSummary: summary };
+        saveToLocal(nextState);
+        return { lastAiSummary: summary };
+      });
+    }
+  };
+});
