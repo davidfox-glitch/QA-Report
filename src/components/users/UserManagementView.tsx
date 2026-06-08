@@ -41,39 +41,45 @@ export const UserManagementView: React.FC = () => {
 
     setLoading(true);
     
-    // 1. Insert the record into Supabase
-    // Make sure 'team_members' table exists in your Supabase database
-    const { data, error } = await supabase
-      .from('team_members')
+    // Step 1: Insert invite record into Supabase whitelist table
+    const { error: insertError } = await supabase
+      .from('invited_users')
       .insert([{ 
-        name: newUserName, 
         email: newUserEmail, 
-        role: newUserRole, 
-        avatar: newUserAvatar 
-      }])
-      .select();
+        role: newUserRole
+      }]);
+
+    if (insertError) {
+      console.error('Error creating invite:', insertError.message);
+      alert('Failed to create invite: ' + insertError.message);
+      setLoading(false);
+      return;
+    }
+
+    // Step 2: Send the invitation email via our Edge Function (uses Resend securely)
+    try {
+      const { error: fnError } = await supabase.functions.invoke('send-invite-email', {
+        body: {
+          to: newUserEmail,
+          role: newUserRole,
+          invitedBy: newUserName ? undefined : 'An admin',
+        },
+      });
+      if (fnError) throw fnError;
+    } catch (emailErr: any) {
+      console.warn('Invite saved but email failed to send:', emailErr?.message);
+      // Non-fatal: the invite is in the DB, email just didn't go out
+    }
+
+    // Step 3: Add to local Zustand store so the UI updates immediately
+    addUser({
+      name: newUserName,
+      email: newUserEmail,
+      role: newUserRole,
+      avatar: newUserAvatar
+    });
 
     setLoading(false);
-
-    if (error) {
-      console.error("Error creating invite:", error.message);
-      // Fallback: still add to local store so UI works during development
-      addUser({
-        name: newUserName,
-        email: newUserEmail,
-        role: newUserRole,
-        avatar: newUserAvatar
-      });
-      alert("Failed to sync to Supabase (check your table), but added locally: " + error.message);
-    } else {
-      // 2. Add to local store and close
-      addUser({
-        name: newUserName,
-        email: newUserEmail,
-        role: newUserRole,
-        avatar: newUserAvatar
-      });
-    }
 
     // Reset form
     setNewUserName('');

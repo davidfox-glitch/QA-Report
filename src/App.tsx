@@ -7,7 +7,9 @@ import { Filters } from './components/dashboard/Filters';
 import { BulkActions } from './components/dashboard/BulkActions';
 import { PrintReportView } from './components/dashboard/PrintReportView';
 
-// Views
+import { LoginView } from './components/auth/LoginView';
+import { supabase } from './lib/supabase';
+import { Session } from '@supabase/supabase-js';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { TableView } from './components/table/TableView';
 import { KanbanView } from './components/kanban/KanbanView';
@@ -43,7 +45,8 @@ import {
   Bell,
   Check,
   CheckSquare,
-  AlertCircle
+  AlertCircle,
+  LogOut
 } from 'lucide-react';
 
 export default function App() {
@@ -139,8 +142,24 @@ export default function App() {
     return true;
   });
 
-  // Mock Supabase User Role (Change this to 'User' to test protection!)
-  const currentUserRole = 'Admin'; // Read this from Supabase session metadata in production
+  const [session, setSession] = useState<Session | null>(null);
+  const [currentUserRole, setCurrentUserRole] = useState<'Admin' | 'User'>('User');
+  const [authInitialized, setAuthInitialized] = useState(false);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
+      setAuthInitialized(true);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Role-Based Route Protection Logic
   React.useEffect(() => {
@@ -151,6 +170,14 @@ export default function App() {
   }, [currentView, currentUserRole, setCurrentView]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  if (!authInitialized) {
+    return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>;
+  }
+
+  if (!session) {
+    return <LoginView />;
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
@@ -351,9 +378,22 @@ export default function App() {
               Generate Report
             </button>
 
+            <button
+              onClick={async () => {
+                await supabase.auth.signOut();
+              }}
+              className="flex items-center justify-center p-2 text-rose-500 hover:text-rose-600 bg-rose-50/50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/40 border border-rose-100 dark:border-rose-900/50 rounded-xl transition-all"
+              title="Sign Out"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+
             {/* Add Entry */}
             <button
-              onClick={() => setIsAddRowOpen(true)}
+              onClick={() => {
+                setEditingRowId(null);
+                setIsAddRowOpen(true);
+              }}
               className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all"
             >
               <Plus className="h-3.5 w-3.5" />
