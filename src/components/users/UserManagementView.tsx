@@ -41,13 +41,30 @@ export const UserManagementView: React.FC = () => {
 
     setLoading(true);
     
-    // Step 1: Insert invite record into Supabase whitelist table
-    const { error: insertError } = await supabase
+    // Step 1: Insert invite record into Supabase whitelist table (ignore duplicates)
+    const { data: insertedRows, error: insertError } = await supabase
       .from('invited_users')
-      .insert([{ 
-        email: newUserEmail, 
-        role: newUserRole
-      }]);
+      .insert([
+        {
+          email: newUserEmail,
+          role: newUserRole,
+        },
+      ], { onConflict: 'email', ignoreDuplicates: true });
+
+    if (insertError) {
+      console.error('Error creating invite:', insertError.message);
+      alert('Failed to create invite: ' + insertError.message);
+      setLoading(false);
+      return;
+    }
+
+    // If the email already existed, Supabase returns an empty array in `data`
+    const isNewInvite = insertedRows && insertedRows.length > 0;
+    if (!isNewInvite) {
+      alert('This email has already been invited.');
+      setLoading(false);
+      return;
+    }
 
     if (insertError) {
       console.error('Error creating invite:', insertError.message);
@@ -78,6 +95,18 @@ export const UserManagementView: React.FC = () => {
       role: newUserRole,
       avatar: newUserAvatar
     });
+
+    // Notify the inviter (current logged‑in user) that an invitation was sent
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user?.id) {
+      await supabase.from('notifications').insert([
+        {
+          user_id: user.id,
+          title: `Invitation sent to ${newUserEmail}`,
+          body: `${newUserName} invited ${newUserEmail} as ${newUserRole}.`,
+        },
+      ]);
+    }
 
     setLoading(false);
 
