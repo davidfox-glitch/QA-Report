@@ -139,6 +139,17 @@ export default function App() {
     return true;
   });
 
+  // Mock Supabase User Role (Change this to 'User' to test protection!)
+  const currentUserRole = 'Admin'; // Read this from Supabase session metadata in production
+
+  // Role-Based Route Protection Logic
+  React.useEffect(() => {
+    // If a standard User tries to access protected views, redirect to dashboard
+    if (currentUserRole !== 'Admin' && (currentView === 'timeline' || currentView === 'users')) {
+      setCurrentView('dashboard');
+    }
+  }, [currentView, currentUserRole, setCurrentView]);
+
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
@@ -218,28 +229,33 @@ export default function App() {
               <BarChart3 className="h-3.5 w-3.5" />
               <span>Analytics</span>
             </button>
-            <button
-              onClick={() => setCurrentView('timeline')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                currentView === 'timeline'
-                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-              }`}
-            >
-              <CalendarRange className="h-3.5 w-3.5" />
-              <span>Timeline</span>
-            </button>
-            <button
-              onClick={() => setCurrentView('users')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
-                currentView === 'users'
-                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-              }`}
-            >
-              <Users className="h-3.5 w-3.5" />
-              <span>Team</span>
-            </button>
+            {/* Admin-Only Navigation Links */}
+            {currentUserRole === 'Admin' && (
+              <>
+                <button
+                  onClick={() => setCurrentView('timeline')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    currentView === 'timeline'
+                      ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                  }`}
+                >
+                  <CalendarRange className="h-3.5 w-3.5" />
+                  <span>Timeline</span>
+                </button>
+                <button
+                  onClick={() => setCurrentView('users')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    currentView === 'users'
+                      ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                  }`}
+                >
+                  <Users className="h-3.5 w-3.5" />
+                  <span>Team</span>
+                </button>
+              </>
+            )}
           </nav>
 
           {/* Action Buttons Toolbar */}
