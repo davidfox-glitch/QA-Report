@@ -257,9 +257,10 @@ export default function App() {
       
       {/* Top Banner Header */}
       <header className="border-b border-slate-200/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/60 backdrop-blur sticky top-0 z-30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between flex-wrap gap-4">
+        <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4 overflow-x-auto no-scrollbar">
           
-          {/* Brand Logo & Name */}
+          {/* Brand Logo & Name (Left) */}
+          <div className="flex-1 flex justify-start min-w-fit">
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentView('dashboard')}>
             {settings.clientLogo ? (
               <img src={settings.clientLogo} alt="Client Logo" className="h-9 w-9 rounded-xl object-contain border border-slate-200 dark:border-slate-800" />
@@ -282,9 +283,11 @@ export default function App() {
               </p>
             </div>
           </div>
+          </div>
 
-          {/* Core View Switcher tabs */}
-          <nav className="flex items-center space-x-1 bg-slate-150/80 dark:bg-slate-900/80 border border-slate-200/40 dark:border-slate-850 p-0.5 rounded-xl">
+          {/* Core View Switcher tabs (Center) */}
+          <div className="flex-none flex justify-center">
+            <nav className="flex items-center space-x-1 bg-slate-150/80 dark:bg-slate-900/80 border border-slate-200/40 dark:border-slate-850 p-0.5 rounded-xl">
             <button
               onClick={() => setCurrentView('dashboard')}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
@@ -356,10 +359,11 @@ export default function App() {
                 </button>
               </>
             )}
-          </nav>
+            </nav>
+          </div>
 
-          {/* Action Buttons Toolbar */}
-          <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Action Buttons Toolbar (Right) */}
+          <div className="flex-1 flex items-center justify-end gap-2.5 min-w-fit">
             {/* Notifications Button */}
             <div className="relative">
               <button
