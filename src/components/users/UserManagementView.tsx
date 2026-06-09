@@ -301,15 +301,10 @@ export const UserManagementView: React.FC = () => {
         </div>
 
       </div>
-    </div>
+      </div>
 
     {/* Add User modal dialog */}
-      <Dialog
-        isOpen={isAddUserOpen}
-        onClose={() => setIsAddUserOpen(false)}
-        title="Invite New Team Member"
-        size="sm"
-      >
+      <Dialog isOpen={isAddUserOpen} onClose={() => setIsAddUserOpen(false)} title="Invite New Team Member" size="sm">
         <form onSubmit={handleCreateUser} className="space-y-4">
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Name</label>
