@@ -1,7 +1,7 @@
 // src/api/push/notify.ts
 import { supabase } from '../../lib/supabase';
 import webpush from 'web-push';
-import type { NextApiRequest, NextApiResponse } from 'next'; // If using Next.js, otherwise adjust
+import type { VercelRequest, VercelResponse } from '@vercel/node'; // If using Next.js, otherwise adjust
 
 // Load VAPID keys from environment (they are in .env.local)
 const vapidPublicKey = process.env.VAPID_PUBLIC_KEY as string;
@@ -17,7 +17,7 @@ webpush.setVapidDetails(
  * Expected request body:
  * { userId: string, title: string, body: string, url?: string }
  */
-export default async function handler(req: any, res: any) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method Not Allowed' });
     return;
@@ -44,7 +44,7 @@ export default async function handler(req: any, res: any) {
   const payload = JSON.stringify({ title, body, url });
 
   const sendPromises = (subs ?? []).map(async (row) => {
-    const subscription = row.subscription as PushSubscription;
+    const subscription = row.subscription as any;
     try {
       await webpush.sendNotification(subscription, payload);
     } catch (e) {

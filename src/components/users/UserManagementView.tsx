@@ -45,12 +45,13 @@ export const UserManagementView: React.FC = () => {
     // Step 1: Insert invite record into Supabase whitelist table (ignore duplicates)
     const { data: insertedRows, error: insertError } = await supabase
       .from('invited_users')
-      .insert([
+      .upsert([
         {
           email: newUserEmail,
           role: newUserRole,
         },
-      ], { onConflict: 'email', ignoreDuplicates: true });
+      ], { onConflict: 'email', ignoreDuplicates: true })
+      .select();
 
     if (insertError) {
       console.error('Error creating invite:', insertError.message);
@@ -59,7 +60,7 @@ export const UserManagementView: React.FC = () => {
       return;
     }
 
-    // If the email already existed, Supabase returns an empty array in `data`
+    // If the email already existed, Supabase returns an empty array in `data` (with ignoreDuplicates: true)
     const isNewInvite = insertedRows && insertedRows.length > 0;
     if (!isNewInvite) {
       toast.error('This email has already been invited.');
@@ -146,7 +147,7 @@ export const UserManagementView: React.FC = () => {
   };
 
   return (
-    <>
+    <React.Fragment>
       <Toaster position="top-right" />
       <div className="space-y-6">
       {/* Header section */}
@@ -300,8 +301,9 @@ export const UserManagementView: React.FC = () => {
         </div>
 
       </div>
+    </div>
 
-      {/* Add User modal dialog */}
+    {/* Add User modal dialog */}
       <Dialog
         isOpen={isAddUserOpen}
         onClose={() => setIsAddUserOpen(false)}
@@ -385,6 +387,6 @@ export const UserManagementView: React.FC = () => {
         </form>
       
     </Dialog>
-    </div>
+    </React.Fragment>
   );
 };

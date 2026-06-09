@@ -1,8 +1,8 @@
 // src/api/push/subscribe.ts
 import { supabase } from '../../lib/supabase';
-import type { NextApiRequest, NextApiResponse } from 'next'; // adjust if not Next.js
+import type { VercelRequest, VercelResponse } from '@vercel/node'; // adjust if not Next.js
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method Not Allowed' });
     return;

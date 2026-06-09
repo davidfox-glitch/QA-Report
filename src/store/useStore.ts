@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export type FunctionalityStatus = 'Working' | 'Partially Working' | 'Not Working' | 'Pending';
 export type TestingStatus = 'Passed' | 'Failed' | 'Pending' | 'In Progress';
