@@ -13,7 +13,7 @@ export const LoginView: React.FC = () => {
         // but keep local development working automatically
         redirectTo: import.meta.env.DEV 
           ? 'http://localhost:5173/' 
-          : 'https://qa-report-seven.vercel.app/', 
+          : import.meta.env.VITE_APP_URL || 'https://qa-report-seven.vercel.app/', 
       },
     });
     

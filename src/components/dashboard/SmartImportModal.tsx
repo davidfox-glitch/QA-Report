@@ -18,8 +18,8 @@ interface SmartImportModalProps {
 }
 
 export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) => {
-  const { importRows } = useStore();
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const { importRows, users } = useStore();
+  const [step, setStep] = useState<1 | 2 | 3 | 4 | 5 | 6>(1);
   const [file, setFile] = useState<File | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -92,7 +92,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
       const ext = droppedFile.name.split('.').pop()?.toLowerCase();
       if (['xlsx', 'xls', 'csv'].includes(ext || '')) {
         setFile(droppedFile);
-        setStep(3);
+        setStep(5);
         validateUploadedFile(droppedFile);
       } else {
         alert('Please upload a valid .xlsx, .xls, or .csv spreadsheet file.');
@@ -104,7 +104,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
       setFile(selectedFile);
-      setStep(3);
+      setStep(5);
       validateUploadedFile(selectedFile);
     }
   };
@@ -112,57 +112,74 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
   const validateUploadedFile = async (targetFile: File) => {
     setIsValidating(true);
     setValidationErrors([]);
-    try {
-      const result = await parseSpreadsheet(targetFile);
-      // Validate structure - check if at least testPoint or moduleName is mapped
-      // Or search XLSX sheet headers directly
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        try {
-          const data = e.target?.result;
-          import('xlsx').then((XLSX) => {
-            const workbook = XLSX.read(data, { type: 'binary' });
-            const sheet = workbook.Sheets[workbook.SheetNames[0]];
-            const json: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
-            const headers = json[0] ? json[0].map(h => String(h).toLowerCase().replace(/[^a-z0-9]/g, '')) : [];
-            
-            const requiredSynonyms = {
-              'Test Point': ['testpoint', 'testcase', 'point', 'description', 'title', 'test'],
-              'Module Name': ['modulename', 'module', 'feature', 'page', 'pagename', 'section']
-            };
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      try {
+        const data = e.target?.result;
+        const XLSX = await import('xlsx');
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rawJson: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        
+        // Remove empty rows
+        const cleanedJson = rawJson.filter(row => row && row.length > 0 && row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== ''));
 
-            const missing: string[] = [];
-            for (const [key, synonyms] of Object.entries(requiredSynonyms)) {
-              const hasMatch = headers.some(header => synonyms.includes(header));
-              if (!hasMatch) {
-                missing.push(key);
-              }
-            }
+        // Call AI backend
+        const response = await fetch('/api/parse-sheet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            rawJson: cleanedJson.slice(0, 50), // Limit to 50 rows for token limits
+            availableUsers: users.map(u => u.name)
+          })
+        });
 
-            if (missing.length > 0) {
-              setValidationErrors(missing.map(m => `Missing required column mapping for: "${m}"`));
-            }
-
-            setParsedData(result);
-            setIsValidating(false);
-          });
-        } catch (err) {
-          setValidationErrors(['Could not read sheet headers. Verify the file format.']);
-          setIsValidating(false);
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.error || 'AI parsing failed');
         }
-      };
-      reader.readAsBinaryString(targetFile);
 
-    } catch (err: any) {
-      setValidationErrors([`Parsing failed: ${err.message || err}`]);
+        const result = await response.json();
+        
+        // Ensure each row gets a unique ID and matches structure
+        const finalRows = (result.testPoints || []).map((tp: any, index: number) => ({
+          id: `row-${Date.now()}-${index}`,
+          testPoint: tp.testPoint || 'Unnamed Test Point',
+          moduleName: tp.moduleName || 'General Module',
+          url: tp.url || '',
+          howToTest: tp.howToTest || '',
+          expectedResult: tp.expectedResult || '',
+          actualResult: tp.actualResult || '',
+          functionalityStatus: tp.functionalityStatus || 'Pending',
+          testingStatus: tp.testingStatus || 'Pending',
+          priority: tp.priority || 'Medium',
+          assignedUser: tp.assignedUser || null,
+          notes: [],
+          attachments: [],
+          customFields: {},
+          lastUpdated: new Date().toISOString().replace('T', ' ').substring(0, 16)
+        }));
+
+        setParsedData({ rows: finalRows, customFields: [] });
+        setIsValidating(false);
+
+      } catch (err: any) {
+        setValidationErrors([`AI Parsing failed: ${err.message || err}`]);
+        setIsValidating(false);
+      }
+    };
+    reader.onerror = () => {
+      setValidationErrors(['File read error']);
       setIsValidating(false);
-    }
+    };
+    reader.readAsBinaryString(targetFile);
   };
 
   const executeImport = () => {
     if (parsedData) {
       importRows(parsedData.rows, parsedData.customFields);
-      setStep(4);
+      setStep(6);
     }
   };
 
@@ -171,9 +188,9 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
       {/* Step Progress Bar */}
       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4">
         <div className="flex items-center space-x-2">
-          {[1, 2, 3, 4].map((num) => (
+          {[1, 2, 3, 4, 5, 6].map((num) => (
             <React.Fragment key={num}>
-              <div className={`h-7 w-7 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
+              <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all shrink-0 ${
                 step === num 
                   ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20 scale-110' 
                   : step > num 
@@ -182,19 +199,21 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
               }`}>
                 {num}
               </div>
-              {num < 4 && (
-                <div className={`h-[2px] w-8 rounded transition-all ${
+              {num < 6 && (
+                <div className={`h-[2px] w-4 sm:w-6 rounded transition-all shrink-0 ${
                   step > num ? 'bg-emerald-500/30' : 'bg-slate-200 dark:bg-slate-800'
                 }`} />
               )}
             </React.Fragment>
           ))}
         </div>
-        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider hidden sm:block">
           {step === 1 && 'Sample Sheet'}
-          {step === 2 && 'Upload'}
-          {step === 3 && 'Validation'}
-          {step === 4 && 'Complete'}
+          {step === 2 && 'AI Prompt'}
+          {step === 3 && 'Prepare'}
+          {step === 4 && 'Upload'}
+          {step === 5 && 'Validation'}
+          {step === 6 && 'Complete'}
         </span>
       </div>
 
@@ -253,8 +272,62 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
         </div>
       )}
 
-      {/* Step 2: Upload Completed Sheet */}
+      {/* Step 2: AI Prompt */}
       {step === 2 && (
+        <div className="space-y-4">
+          <div className="p-4 border border-indigo-100 dark:border-indigo-950/40 bg-indigo-50/20 dark:bg-indigo-950/10 rounded-2xl space-y-2">
+            <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400">Step 2: AI Prompt Generator</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Use this prompt in ChatGPT or Gemini to automatically generate a correctly formatted test case table.
+            </p>
+          </div>
+          <div className="p-4 bg-slate-900 rounded-2xl relative group">
+            <button 
+              onClick={() => {
+                navigator.clipboard.writeText(`I am building a QA tracking system. I need to write test cases. Please generate test cases in a tabular format with the following exact columns: 'Module Name', 'Page URL', 'Test Point', 'How To Test', 'Expected Result', 'Actual Result', 'Functionality Status', 'Testing Status', 'Notes'.`);
+                alert('Prompt copied!');
+              }}
+              className="absolute top-3 right-3 text-[10px] font-bold px-2 py-1 bg-white/10 hover:bg-white/20 text-white rounded transition-colors"
+            >
+              Copy Prompt
+            </button>
+            <p className="text-xs text-emerald-400 font-mono leading-relaxed pr-16">
+              "I am building a QA tracking system. I need to write test cases. Please generate test cases in a tabular format with the following exact columns: 'Module Name', 'Page URL', 'Test Point', 'How To Test', 'Expected Result', 'Actual Result', 'Functionality Status', 'Testing Status', 'Notes'."
+            </p>
+          </div>
+          <div className="flex justify-between pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
+            <button onClick={() => setStep(1)} className="flex items-center gap-1 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-xl transition-all">
+              <ArrowLeft className="h-3.5 w-3.5" /> Back
+            </button>
+            <button onClick={() => setStep(3)} className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all">
+              Next Step <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 3: Prepare Data */}
+      {step === 3 && (
+        <div className="space-y-4">
+          <div className="p-4 border border-indigo-100 dark:border-indigo-950/40 bg-indigo-50/20 dark:bg-indigo-950/10 rounded-2xl space-y-2">
+            <h4 className="text-sm font-bold text-indigo-600 dark:text-indigo-400">Step 3: Prepare Your Spreadsheet</h4>
+            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+              Once AI generates the table, copy it and paste it into Excel or Google Sheets. Save the file as a .xlsx or .csv file.
+            </p>
+          </div>
+          <div className="flex justify-between pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
+            <button onClick={() => setStep(2)} className="flex items-center gap-1 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-xl transition-all">
+              <ArrowLeft className="h-3.5 w-3.5" /> Back
+            </button>
+            <button onClick={() => setStep(4)} className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all">
+              Ready to Upload <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Step 4: Upload Completed Sheet */}
+      {step === 4 && (
         <div className="space-y-4">
           <div
             onDragOver={handleDragOver}
@@ -281,7 +354,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
 
           <div className="flex justify-between pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
             <button
-              onClick={() => setStep(1)}
+              onClick={() => setStep(3)}
               className="flex items-center gap-1 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-xl transition-all"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Back
@@ -290,8 +363,8 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
         </div>
       )}
 
-      {/* Step 3: Validate Sheet Structure */}
-      {step === 3 && (
+      {/* Step 5: Validate Sheet Structure */}
+      {step === 5 && (
         <div className="space-y-4">
           <div className="p-4 bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-2xl flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -304,7 +377,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
               </div>
             </div>
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(4)}
               className="text-[10px] font-bold text-indigo-500 hover:text-indigo-600"
             >
               Change File
@@ -347,7 +420,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
 
           <div className="flex justify-between pt-4 border-t border-slate-200/50 dark:border-slate-800/50">
             <button
-              onClick={() => setStep(2)}
+              onClick={() => setStep(4)}
               className="flex items-center gap-1 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-850 rounded-xl transition-all"
             >
               <ArrowLeft className="h-3.5 w-3.5" /> Back
@@ -364,8 +437,8 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
         </div>
       )}
 
-      {/* Step 4: Import Complete */}
-      {step === 4 && (
+      {/* Step 6: Import Complete */}
+      {step === 6 && (
         <div className="space-y-6 py-4 flex flex-col items-center text-center">
           <div className="h-16 w-16 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-500 flex items-center justify-center rounded-full shadow-lg shadow-emerald-500/15">
             <CheckCircle2 className="h-10 w-10" />

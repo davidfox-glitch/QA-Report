@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js';
 
 // Get VAPID keys from environment variables
-const VAPID_PUBLIC_KEY = process.env.VAPID_PUBLIC_KEY as string;
-const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY as string;
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string;
+const VAPID_PRIVATE_KEY = import.meta.env.VITE_VAPID_PRIVATE_KEY as string;
 
 export const supabase = createClient(
   'https://qwvxpfisvcnutnbosdqz.supabase.co',

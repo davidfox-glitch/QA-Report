@@ -202,9 +202,13 @@ export default function App() {
     if (!isCheckingInvite && session && session.user?.email) {
       const userEmail = session.user.email;
       if (!invitedEmails.includes(userEmail)) {
-        // Sign them out and show the blocked UI
-        supabase.auth.signOut();
         setIsBlocked(true);
+        // Sign them out and show the blocked UI for 5 seconds before kicking to login
+        supabase.auth.signOut().then(() => {
+          setTimeout(() => {
+            setIsBlocked(false);
+          }, 5000);
+        });
       }
     }
   }, [session, invitedEmails, isCheckingInvite]);
@@ -217,6 +221,10 @@ export default function App() {
   }, [currentView, currentUserRole, setCurrentView]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
+
+  if (window.location.pathname === '/login' && !session) {
+    return <LoginView />;
+  }
 
   if (!authInitialized) {
     return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>;
@@ -583,8 +591,8 @@ export default function App() {
       <Dialog
         isOpen={!!notesRowId}
         onClose={() => setNotesRowId(null)}
-        title="QA Notes Timeline"
-        size="md"
+        title="QA Notes Timeline & AI Assistant"
+        size="2xl"
       >
         {notesRowId && (
           <NotesSidebar

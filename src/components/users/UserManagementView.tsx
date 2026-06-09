@@ -131,8 +131,22 @@ export const UserManagementView: React.FC = () => {
     setIsAddUserOpen(false);
   };
 
-  const handleDelete = (id: string, name: string) => {
+  const handleDelete = async (id: string, name: string) => {
     if (confirm(`Are you sure you want to remove user "${name}"? all assigned test points will be updated to unassigned.`)) {
+      try {
+        // Delete from Supabase first
+        const { error } = await supabase.from('users').delete().eq('id', id);
+        if (error) {
+          console.error('Supabase user delete error:', error.message);
+          toast.error('Failed to delete user from server');
+          return;
+        }
+      } catch (err) {
+        console.error('Unexpected error deleting user:', err);
+        toast.error('Unexpected error while deleting user');
+        return;
+      }
+      // Then update local store
       deleteUser(id);
       // Clean up assigned rows
       rows.forEach(row => {

@@ -636,32 +636,46 @@ export const useStore = create<DashboardState>((set, get) => {
         return { users };
       });
     },
-    deleteUser: (id) => {
+    deleteUser: async (id) => {
+      const state = get();
+      const removedUser = state.users.find((u) => u.id === id);
+      
+      if (removedUser && removedUser.email) {
+        // Remove from database
+        try {
+          await supabase.from('invited_users').delete().eq('email', removedUser.email);
+        } catch (err) {
+          console.error("Failed to delete from database", err);
+        }
+      }
+
       set((state) => {
-        // Remove the user
         const users = state.users.filter((u) => u.id !== id);
-        // Find the removed user to match assigned rows
-        const removedUser = state.users.find((u) => u.id === id);
         const userName = removedUser?.name;
-        // Remove rows assigned to this user
         const rows = userName ? state.rows.filter((r) => r.assignedUser !== userName) : state.rows;
-        // Remove notifications that reference this user
         const notifications = state.notifications.filter((n) => !userName || !n.message.includes(userName));
         const nextState = { ...state, users, rows, notifications };
         saveToLocal(nextState);
         return { users, rows, notifications };
       });
     },
-    deleteUserCascade: (id) => {
+    deleteUserCascade: async (id) => {
+      const state = get();
+      const removedUser = state.users.find((u) => u.id === id);
+      
+      if (removedUser && removedUser.email) {
+        // Remove from database
+        try {
+          await supabase.from('invited_users').delete().eq('email', removedUser.email);
+        } catch (err) {
+          console.error("Failed to delete from database", err);
+        }
+      }
+
       set((state) => {
-        // Remove the user
         const users = state.users.filter((u) => u.id !== id);
-        // Find the removed user to match assigned rows
-        const removedUser = state.users.find((u) => u.id === id);
         const userName = removedUser?.name;
-        // Remove rows assigned to this user
         const rows = userName ? state.rows.filter((r) => r.assignedUser !== userName) : state.rows;
-        // Optionally remove notifications that mention this user (simple keyword filter)
         const notifications = state.notifications.filter((n) => !userName || !n.message.includes(userName));
         const nextState = { ...state, users, rows, notifications };
         saveToLocal(nextState);
