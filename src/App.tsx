@@ -164,8 +164,8 @@ export default function App() {
   const [currentUserRole, setCurrentUserRole] = useState<'Admin' | 'User'>('User');
   const [authInitialized, setAuthInitialized] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
-  // List of emails that are allowed to use the app (invited users)
-  const invitedEmails = ['dawoodhashmi2006@gmail.com'];
+  const [invitedEmails, setInvitedEmails] = useState<string[]>(['dawoodhashmi2006@gmail.com']);
+  const [isCheckingInvite, setIsCheckingInvite] = useState(true);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -182,14 +182,32 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Fetch invited emails dynamically
+  useEffect(() => {
+    const fetchInvites = async () => {
+      const { data, error } = await supabase.from('invited_users').select('email');
+      if (data && !error) {
+        setInvitedEmails(prev => {
+          const emails = data.map(row => row.email);
+          return Array.from(new Set([...prev, ...emails]));
+        });
+      }
+      setIsCheckingInvite(false);
+    };
+    fetchInvites();
+  }, []);
+
   // Block users who are not on the invited list
   useEffect(() => {
-    if (session && !invitedEmails.includes(session.user?.email ?? '')) {
-      // Sign them out and show the blocked UI
-      supabase.auth.signOut();
-      setIsBlocked(true);
+    if (!isCheckingInvite && session && session.user?.email) {
+      const userEmail = session.user.email;
+      if (!invitedEmails.includes(userEmail)) {
+        // Sign them out and show the blocked UI
+        supabase.auth.signOut();
+        setIsBlocked(true);
+      }
     }
-  }, [session]);
+  }, [session, invitedEmails, isCheckingInvite]);
   // Role-Based Route Protection Logic
   React.useEffect(() => {
     // If a standard User tries to access protected views, redirect to dashboard

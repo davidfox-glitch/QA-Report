@@ -67,22 +67,39 @@ export const UserManagementView: React.FC = () => {
       return;
     }
 
-    // Step 2: Send the invitation email via our Edge Function (uses Resend securely)
+    // Step 2: Send the invitation email via EmailJS (Frontend)
     try {
-      const { error: fnError } = await supabase.functions.invoke('send-invite-email', {
-        body: {
-          to: newUserEmail,
-          role: newUserRole,
-          invitedBy: newUserName ? undefined : 'An admin',
-        },
-      });
-      if (fnError) throw fnError;
-      // Email sent successfully
-      toast.success(`Invitation email sent to ${newUserEmail}`);
+      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+      if (serviceId && templateId && publicKey) {
+        const emailResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            service_id: serviceId,
+            template_id: templateId,
+            user_id: publicKey,
+            template_params: {
+              to_email: newUserEmail,
+              to_name: newUserName || 'User',
+              role: newUserRole,
+              app_url: window.location.origin,
+            }
+          })
+        });
+
+        if (!emailResponse.ok) {
+          throw new Error('EmailJS returned ' + emailResponse.statusText);
+        }
+        toast.success(`Invitation email sent to ${newUserEmail}`);
+      } else {
+        toast.success(`User added to database! (To send emails, add EmailJS keys in .env)`);
+      }
     } catch (emailErr: any) {
       console.warn('Invite saved but email failed to send:', emailErr?.message);
-      toast.error(`Failed to send invitation to ${newUserEmail}: ${emailErr?.message}`);
-      // Non-fatal: the invite is in the DB, email just didn't go out
+      toast.error(`Failed to send invitation via EmailJS: ${emailErr?.message}`);
     }
 
     // Step 3: Add to local Zustand store so the UI updates immediately
