@@ -263,11 +263,9 @@ export default function App() {
           <div className="flex-1 flex justify-start min-w-fit">
           <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentView('dashboard')}>
             {settings.clientLogo ? (
-              <img src={settings.clientLogo} alt="Client Logo" className="h-9 w-9 rounded-xl object-contain border border-slate-200 dark:border-slate-800" />
+              <img src={settings.clientLogo} alt="Client Logo" className="h-9 w-9 rounded-xl object-cover border border-slate-200 dark:border-slate-800" />
             ) : (
-              <div className="h-9 w-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20 shrink-0">
-                <Briefcase className="h-4.5 w-4.5 text-white" />
-              </div>
+              <img src="/logo.jpeg" alt="QAFlow Pro" className="h-9 w-9 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-lg shadow-indigo-500/20" />
             )}
             <div>
               <div className="flex items-center space-x-2">
