@@ -120,27 +120,67 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
         const XLSX = await import('xlsx');
         const workbook = XLSX.read(data, { type: 'binary' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rawJson: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+        const rawJson: any[] = XLSX.utils.sheet_to_json(sheet);
         
-        // Remove empty rows
-        const cleanedJson = rawJson.filter(row => row && row.length > 0 && row.some(cell => cell !== null && cell !== undefined && String(cell).trim() !== ''));
+        if (!rawJson || rawJson.length === 0) {
+          throw new Error('Spreadsheet is empty.');
+        }
 
-        // Call AI backend
+        // 1. Map and clean headers
+        const cleanedRows = rawJson.map(row => {
+          const standardizedRow: any = {};
+          Object.keys(row).forEach(key => {
+            const standardKey = key.trim()
+              .replace(/PageUrl/i, 'Page URL')
+              .replace(/ModuleName/i, 'Module Name')
+              .replace(/TestPoint/i, 'Test Point')
+              .replace(/HowToTest/i, 'How To Test')
+              .replace(/ExpectedResult/i, 'Expected Result')
+              .replace(/ActualResult/i, 'Actual Result')
+              .replace(/FunctionalityStatus/i, 'Functionality Status')
+              .replace(/TestingStatus/i, 'Testing Status');
+            
+            standardizedRow[standardKey] = row[key];
+          });
+          return standardizedRow;
+        });
+
+        // 2. Define your strict list of mandatory columns
+        const mandatoryColumns = [
+          'Module Name', 'Page URL', 'Test Point', 'How To Test', 
+          'Expected Result', 'Actual Result', 'Functionality Status', 
+          'Testing Status'
+        ]; // Removing 'Notes' from mandatory because users might leave notes blank or omit it
+
+        // 3. Verify against the cleaned keys of the first row
+        const currentKeys = Object.keys(cleanedRows[0]);
+        const missingColumns = mandatoryColumns.filter(col => !currentKeys.includes(col));
+
+        if (missingColumns.length > 0) {
+          throw new Error(`Sheet validation failed. Missing columns: ${missingColumns.join(', ')}`);
+        }
+
+        // Call AI backend safely
         const response = await fetch('/api/parse-sheet', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            rawJson: cleanedJson.slice(0, 50), // Limit to 50 rows for token limits
+            rawJson: cleanedRows.slice(0, 50), // Limit to 50 rows for token limits
             availableUsers: users.map(u => u.name)
           })
         });
 
-        if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.error || 'AI parsing failed');
+        // Read raw text response first to protect against empty strings crashing the app
+        const rawText = await response.text();
+        if (!rawText) {
+          throw new Error("Server returned an empty response. Check server logs (missing GEMINI_API_KEY).");
         }
 
-        const result = await response.json();
+        const result = JSON.parse(rawText);
+
+        if (!response.ok) {
+          throw new Error(result.error || 'AI parsing failed');
+        }
         
         // Ensure each row gets a unique ID and matches structure
         const finalRows = (result.testPoints || []).map((tp: any, index: number) => ({
