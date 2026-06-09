@@ -1,6 +1,6 @@
 import React from 'react';
-import { supabase } from '@/lib/supabase';
-import { Google } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { LogIn } from 'lucide-react';
 
 export default function LoginPage() {
   const handleGoogleSignIn = async () => {
@@ -21,7 +21,7 @@ export default function LoginPage() {
           onClick={handleGoogleSignIn}
           className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-transform transform hover:scale-105"
         >
-          <Google className="h-5 w-5" />
+          <LogIn className="h-5 w-5" />
           Sign in with Google
         </button>
         <p className="mt-6 text-sm text-slate-400 text-center">

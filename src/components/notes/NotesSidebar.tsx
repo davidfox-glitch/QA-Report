@@ -74,7 +74,7 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          prompt: \`Context: Module "\${row.moduleName}", Expected Result: "\${row.expectedResult}". \n\nUser Question: \${userMessage}\`,
+          prompt: `Context: Module "${row.moduleName}", Expected Result: "${row.expectedResult}". \n\nUser Question: ${userMessage}`,
           imageBase64: userImg 
         })
       });
@@ -83,7 +83,7 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
 
       setAiResponses(prev => [...prev, { role: 'ai', text: data.text }]);
     } catch (err: any) {
-      setAiResponses(prev => [...prev, { role: 'ai', text: \`Error: \${err.message}\` }]);
+      setAiResponses(prev => [...prev, { role: 'ai', text: `Error: ${err.message}` }]);
     } finally {
       setAiLoading(false);
     }
@@ -208,12 +208,12 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
             </div>
           ) : (
             aiResponses.map((msg, i) => (
-              <div key={i} className={\`flex \${msg.role === 'user' ? 'justify-end' : 'justify-start'}\`}>
-                <div className={\`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed \${
+              <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                <div className={`max-w-[85%] rounded-2xl p-3 text-xs leading-relaxed ${
                   msg.role === 'user' 
                     ? 'bg-indigo-600 text-white rounded-br-none' 
                     : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none shadow-sm'
-                }\`}>
+                }`}>
                   {msg.img && (
                     <img src={msg.img} alt="Uploaded screenshot" className="w-full max-h-48 object-contain rounded-lg mb-2 border border-white/20" />
                   )}
