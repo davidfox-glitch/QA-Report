@@ -45,13 +45,13 @@ serve(async (req) => {
       password: GMAIL_APP_PASSWORD,
     });
 
-    const appUrl = Deno.env.get('APP_URL') || 'https://qa-report-seven.vercel.app';
+    const appUrl = Deno.env.get('APP_URL') || 'https://qaflow.teamofgenus.com';
     const inviterText = invitedBy ? `${invitedBy} has invited you` : 'You have been invited';
 
     const htmlContent = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto; background: #0B0D19; color: #E2E8F0; border-radius: 16px; overflow: hidden; border: 1px solid #1E2130;">
         <div style="background: linear-gradient(135deg, #4F46E5 0%, #6D28D9 100%); padding: 32px; text-align: center;">
-          <div style="width: 56px; height: 56px; background: rgba(255,255,255,0.15); border-radius: 14px; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; color: white; margin-bottom: 16px;">QF</div>
+          <img src="https://qaflow.teamofgenus.com/assets/logo.png" alt="Your QAFlow Logo" style="width:56px;height:56px;margin-bottom:16px;" />
           <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: white;">You're Invited!</h1>
           <p style="margin: 8px 0 0; color: rgba(255,255,255,0.7); font-size: 14px;">QAFlow Pro — Enterprise Testing Platform</p>
         </div>
@@ -76,7 +76,7 @@ serve(async (req) => {
     `;
 
     await client.send({
-      from: GMAIL_EMAIL,
+      from: "dawoodhashmi2006@gmail.com",
       to: to,
       subject: "You've been invited to QAFlow Pro",
       content: "auto",
