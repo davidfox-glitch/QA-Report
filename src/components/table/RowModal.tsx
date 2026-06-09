@@ -74,6 +74,12 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
       updateRow(rowId, rowData);
     } else {
       addRow(rowData);
+      // Push notification to assigned user if any
+      if (data.assignedUser) {
+        import('../../services/notifications').then(({ sendPush }) => {
+          sendPush(data.assignedUser, 'New Test Point Assigned', `A new test point "${data.testPoint}" has been assigned to you.`);
+        });
+      }
     }
     onClose();
   };

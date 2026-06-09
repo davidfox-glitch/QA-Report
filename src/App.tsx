@@ -103,6 +103,24 @@ export default function App() {
     }
   }, [darkMode]);
 
+  // Register Service Worker for push notifications
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('Service Worker registered', reg))
+        .catch(err => console.error('Service Worker registration failed', err));
+    }
+  }, []);
+
+  // Request Notification permission on app start
+  useEffect(() => {
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        console.log('Notification permission', permission);
+      });
+    }
+  }, []);
+
   // Filter logic
   const filteredRows = rows.filter((row) => {
     // 1. Global Search query
@@ -145,6 +163,9 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [currentUserRole, setCurrentUserRole] = useState<'Admin' | 'User'>('User');
   const [authInitialized, setAuthInitialized] = useState(false);
+  const [isBlocked, setIsBlocked] = useState(false);
+  // List of emails that are allowed to use the app (invited users)
+  const invitedEmails = ['dawoodhashmi2006@gmail.com'];
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -161,6 +182,14 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Block users who are not on the invited list
+  useEffect(() => {
+    if (session && !invitedEmails.includes(session.user?.email ?? '')) {
+      // Sign them out and show the blocked UI
+      supabase.auth.signOut();
+      setIsBlocked(true);
+    }
+  }, [session]);
   // Role-Based Route Protection Logic
   React.useEffect(() => {
     // If a standard User tries to access protected views, redirect to dashboard
@@ -173,6 +202,24 @@ export default function App() {
 
   if (!authInitialized) {
     return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>;
+  }
+
+  // If the user is logged in but not invited, show a blocked page
+  if (isBlocked) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-center p-8">
+        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4">You’re not invited</h1>
+        <p className="text-slate-600 dark:text-slate-400 mb-6">
+          This site is invitation‑only. Please contact the admin (<a href="mailto:dawoodhashmi2006@gmail.com" className="text-indigo-600 hover:underline">dawoodhashmi2006@gmail.com</a>) for access.
+        </p>
+        <button
+          onClick={() => supabase.auth.signOut()}
+          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
+        >
+          Sign Out
+        </button>
+      </div>
+    );
   }
 
   if (!session) {

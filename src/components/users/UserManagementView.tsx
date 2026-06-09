@@ -13,6 +13,7 @@ import {
   UserCheck,
   AlertCircle
 } from 'lucide-react';
+import toast, { Toaster } from 'react-hot-toast';
 import { Badge } from '../ui/Badge';
 import { Dialog } from '../ui/Dialog';
 
@@ -53,7 +54,7 @@ export const UserManagementView: React.FC = () => {
 
     if (insertError) {
       console.error('Error creating invite:', insertError.message);
-      alert('Failed to create invite: ' + insertError.message);
+      toast.error('Failed to create invite: ' + insertError.message);
       setLoading(false);
       return;
     }
@@ -61,14 +62,7 @@ export const UserManagementView: React.FC = () => {
     // If the email already existed, Supabase returns an empty array in `data`
     const isNewInvite = insertedRows && insertedRows.length > 0;
     if (!isNewInvite) {
-      alert('This email has already been invited.');
-      setLoading(false);
-      return;
-    }
-
-    if (insertError) {
-      console.error('Error creating invite:', insertError.message);
-      alert('Failed to create invite: ' + insertError.message);
+      toast.error('This email has already been invited.');
       setLoading(false);
       return;
     }
@@ -83,8 +77,11 @@ export const UserManagementView: React.FC = () => {
         },
       });
       if (fnError) throw fnError;
+      // Email sent successfully
+      toast.success(`Invitation email sent to ${newUserEmail}`);
     } catch (emailErr: any) {
       console.warn('Invite saved but email failed to send:', emailErr?.message);
+      toast.error(`Failed to send invitation to ${newUserEmail}: ${emailErr?.message}`);
       // Non-fatal: the invite is in the DB, email just didn't go out
     }
 
@@ -132,7 +129,9 @@ export const UserManagementView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      <Toaster position="top-right" />
+      <div className="space-y-6">
       {/* Header section */}
       <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 pb-4">
         <div>
@@ -367,7 +366,8 @@ export const UserManagementView: React.FC = () => {
             </button>
           </div>
         </form>
-      </Dialog>
+      
+    </Dialog>
     </div>
   );
 };

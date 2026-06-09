@@ -1,4 +1,5 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
+import { supabase } from '../../lib/supabase';
 
 export type FunctionalityStatus = 'Working' | 'Partially Working' | 'Not Working' | 'Pending';
 export type TestingStatus = 'Passed' | 'Failed' | 'Pending' | 'In Progress';
@@ -66,6 +67,8 @@ export interface User {
   avatar: string;
   role: 'QA Lead' | 'QA Engineer' | 'Developer' | 'Client' | 'Project Manager';
   completedTests: number;
+  inviteId?: string;
+  isInvited: boolean;
 }
 
 export interface Notification {
@@ -122,8 +125,10 @@ interface DashboardState {
 
   // Users management
   users: User[];
-  addUser: (user: Omit<User, 'id' | 'completedTests'>) => void;
+  addUser: (user: Omit<User, 'id' | 'completedTests' | 'isInvited' | 'inviteId'>) => void;
   deleteUser: (id: string) => void;
+  deleteUserCascade: (id: string) => void;
+  loadInvitedUsers: () => Promise<void>;
 
   // Notifications management
   notifications: Notification[];
@@ -143,10 +148,10 @@ interface DashboardState {
 
 // Initial Mock Users
 const defaultUsers: User[] = [
-  { id: 'user-1', name: 'Affan Ahmad', email: 'affan@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', role: 'QA Lead', completedTests: 5 },
-  { id: 'user-2', name: 'Sarah Connor', email: 'sarah@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', role: 'QA Engineer', completedTests: 3 },
-  { id: 'user-3', name: 'John Doe', email: 'john@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', role: 'Developer', completedTests: 2 },
-  { id: 'user-4', name: 'Alice Smith', email: 'alice@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', role: 'Project Manager', completedTests: 1 }
+  { id: 'user-1', name: 'Affan Ahmad', email: 'affan@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', role: 'QA Lead', completedTests: 5, isInvited: false },
+  { id: 'user-2', name: 'Sarah Connor', email: 'sarah@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', role: 'QA Engineer', completedTests: 3, isInvited: false },
+  { id: 'user-3', name: 'John Doe', email: 'john@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', role: 'Developer', completedTests: 2, isInvited: false },
+  { id: 'user-4', name: 'Alice Smith', email: 'alice@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', role: 'Project Manager', completedTests: 1, isInvited: false }
 ];
 
 // Initial Mock Rows
@@ -621,7 +626,9 @@ export const useStore = create<DashboardState>((set, get) => {
         const user: User = {
           ...newUser,
           id: `user-${Date.now()}`,
-          completedTests: 0
+          completedTests: 0,
+          isInvited: true,
+          inviteId: undefined
         };
         const users = [...state.users, user];
         const nextState = { ...state, users };
@@ -631,13 +638,55 @@ export const useStore = create<DashboardState>((set, get) => {
     },
     deleteUser: (id) => {
       set((state) => {
+        // Remove the user
         const users = state.users.filter((u) => u.id !== id);
+        // Find the removed user to match assigned rows
+        const removedUser = state.users.find((u) => u.id === id);
+        const userName = removedUser?.name;
+        // Remove rows assigned to this user
+        const rows = userName ? state.rows.filter((r) => r.assignedUser !== userName) : state.rows;
+        // Remove notifications that reference this user
+        const notifications = state.notifications.filter((n) => !userName || !n.message.includes(userName));
+        const nextState = { ...state, users, rows, notifications };
+        saveToLocal(nextState);
+        return { users, rows, notifications };
+      });
+    },
+    deleteUserCascade: (id) => {
+      set((state) => {
+        // Remove the user
+        const users = state.users.filter((u) => u.id !== id);
+        // Find the removed user to match assigned rows
+        const removedUser = state.users.find((u) => u.id === id);
+        const userName = removedUser?.name;
+        // Remove rows assigned to this user
+        const rows = userName ? state.rows.filter((r) => r.assignedUser !== userName) : state.rows;
+        // Optionally remove notifications that mention this user (simple keyword filter)
+        const notifications = state.notifications.filter((n) => !userName || !n.message.includes(userName));
+        const nextState = { ...state, users, rows, notifications };
+        saveToLocal(nextState);
+        return { users, rows, notifications };
+      });
+    },
+    // Load invited users from Supabase
+    loadInvitedUsers: async () => {
+      // @ts-ignore
+      const { data, error } = await supabase.from('invited_users').select('id, email, name');
+      if (error) { console.error('Failed to load invited users', error); return; }
+      set((state) => {
+        const invitedMap = new Map(data.map((u: any) => [u.email, { inviteId: u.id, isInvited: true, name: u.name }]));
+        const users = state.users.map((u) => {
+          if (invitedMap.has(u.email)) {
+            const inv = invitedMap.get(u.email)!;
+            return { ...u, ...inv };
+          }
+          return { ...u, isInvited: false };
+        });
         const nextState = { ...state, users };
         saveToLocal(nextState);
         return { users };
       });
     },
-
     addNotification: (message, type) => {
       set((state) => {
         const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
