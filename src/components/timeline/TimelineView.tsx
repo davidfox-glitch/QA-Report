@@ -1,6 +1,5 @@
 import React from 'react';
 import { TestRow } from '../../store/useStore';
-import { Badge } from '../ui/Badge';
 import { Calendar, Clock, AlertTriangle } from 'lucide-react';
 
 interface TimelineViewProps {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useStore, TestRow, FunctionalityStatus, TestingStatus, Priority, Attachment } from '../../store/useStore';
+import { useStore, FunctionalityStatus, TestingStatus, Priority, Attachment } from '../../store/useStore';
 import { FileUpload } from '../files/FileUpload';
 import { AlertCircle, Link2, Calendar, AlignLeft, UserCheck } from 'lucide-react';
 

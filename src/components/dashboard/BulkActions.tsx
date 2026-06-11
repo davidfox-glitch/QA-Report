@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Edit, CheckSquare, Layers, Download, X } from 'lucide-react';
+import { Trash2, Download, X } from 'lucide-react';
 import { FunctionalityStatus, TestingStatus, Priority } from '../../store/useStore';
 
 interface BulkActionsProps {

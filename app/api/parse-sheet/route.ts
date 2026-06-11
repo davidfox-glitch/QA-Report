@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI as GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 /**
  * POST /api/parse-sheet
@@ -38,23 +38,29 @@ ${JSON.stringify(rawJson)}
 
 Respond ONLY with valid JSON. The root must be a JSON array of objects. Do not include markdown code blocks around the JSON.`;
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent([{ text: prompt }]);
-    const response = await result.response;
-    let text = await response.text();
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: [{ text: prompt }],
+    });
+    let text = response.text ?? '';
     
     // Clean up markdown formatting if Gemini included it
     text = text.trim();
-    if (text.startsWith('\`\`\`json')) {
+    if (text.startsWith('```json')) {
       text = text.substring(7);
-      if (text.endsWith('\`\`\`')) {
+      if (text.endsWith('```')) {
+        text = text.substring(0, text.length - 3);
+      }
+    } else if (text.startsWith('```')) {
+      text = text.substring(3);
+      if (text.endsWith('```')) {
         text = text.substring(0, text.length - 3);
       }
     }
 
     let parsedTestPoints = [];
     try {
-      parsedTestPoints = JSON.parse(text);
+      parsedTestPoints = JSON.parse(text.trim());
     } catch (e) {
       console.error("Failed to parse Gemini JSON:", text);
       throw new Error("AI returned invalid JSON format.");

@@ -1,7 +1,6 @@
 import React from 'react';
 import { useStore, TestRow, CustomFieldDef, FunctionalityStatus, TestingStatus, Priority } from '../../store/useStore';
-import { Badge } from '../ui/Badge';
-import { Edit, Trash2, StickyNote, Paperclip, ExternalLink, User } from 'lucide-react';
+import { Edit, Trash2, StickyNote, Paperclip, ExternalLink } from 'lucide-react';
 
 interface TableViewProps {
   rows: TestRow[];

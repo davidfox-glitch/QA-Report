@@ -1,15 +1,10 @@
 import React, { useState } from 'react';
-import { useStore, User, TestRow } from '../../store/useStore';
+import { useStore, User } from '../../store/useStore';
 import { supabase } from '../../lib/supabase';
 import { 
-  Users, 
   Mail, 
-  Shield, 
-  CheckSquare, 
   Plus, 
-  Trash2, 
-  ExternalLink,
-  ChevronRight,
+  Trash2,
   UserCheck,
   AlertCircle
 } from 'lucide-react';
@@ -70,9 +65,9 @@ export const UserManagementView: React.FC = () => {
 
     // Step 2: Send the invitation email via EmailJS (Frontend)
     try {
-      const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-      const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-      const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
 
       if (serviceId && templateId && publicKey) {
         const emailResponse = await fetch('https://api.emailjs.com/api/v1.0/email/send', {

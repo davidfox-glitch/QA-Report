@@ -79,7 +79,7 @@ export interface Notification {
   type: 'status_change' | 'assignment' | 'general';
 }
 
-export type ActiveView = 'dashboard' | 'table' | 'kanban' | 'timeline' | 'analytics' | 'users' | 'settings';
+export type ActiveView = 'dashboard' | 'table' | 'kanban' | 'timeline' | 'analytics' | 'users' | 'settings' | 'archive' | 'trash' | 'docs';
 
 interface DashboardState {
   // Project settings
@@ -114,6 +114,16 @@ interface DashboardState {
   bulkUpdateStatus: (ids: string[], functionality?: FunctionalityStatus, testing?: TestingStatus, priority?: Priority) => void;
   importRows: (newRows: TestRow[], fieldDefs?: CustomFieldDef[]) => void;
 
+  // Lifecycle Management
+  archivedRows: TestRow[];
+  trashRows: TestRow[];
+  activityLogs: any[];
+  archiveRow: (id: string) => void;
+  trashRow: (id: string) => void;
+  restoreRow: (id: string) => void;
+  hardDeleteRow: (id: string) => void;
+  logActivity: (action: string, details?: string) => void;
+
   // Notes management
   addNote: (rowId: string, text: string) => void;
   updateNote: (rowId: string, noteId: string, text: string) => void;
@@ -144,6 +154,21 @@ interface DashboardState {
     pendingTasksSummary: string;
   };
   setAiSummary: (summary: any) => void;
+
+  // Global UI Modal States (for App Router migration)
+  isAddRowOpen: boolean;
+  setIsAddRowOpen: (open: boolean) => void;
+  editingRowId: string | null;
+  setEditingRowId: (id: string | null) => void;
+  notesRowId: string | null;
+  setNotesRowId: (id: string | null) => void;
+  isSettingsOpen: boolean;
+  setIsSettingsOpen: (open: boolean) => void;
+  isExportOpen: boolean;
+  setIsExportOpen: (open: boolean) => void;
+  isImportWizardOpen: boolean;
+  setIsImportWizardOpen: (open: boolean) => void;
+
 }
 
 // Initial Mock Users
@@ -253,22 +278,48 @@ const loadLocalStorageState = () => {
 const savedState = loadLocalStorageState();
 
 export const useStore = create<DashboardState>((set, get) => {
-  const saveToLocal = (updatedState: Partial<DashboardState>) => {
-    const currentState = get();
-    localStorage.setItem(
-      'qaflow_pro_state',
-      JSON.stringify({
+    const saveState = async (updatedState: Partial<DashboardState>) => {
+      const currentState = get();
+      const newState = {
         settings: updatedState.settings || currentState.settings,
         currentView: updatedState.currentView || currentState.currentView,
         darkMode: updatedState.darkMode ?? currentState.darkMode,
         customFieldsDef: updatedState.customFieldsDef || currentState.customFieldsDef,
         rows: updatedState.rows || currentState.rows,
+        archivedRows: updatedState.archivedRows || currentState.archivedRows,
+        trashRows: updatedState.trashRows || currentState.trashRows,
+        activityLogs: updatedState.activityLogs || currentState.activityLogs,
         users: updatedState.users || currentState.users,
         notifications: updatedState.notifications || currentState.notifications
-      })
-    );
-  };
-
+      };
+      // Save to localStorage for offline cache
+      localStorage.setItem('qaflow_pro_state', JSON.stringify(newState));
+      // Sync to Supabase tables (assuming appropriate tables exist)
+      try {
+        await Promise.all([
+          supabase.from('settings').upsert([newState.settings]),
+          supabase.from('rows').upsert(newState.rows),
+          supabase.from('users').upsert(newState.users),
+          supabase.from('notifications').upsert(newState.notifications)
+        ]);
+      } catch (e) {
+        console.error('Supabase sync error:', e);
+      }
+      return newState;
+    };
+    const setAndPersist = async (updater: (state: DashboardState) => Partial<DashboardState>) => {
+      set((state) => {
+        const updates = updater(state);
+        return { ...state, ...updates };
+      });
+      // after state update, persist
+      const updated = get();
+      await saveState(updated);
+    };
+    // Backward‑compatible wrapper for existing calls
+    const saveToLocal = async (nextState: Partial<DashboardState>) => {
+      await setAndPersist(() => nextState);
+    };
   return {
     settings: savedState?.settings || {
       projectName: 'QAFlow Pro Platform',
@@ -290,38 +341,30 @@ export const useStore = create<DashboardState>((set, get) => {
       { id: 'cf-bug-id', name: 'Bug ID', type: 'text' }
     ],
     rows: savedState?.rows || defaultRows,
+    archivedRows: savedState?.archivedRows || [],
+    trashRows: savedState?.trashRows || [],
+    activityLogs: savedState?.activityLogs || [],
     users: savedState?.users || defaultUsers,
     notifications: savedState?.notifications || [
       { id: 'notif-1', message: 'Welcome to QAFlow Pro Testing Platform', timestamp: '2026-06-08 08:00', read: false, type: 'general' }
     ],
 
     updateSettings: (newSettings) => {
-      set((state) => {
-        const settings = { ...state.settings, ...newSettings };
-        const nextState = { ...state, settings };
-        saveToLocal(nextState);
-        return { settings };
-      });
+      setAndPersist((state) => ({ settings: { ...state.settings, ...newSettings } }));
     },
 
     setCurrentView: (view) => {
-      set((state) => {
-        const nextState = { ...state, currentView: view };
-        saveToLocal(nextState);
-        return { currentView: view };
-      });
+      setAndPersist((state) => ({ currentView: view }));
     },
 
     toggleDarkMode: () => {
-      set((state) => {
+      setAndPersist((state) => {
         const darkMode = !state.darkMode;
-        const nextState = { ...state, darkMode };
         if (darkMode) {
           document.documentElement.classList.add('dark');
         } else {
           document.documentElement.classList.remove('dark');
         }
-        saveToLocal(nextState);
         return { darkMode };
       });
     },
@@ -422,8 +465,25 @@ export const useStore = create<DashboardState>((set, get) => {
           return row;
         });
 
-        const nextState = { ...state, rows };
+        // Auto-archive logic
+        const rowsToArchive = rows.filter(r => r.testingStatus === 'Passed' || r.functionalityStatus === 'Working');
+        const activeRows = rows.filter(r => r.testingStatus !== 'Passed' && r.functionalityStatus !== 'Working');
+        const newArchivedRows = [...state.archivedRows, ...rowsToArchive];
+        
+        const nextState = { ...state, rows: activeRows, archivedRows: newArchivedRows };
         let activeNotifs = [...state.notifications];
+
+        if (rowsToArchive.length > 0) {
+          rowsToArchive.forEach(r => {
+             activeNotifs.unshift({
+                id: `notif-${Date.now()}-${r.id}`,
+                message: `Test Point "${r.testPoint}" automatically archived`,
+                timestamp: nowStr,
+                read: false,
+                type: 'general' as const
+             });
+          });
+        }
 
         if (statusChangedMessage) {
           activeNotifs = [
@@ -452,7 +512,7 @@ export const useStore = create<DashboardState>((set, get) => {
         }
 
         saveToLocal({ ...nextState, notifications: activeNotifs });
-        return { rows, notifications: activeNotifs };
+        return { rows: activeRows, archivedRows: newArchivedRows, notifications: activeNotifs };
       });
     },
 
@@ -736,6 +796,115 @@ export const useStore = create<DashboardState>((set, get) => {
         saveToLocal(nextState);
         return { lastAiSummary: summary };
       });
-    }
+    },
+
+    logActivity: (action, details) => {
+      set((state) => {
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const newLog = {
+          id: `log-${Date.now()}`,
+          action,
+          details,
+          timestamp: nowStr
+        };
+        const activityLogs = [newLog, ...state.activityLogs];
+        saveToLocal({ ...state, activityLogs });
+        return { activityLogs };
+      });
+    },
+
+    archiveRow: (id) => {
+      set((state) => {
+        const rowToArchive = state.rows.find(r => r.id === id);
+        if (!rowToArchive) return state;
+        const rows = state.rows.filter(r => r.id !== id);
+        const archivedRows: TestRow[] = [{...rowToArchive, testingStatus: 'Passed' as TestingStatus, functionalityStatus: 'Working' as FunctionalityStatus}, ...state.archivedRows];
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        
+        const activityLogs = [{ id: `log-${Date.now()}`, action: 'Archived Task', details: `Task ${rowToArchive.testPoint} archived`, timestamp: nowStr }, ...state.activityLogs];
+        
+        saveToLocal({ ...state, rows, archivedRows, activityLogs });
+        return { rows, archivedRows, activityLogs };
+      });
+    },
+
+    trashRow: (id) => {
+      set((state) => {
+        const rowInActive = state.rows.find(r => r.id === id);
+        const rowInArchive = state.archivedRows.find(r => r.id === id);
+        const targetRow = rowInActive || rowInArchive;
+        if (!targetRow) return state;
+
+        const rows = state.rows.filter(r => r.id !== id);
+        const archivedRows = state.archivedRows.filter(r => r.id !== id);
+        const trashRows = [targetRow, ...state.trashRows];
+        
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const activityLogs = [{ id: `log-${Date.now()}`, action: 'Moved to Trash', details: `Task ${targetRow.testPoint} moved to trash`, timestamp: nowStr }, ...state.activityLogs];
+
+        saveToLocal({ ...state, rows, archivedRows, trashRows, activityLogs });
+        return { rows, archivedRows, trashRows, activityLogs };
+      });
+    },
+
+    restoreRow: (id) => {
+      set((state) => {
+        const rowInTrash = state.trashRows.find(r => r.id === id);
+        const rowInArchive = state.archivedRows.find(r => r.id === id);
+        
+        let rows = [...state.rows];
+        let archivedRows = [...state.archivedRows];
+        let trashRows = [...state.trashRows];
+        let targetRow = null;
+
+        if (rowInTrash) {
+           targetRow = rowInTrash;
+           trashRows = trashRows.filter(r => r.id !== id);
+           rows = [targetRow, ...rows];
+        } else if (rowInArchive) {
+           targetRow = rowInArchive;
+           archivedRows = archivedRows.filter(r => r.id !== id);
+           targetRow.testingStatus = 'Pending';
+           targetRow.functionalityStatus = 'Pending';
+           rows = [targetRow, ...rows];
+        }
+        
+        if (!targetRow) return state;
+        
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const activityLogs = [{ id: `log-${Date.now()}`, action: 'Restored Task', details: `Task ${targetRow.testPoint} restored`, timestamp: nowStr }, ...state.activityLogs];
+
+        saveToLocal({ ...state, rows, archivedRows, trashRows, activityLogs });
+        return { rows, archivedRows, trashRows, activityLogs };
+      });
+    },
+
+    hardDeleteRow: (id) => {
+      set((state) => {
+        const rowToDel = state.trashRows.find(r => r.id === id);
+        if (!rowToDel) return state;
+        
+        const trashRows = state.trashRows.filter(r => r.id !== id);
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const activityLogs = [{ id: `log-${Date.now()}`, action: 'Permanently Deleted Task', details: `Task ${rowToDel.testPoint} permanently deleted`, timestamp: nowStr }, ...state.activityLogs];
+        
+        saveToLocal({ ...state, trashRows, activityLogs });
+        return { trashRows, activityLogs };
+      });
+    },
+
+    // Modal UI states
+    isAddRowOpen: false,
+    setIsAddRowOpen: (open) => set({ isAddRowOpen: open }),
+    editingRowId: null,
+    setEditingRowId: (id) => set({ editingRowId: id }),
+    notesRowId: null,
+    setNotesRowId: (id) => set({ notesRowId: id }),
+    isSettingsOpen: false,
+    setIsSettingsOpen: (open) => set({ isSettingsOpen: open }),
+    isExportOpen: false,
+    setIsExportOpen: (open) => set({ isExportOpen: open }),
+    isImportWizardOpen: false,
+    setIsImportWizardOpen: (open) => set({ isImportWizardOpen: open })
   };
 });

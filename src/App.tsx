@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useStore, TestRow, FunctionalityStatus, TestingStatus, Priority } from './store/useStore';
+import { useStore } from './store/useStore';
 import { exportToExcel } from './utils/exporters';
 
 // Components
@@ -25,6 +25,9 @@ import { ProjectSettingsModal } from './components/dashboard/ProjectSettingsModa
 import { AddFieldForm, ManageFieldsView } from './components/dashboard/CustomFieldDialogs';
 import { ReportGeneratorModal } from './components/dashboard/ReportGeneratorModal';
 import { SmartImportModal } from './components/dashboard/SmartImportModal';
+import { DocumentationDashboard } from './components/dashboard/DocumentationDashboard';
+import { ArchiveView } from './components/dashboard/ArchiveView';
+import { TrashView } from './components/dashboard/TrashView';
 
 // Icons
 import {
@@ -34,18 +37,15 @@ import {
   CalendarRange,
   BarChart3,
   Users,
+  Archive,
+  Trash2,
+  BookOpen,
   Moon,
   Sun,
   Settings,
   Plus,
-  Download,
   Upload,
-  Briefcase,
-  Layers,
   Bell,
-  Check,
-  CheckSquare,
-  AlertCircle,
   LogOut
 } from 'lucide-react';
 
@@ -79,20 +79,31 @@ export default function App() {
   const [priorityFilter, setPriorityFilter] = useState('');
   const [customFilters, setCustomFilters] = useState<Record<string, string>>({});
 
+  // Local UI State
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isAddFieldOpen, setIsAddFieldOpen] = useState(false);
+  const [isManageFieldsOpen, setIsManageFieldsOpen] = useState(false);
+
   const setCustomFilter = (cfId: string, val: string) => {
     setCustomFilters((prev) => ({ ...prev, [cfId]: val }));
   };
 
-  // Modals state
-  const [isAddRowOpen, setIsAddRowOpen] = useState(false);
-  const [editingRowId, setEditingRowId] = useState<string | null>(null);
-  const [notesRowId, setNotesRowId] = useState<string | null>(null);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isAddFieldOpen, setIsAddFieldOpen] = useState(false);
-  const [isManageFieldsOpen, setIsManageFieldsOpen] = useState(false);
-  const [isExportOpen, setIsExportOpen] = useState(false);
-  const [isImportWizardOpen, setIsImportWizardOpen] = useState(false);
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  // Modals state (now from Zustand store)
+  const {
+    isAddRowOpen,
+    setIsAddRowOpen,
+    editingRowId,
+    setEditingRowId,
+    notesRowId,
+    setNotesRowId,
+    isSettingsOpen,
+    setIsSettingsOpen,
+    isExportOpen,
+    setIsExportOpen,
+    isImportWizardOpen,
+    setIsImportWizardOpen,
+  } = useStore();
+
 
   // Apply dark mode on initial load
   useEffect(() => {
@@ -330,6 +341,28 @@ export default function App() {
               <BarChart3 className="h-3.5 w-3.5" />
               <span>Analytics</span>
             </button>
+            <button
+              onClick={() => setCurrentView('archive')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                currentView === 'archive'
+                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+              }`}
+            >
+              <Archive className="h-3.5 w-3.5" />
+              <span>Archive</span>
+            </button>
+            <button
+              onClick={() => setCurrentView('trash')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                currentView === 'trash'
+                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+              }`}
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              <span>Trash</span>
+            </button>
             {/* Admin-Only Navigation Links */}
             {currentUserRole === 'Admin' && (
               <>
@@ -354,6 +387,17 @@ export default function App() {
                 >
                   <Users className="h-3.5 w-3.5" />
                   <span>Team</span>
+                </button>
+                <button
+                  onClick={() => setCurrentView('docs')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                    currentView === 'docs'
+                      ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                  }`}
+                >
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>Docs</span>
                 </button>
               </>
             )}
@@ -541,6 +585,9 @@ export default function App() {
           )}
 
           {currentView === 'users' && <UserManagementView />}
+          {currentView === 'docs' && <DocumentationDashboard />}
+          {currentView === 'archive' && <ArchiveView />}
+          {currentView === 'trash' && <TrashView />}
         </div>
       </main>
 

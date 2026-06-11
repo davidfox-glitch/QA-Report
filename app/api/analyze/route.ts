@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI as GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 
 // Initialize Gemini client using the API key from environment variables
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 /**
  * POST /api/analyze
@@ -28,15 +28,17 @@ Format the response using markdown headings and bullet points.
 - Recommendations for the testing team.
 Raw Data:\n${JSON.stringify(excelData)}`;
 
-    // Get the Gemini model and generate content
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    const result = await model.generateContent([prompt]);
-    const response = await result.response;
-    const summary = await response.text();
+    // Generate content using the correct v2.8.0 API
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
+    const summary = response.text;
 
     return NextResponse.json({ summary });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Gemini API Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

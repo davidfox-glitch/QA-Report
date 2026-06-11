@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { exportToExcel, exportToDocx, exportToPdf } from '../../utils/exporters';
 import { useStore, TestRow } from '../../store/useStore';
-import { FileSpreadsheet, FileText, FileDown, ShieldCheck, Printer, CheckCircle } from 'lucide-react';
+import { FileSpreadsheet, FileText, FileDown } from 'lucide-react';
 
 interface ReportGeneratorModalProps {
   onClose: () => void;

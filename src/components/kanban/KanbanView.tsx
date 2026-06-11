@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useStore, TestRow, TestingStatus, FunctionalityStatus, Priority } from '../../store/useStore';
+import { useStore, TestRow, TestingStatus, FunctionalityStatus } from '../../store/useStore';
 import { Badge } from '../ui/Badge';
-import { User, StickyNote, Paperclip, ChevronRight, ArrowRight } from 'lucide-react';
+import { User, StickyNote, Paperclip, ArrowRight } from 'lucide-react';
 
 interface KanbanViewProps {
   rows: TestRow[];

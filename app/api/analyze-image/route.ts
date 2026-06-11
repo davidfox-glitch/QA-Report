@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI as GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 
-const genAI = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
 
 export async function POST(request: Request) {
   try {
@@ -10,9 +10,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Prompt is required.' }, { status: 400 });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
-    
-    let parts: any[] = [{ text: prompt }];
+    const parts: any[] = [{ text: prompt }];
 
     if (imageBase64) {
       // Expecting base64 string without data:image prefix, or we strip it
@@ -25,9 +23,11 @@ export async function POST(request: Request) {
       });
     }
 
-    const result = await model.generateContent(parts);
-    const response = await result.response;
-    const text = await response.text();
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: parts,
+    });
+    const text = response.text;
 
     return NextResponse.json({ text });
   } catch (error: any) {

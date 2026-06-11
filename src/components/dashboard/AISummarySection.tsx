@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { generateTestingSummary, AISummaryResult } from '../../utils/aiSummary';
+import { generateTestingSummary } from '../../utils/aiSummary';
 import { TestRow, ProjectSettings, useStore } from '../../store/useStore';
 import { Sparkles, Clipboard, Check, RefreshCw } from 'lucide-react';
 

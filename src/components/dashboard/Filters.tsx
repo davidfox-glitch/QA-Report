@@ -1,6 +1,6 @@
 import React from 'react';
-import { Search, Filter, RefreshCw, PlusCircle, Settings } from 'lucide-react';
-import { FunctionalityStatus, TestingStatus, Priority, CustomFieldDef } from '../../store/useStore';
+import { Search, RefreshCw, PlusCircle, Settings } from 'lucide-react';
+import { CustomFieldDef } from '../../store/useStore';
 
 interface FiltersProps {
   search: string;

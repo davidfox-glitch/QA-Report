@@ -8,7 +8,7 @@ interface NotesSidebarProps {
 }
 
 export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) => {
-  const { rows, addNote, updateNote, deleteNote } = useStore();
+  const { rows, addNote, updateNote, deleteNote, addNotification, logActivity } = useStore();
   const [newNoteText, setNewNoteText] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
@@ -26,8 +26,28 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newNoteText.trim()) return;
-    addNote(rowId, newNoteText.trim());
+    const text = newNoteText.trim();
+    
+    addNote(rowId, text);
+    if (logActivity) logActivity('Added Note', `Note added to ${row.testPoint}`);
+    
+    // Process mentions
+    const mentionRegex = /@(\w+)/g;
+    const mentions = [...text.matchAll(mentionRegex)].map(m => m[1]);
+    if (mentions.length > 0 && addNotification) {
+      mentions.forEach(username => {
+         addNotification(`@${username} You were mentioned on task "${row.testPoint}"`, 'general');
+      });
+    }
+
     setNewNoteText('');
+  };
+
+  const renderNoteText = (text: string) => {
+    const parts = text.split(/(@\w+)/g);
+    return parts.map((part, i) => 
+      part.startsWith('@') ? <span key={i} className="text-indigo-500 font-semibold bg-indigo-50 dark:bg-indigo-900/30 px-1 rounded">{part}</span> : part
+    );
   };
 
   const handleStartEdit = (note: Note) => {
@@ -162,7 +182,7 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
                     </div>
                   ) : (
                     <p className="text-xs text-slate-700 dark:text-slate-300 break-words leading-relaxed whitespace-pre-wrap">
-                      {note.text}
+                      {renderNoteText(note.text)}
                     </p>
                   )}
 

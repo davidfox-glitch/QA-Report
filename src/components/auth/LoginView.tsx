@@ -9,11 +9,9 @@ export const LoginView: React.FC = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        // Force the authentication loop to land on your live domain in production
-        // but keep local development working automatically
-        redirectTo: import.meta.env.DEV 
-          ? 'http://localhost:5173/' 
-          : import.meta.env.VITE_APP_URL || 'https://qa-report-seven.vercel.app/', 
+        redirectTo: process.env.NODE_ENV === 'development'
+          ? 'http://localhost:3000/' 
+          : process.env.NEXT_PUBLIC_APP_URL || 'https://qa-report-seven.vercel.app/', 
       },
     });
     

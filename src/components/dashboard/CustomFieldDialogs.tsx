@@ -1,6 +1,6 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useStore, CustomFieldDef } from '../../store/useStore';
+import { useStore } from '../../store/useStore';
 import { Trash2, AlertCircle } from 'lucide-react';
 
 // ----------------------------------------------------

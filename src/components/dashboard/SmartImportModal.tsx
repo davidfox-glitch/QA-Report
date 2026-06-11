@@ -1,6 +1,6 @@
+// Smart Import Modal Component
 import React, { useState } from 'react';
-import { useStore } from '../../store/useStore';
-import { parseSpreadsheet } from '../../utils/importers';
+import { useStore, TestRow, CustomFieldDef } from '../../store/useStore';
 import { 
   Download, 
   UploadCloud, 
@@ -23,7 +23,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
   const [file, setFile] = useState<File | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
-  const [parsedData, setParsedData] = useState<any>(null);
+  const [parsedData, setParsedData] = useState<{ rows: TestRow[]; customFields: CustomFieldDef[] } | null>(null);
 
   const downloadSampleExcel = () => {
     const data = [
@@ -120,7 +120,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
         const XLSX = await import('xlsx');
         const workbook = XLSX.read(data, { type: 'binary' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rawJson: any[] = XLSX.utils.sheet_to_json(sheet);
+        const rawJson: Record<string, unknown>[] = XLSX.utils.sheet_to_json(sheet);
         
         if (!rawJson || rawJson.length === 0) {
           throw new Error('Spreadsheet is empty.');
@@ -128,7 +128,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
 
         // 1. Map and clean headers
         const cleanedRows = rawJson.map(row => {
-          const standardizedRow: any = {};
+          const standardizedRow: Record<string, unknown> = {};
           Object.keys(row).forEach(key => {
             const standardKey = key.trim()
               .replace(/PageUrl/i, 'Page URL')
@@ -183,29 +183,30 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
         }
         
         // Ensure each row gets a unique ID and matches structure
-        const finalRows = (result.testPoints || []).map((tp: any, index: number) => ({
+        const finalRows = (result.testPoints || []).map((tp: Record<string, unknown>, index: number) => ({
           id: `row-${Date.now()}-${index}`,
-          testPoint: tp.testPoint || 'Unnamed Test Point',
-          moduleName: tp.moduleName || 'General Module',
-          url: tp.url || '',
-          howToTest: tp.howToTest || '',
-          expectedResult: tp.expectedResult || '',
-          actualResult: tp.actualResult || '',
-          functionalityStatus: tp.functionalityStatus || 'Pending',
-          testingStatus: tp.testingStatus || 'Pending',
-          priority: tp.priority || 'Medium',
-          assignedUser: tp.assignedUser || null,
+          testPoint: (tp.testPoint as string) || 'Unnamed Test Point',
+          moduleName: (tp.moduleName as string) || 'General Module',
+          url: (tp.url as string) || '',
+          howToTest: (tp.howToTest as string) || '',
+          expectedResult: (tp.expectedResult as string) || '',
+          actualResult: (tp.actualResult as string) || '',
+          functionalityStatus: (tp.functionalityStatus as any) || 'Pending',
+          testingStatus: (tp.testingStatus as any) || 'Pending',
+          priority: (tp.priority as any) || 'Medium',
+          assignedUser: (tp.assignedUser as string) || undefined,
           notes: [],
           attachments: [],
           customFields: {},
           lastUpdated: new Date().toISOString().replace('T', ' ').substring(0, 16)
-        }));
+        })) as TestRow[];
 
         setParsedData({ rows: finalRows, customFields: [] });
         setIsValidating(false);
 
-      } catch (err: any) {
-        setValidationErrors([`AI Parsing failed: ${err.message || err}`]);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        setValidationErrors([`AI Parsing failed: ${errorMessage}`]);
         setIsValidating(false);
       }
     };

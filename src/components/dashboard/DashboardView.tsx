@@ -3,14 +3,11 @@ import { useStore } from '../../store/useStore';
 import { StatsCards } from './StatsCards';
 import { AISummarySection } from './AISummarySection';
 import { 
-  AlertTriangle, 
   Bell, 
-  ArrowRight,
-  TrendingUp, 
+  ArrowRight, 
   ShieldAlert,
   UserCheck
 } from 'lucide-react';
-import { Badge } from '../ui/Badge';
 
 export const DashboardView: React.FC = () => {
   const { rows, settings, notifications, setCurrentView } = useStore();

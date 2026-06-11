@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { ProjectSettings, useStore } from '../../store/useStore';
-import { Image, Upload, AlertCircle, Bot, Sparkles, Paintbrush } from 'lucide-react';
+import { Image, Upload, AlertCircle, Bot, Paintbrush } from 'lucide-react';
 
 interface ProjectSettingsModalProps {
   onClose: () => void;
