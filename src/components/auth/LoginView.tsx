@@ -5,6 +5,12 @@ export const LoginView: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // Debug environment variables
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (!url || url.includes('placeholder')) {
+      alert(`Supabase URL is not configured correctly! Value: ${url}`);
+    }
+
     // If Supabase redirects back to /login with an access token in the hash,
     // detect it and wait for the session to be established.
     if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
@@ -12,13 +18,32 @@ export const LoginView: React.FC = () => {
       
       // Supabase automatically parses the hash into a session.
       // Once it's ready, redirect to the dashboard (root).
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session) {
+      supabase.auth.getSession().then(({ data: { session }, error }) => {
+        if (error) {
+          alert('Supabase getSession error: ' + error.message);
+          setLoading(false);
+        } else if (session) {
           window.location.href = '/';
+        } else {
+          // Allow some time for onAuthStateChange as it is async
+          setTimeout(() => {
+            supabase.auth.getSession().then(({ data: { session: retrySession } }) => {
+              if (retrySession) {
+                window.location.href = '/';
+              } else {
+                alert('No session established from hash. Hash fragment might be invalid or expired.');
+                setLoading(false);
+              }
+            });
+          }, 1500);
         }
+      }).catch(err => {
+        alert('Exception during getSession: ' + err.message);
+        setLoading(false);
       });
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state changed:', event, session);
         if (session) {
           window.location.href = '/';
         }
