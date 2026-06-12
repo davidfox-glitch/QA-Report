@@ -34,8 +34,8 @@ export const LoginView: React.FC = () => {
       provider: 'google',
       options: {
         redirectTo: process.env.NODE_ENV === 'development'
-          ? 'http://localhost:3000/' 
-          : process.env.NEXT_PUBLIC_APP_URL || 'https://qa-report-seven.vercel.app/', 
+          ? 'http://localhost:3000/auth/callback' 
+          : 'https://qa-report-seven.vercel.app/auth/callback', 
       },
     });
     
