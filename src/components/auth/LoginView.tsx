@@ -7,8 +7,15 @@ export const LoginView: React.FC = () => {
   useEffect(() => {
     // Debug environment variables
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    alert(`DEBUG ENV:\nURL: ${url || 'UNDEFINED'}\nKey Length: ${key ? key.length : 'UNDEFINED'}\nKey Start: ${key ? key.substring(0, 15) : 'N/A'}`);
+
     if (!url || url.includes('placeholder')) {
       alert(`Supabase URL is not configured correctly! Value: ${url}`);
+    }
+    if (!key || key === 'placeholder_key') {
+      alert(`Supabase Anon Key is not configured correctly! Value: ${key}`);
     }
 
     // If Supabase redirects back to /login with an access token in the hash,
