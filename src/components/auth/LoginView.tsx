@@ -5,19 +5,6 @@ export const LoginView: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Debug environment variables
-    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
-    alert(`DEBUG ENV:\nURL: ${url || 'UNDEFINED'}\nKey Length: ${key ? key.length : 'UNDEFINED'}\nKey Start: ${key ? key.substring(0, 15) : 'N/A'}`);
-
-    if (!url || url.includes('placeholder')) {
-      alert(`Supabase URL is not configured correctly! Value: ${url}`);
-    }
-    if (!key || key === 'placeholder_key') {
-      alert(`Supabase Anon Key is not configured correctly! Value: ${key}`);
-    }
-
     // If Supabase redirects back to /login with an access token in the hash,
     // detect it and wait for the session to be established.
     if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
@@ -36,23 +23,22 @@ export const LoginView: React.FC = () => {
         })
         .then(({ data: { session }, error }) => {
           if (error) {
-            alert('Supabase manual setSession error: ' + error.message);
+            console.error('Supabase manual setSession error:', error.message);
             setLoading(false);
           } else if (session) {
             // Clear hash from URL and redirect
             window.history.replaceState(null, '', window.location.pathname);
             window.location.href = '/';
           } else {
-            alert('Session is still null after setting it manually.');
+            console.warn('Session is still null after setting it manually.');
             setLoading(false);
           }
         })
         .catch(err => {
-          alert('Exception during manual setSession: ' + err.message);
+          console.error('Exception during manual setSession:', err.message);
           setLoading(false);
         });
       } else {
-        alert('Could not extract access_token from the URL hash.');
         setLoading(false);
       }
 
