@@ -16,31 +16,38 @@ export const LoginView: React.FC = () => {
     if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
       setLoading(true);
       
-      // Supabase automatically parses the hash into a session.
-      // Once it's ready, redirect to the dashboard (root).
-      supabase.auth.getSession().then(({ data: { session }, error }) => {
-        if (error) {
-          alert('Supabase getSession error: ' + error.message);
+      // Manually parse the hash parameters
+      const hash = window.location.hash.substring(1);
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+
+      if (accessToken) {
+        supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken || '',
+        })
+        .then(({ data: { session }, error }) => {
+          if (error) {
+            alert('Supabase manual setSession error: ' + error.message);
+            setLoading(false);
+          } else if (session) {
+            // Clear hash from URL and redirect
+            window.history.replaceState(null, '', window.location.pathname);
+            window.location.href = '/';
+          } else {
+            alert('Session is still null after setting it manually.');
+            setLoading(false);
+          }
+        })
+        .catch(err => {
+          alert('Exception during manual setSession: ' + err.message);
           setLoading(false);
-        } else if (session) {
-          window.location.href = '/';
-        } else {
-          // Allow some time for onAuthStateChange as it is async
-          setTimeout(() => {
-            supabase.auth.getSession().then(({ data: { session: retrySession } }) => {
-              if (retrySession) {
-                window.location.href = '/';
-              } else {
-                alert('No session established from hash. Hash fragment might be invalid or expired.');
-                setLoading(false);
-              }
-            });
-          }, 1500);
-        }
-      }).catch(err => {
-        alert('Exception during getSession: ' + err.message);
+        });
+      } else {
+        alert('Could not extract access_token from the URL hash.');
         setLoading(false);
-      });
+      }
 
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
         console.log('Auth state changed:', event, session);
