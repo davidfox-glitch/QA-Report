@@ -6,3 +6,5 @@ build/
 Thumbs.db
 .env*
 .next/
+
+.vercel

@@ -1,8 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 
 export const LoginView: React.FC = () => {
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // If Supabase redirects back to /login with an access token in the hash,
+    // detect it and wait for the session to be established.
+    if (typeof window !== 'undefined' && window.location.hash.includes('access_token')) {
+      setLoading(true);
+      
+      // Supabase automatically parses the hash into a session.
+      // Once it's ready, redirect to the dashboard (root).
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+          window.location.href = '/';
+        }
+      });
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (session) {
+          window.location.href = '/';
+        }
+      });
+
+      return () => subscription.unsubscribe();
+    }
+  }, []);
 
   const handleGoogleLogin = async () => {
     setLoading(true);

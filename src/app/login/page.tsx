@@ -1,11 +1,29 @@
-import React from 'react';
+'use client';
+import React, { useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { LogIn } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          router.replace('/');
+        }
+      }
+    );
+    return () => subscription.unsubscribe();
+  }, [router]);
+
   const handleGoogleSignIn = async () => {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
     if (error) console.error('Google sign‑in error:', error);
   };

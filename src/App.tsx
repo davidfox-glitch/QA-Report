@@ -214,12 +214,12 @@ export default function App() {
       const userEmail = session.user.email;
       if (!invitedEmails.includes(userEmail)) {
         setIsBlocked(true);
-        // Sign them out and show the blocked UI for 5 seconds before kicking to login
-        supabase.auth.signOut().then(() => {
-          setTimeout(() => {
-            setIsBlocked(false);
-          }, 5000);
-        });
+        // Wait 5 seconds, then sign out and redirect to Google
+        setTimeout(() => {
+          supabase.auth.signOut().then(() => {
+            window.location.href = 'https://www.google.com';
+          });
+        }, 5000);
       }
     }
   }, [session, invitedEmails, isCheckingInvite]);
@@ -245,16 +245,10 @@ export default function App() {
   if (isBlocked) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-center p-8">
-        <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-200 mb-4">You’re not invited</h1>
+        <h1 className="text-3xl font-bold text-red-600 dark:text-red-500 mb-4">You are not invited. Please contact Dawood.</h1>
         <p className="text-slate-600 dark:text-slate-400 mb-6">
-          This site is invitation‑only. Please contact the admin (<a href="mailto:dawoodhashmi2006@gmail.com" className="text-indigo-600 hover:underline">dawoodhashmi2006@gmail.com</a>) for access.
+          This site is invitation‑only. Redirecting you away...
         </p>
-        <button
-          onClick={() => supabase.auth.signOut()}
-          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 transition"
-        >
-          Sign Out
-        </button>
       </div>
     );
   }
