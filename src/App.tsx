@@ -28,6 +28,8 @@ import { SmartImportModal } from './components/dashboard/SmartImportModal';
 import { DocumentationDashboard } from './components/dashboard/DocumentationDashboard';
 import { ArchiveView } from './components/dashboard/ArchiveView';
 import { TrashView } from './components/dashboard/TrashView';
+import { FilesModal } from './components/table/FilesModal';
+import { DetailsModal } from './components/table/DetailsModal';
 
 // Icons
 import {
@@ -104,6 +106,8 @@ export default function App() {
     setIsImportWizardOpen,
   } = useStore();
 
+  const [detailsRow, setDetailsRow] = useState<any | null>(null);
+  const [filesRowId, setFilesRowId] = useState<string | null>(null);
 
   // Apply dark mode on initial load
   useEffect(() => {
@@ -592,6 +596,8 @@ export default function App() {
               onDeleteRow={trashRow}
               onOpenNotes={(id) => setNotesRowId(id)}
               onQuickUpdate={updateRow}
+              onOpenDetails={setDetailsRow}
+              onOpenFiles={setFilesRowId}
             />
           )}
 
@@ -653,6 +659,9 @@ export default function App() {
       >
         <RowModal onClose={() => setIsAddRowOpen(false)} />
       </Dialog>
+      
+      <FilesModal rowId={filesRowId} onClose={() => setFilesRowId(null)} />
+      <DetailsModal row={detailsRow} onClose={() => setDetailsRow(null)} />
 
       {/* 2. Edit Entry Dialog */}
       <Dialog

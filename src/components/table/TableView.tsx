@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore, TestRow, CustomFieldDef, FunctionalityStatus, TestingStatus, Priority } from '../../store/useStore';
-import { Edit, Trash2, StickyNote, Paperclip, ExternalLink } from 'lucide-react';
+import { Edit, Trash2, StickyNote, Paperclip } from 'lucide-react';
 
 interface TableViewProps {
   rows: TestRow[];
@@ -12,6 +12,8 @@ interface TableViewProps {
   onDeleteRow: (id: string) => void;
   onOpenNotes: (id: string) => void;
   onQuickUpdate: (id: string, updates: Partial<TestRow>) => void;
+  onOpenDetails: (row: TestRow) => void;
+  onOpenFiles: (id: string) => void;
 }
 
 export const TableView: React.FC<TableViewProps> = ({
@@ -23,7 +25,9 @@ export const TableView: React.FC<TableViewProps> = ({
   onEditRow,
   onDeleteRow,
   onOpenNotes,
-  onQuickUpdate
+  onQuickUpdate,
+  onOpenDetails,
+  onOpenFiles
 }) => {
   const { users } = useStore();
   const rowIdsInView = rows.map((r) => r.id);
@@ -98,7 +102,7 @@ export const TableView: React.FC<TableViewProps> = ({
                       />
                     </td>
 
-                    {/* Test Point & URL */}
+                    {/* Test Point */}
                     <td className="px-5 py-3 max-w-[280px]">
                       <div className="flex flex-col space-y-0.5">
                         <span className="text-xs font-semibold text-slate-850 dark:text-slate-200 block truncate" title={row.testPoint}>
@@ -107,22 +111,15 @@ export const TableView: React.FC<TableViewProps> = ({
                         <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
                           {row.moduleName || 'General Module'}
                         </span>
-                        {row.url && (
-                          <a
-                            href={row.url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-[10px] text-slate-400 hover:text-indigo-500 dark:hover:text-indigo-400 truncate flex items-center gap-0.5"
-                          >
-                            {row.url}
-                            <ExternalLink className="h-2 w-2" />
-                          </a>
-                        )}
                       </div>
                     </td>
 
                     {/* How to test, expected, actual */}
-                    <td className="px-5 py-3 max-w-[250px]">
+                    <td 
+                      className="px-5 py-3 max-w-[250px] cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                      onClick={() => onOpenDetails(row)}
+                      title="Click to view full details"
+                    >
                       <div className="flex flex-col space-y-1 text-[10px]">
                         {row.howToTest && (
                           <p className="text-slate-500 dark:text-slate-400 line-clamp-1">
@@ -245,16 +242,16 @@ export const TableView: React.FC<TableViewProps> = ({
                     {/* Attachments Trigger */}
                     <td className="px-5 py-3 text-center">
                       <button
-                        onClick={() => onEditRow(row.id)}
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all ${
-                          row.attachments.length > 0
-                            ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500/20'
-                            : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-650 dark:hover:text-slate-300'
-                        }`}
-                        title="Upload/View Attachments"
+                        onClick={() => onOpenFiles(row.id)}
+                        className="inline-flex items-center justify-center p-2 rounded-xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-all relative group"
+                        title="Upload/View Files"
                       >
-                        <Paperclip className="h-3.5 w-3.5" />
-                        <span>{row.attachments.length}</span>
+                        <Paperclip className="h-4 w-4" />
+                        {row.attachments?.length > 0 && (
+                          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-[9px] font-bold text-indigo-600 dark:text-indigo-400 ring-2 ring-white dark:ring-slate-900">
+                            {row.attachments.length}
+                          </span>
+                        )}
                       </button>
                     </td>
 
