@@ -26,3 +26,6 @@ export const vapidKeys = {
   publicKey: VAPID_PUBLIC_KEY,
   privateKey: VAPID_PRIVATE_KEY,
 };
+
+// Global channel for Realtime State Sync
+export const syncChannel = supabase.channel('app-state-sync');

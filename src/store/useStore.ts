@@ -298,17 +298,19 @@ export const useStore = create<DashboardState>((set, get) => {
       };
       // Save to localStorage for offline cache
       localStorage.setItem('qaflow_pro_state', JSON.stringify(newState));
-      // Sync to Supabase tables (assuming appropriate tables exist)
+      
+      // Sync state across users using Supabase Broadcast
       try {
-        await Promise.all([
-          supabase.from('settings').upsert([newState.settings]),
-          supabase.from('rows').upsert(newState.rows),
-          supabase.from('users').upsert(newState.users),
-          supabase.from('notifications').upsert(newState.notifications)
-        ]);
+        const channel = supabase.channel('app-state-sync');
+        await channel.send({
+          type: 'broadcast',
+          event: 'state-update',
+          payload: newState
+        });
       } catch (e) {
-        console.error('Supabase sync error:', e);
+        console.error('Supabase broadcast error:', e);
       }
+      
       return newState;
     };
     const setAndPersist = async (updater: (state: DashboardState) => Partial<DashboardState>) => {

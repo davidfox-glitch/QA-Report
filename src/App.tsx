@@ -8,7 +8,7 @@ import { BulkActions } from './components/dashboard/BulkActions';
 import { PrintReportView } from './components/dashboard/PrintReportView';
 
 import { LoginView } from './components/auth/LoginView';
-import { supabase } from './lib/supabase';
+import { supabase, syncChannel } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { TableView } from './components/table/TableView';
@@ -177,6 +177,45 @@ export default function App() {
   const [isBlocked, setIsBlocked] = useState(false);
   const [invitedEmails, setInvitedEmails] = useState<string[]>(['dawoodhashmi2006@gmail.com']);
   const [isCheckingInvite, setIsCheckingInvite] = useState(true);
+
+  // Sync state across different connected users via Supabase Broadcast
+  useEffect(() => {
+    syncChannel
+      .on('broadcast', { event: 'state-update' }, (payload) => {
+        if (payload.payload) {
+          useStore.setState(payload.payload);
+          localStorage.setItem('qaflow_pro_state', JSON.stringify(payload.payload));
+        }
+      })
+      .on('broadcast', { event: 'request-state' }, () => {
+        syncChannel.send({
+          type: 'broadcast',
+          event: 'state-update',
+          payload: useStore.getState()
+        });
+      })
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          syncChannel.send({
+            type: 'broadcast',
+            event: 'request-state',
+            payload: {}
+          });
+        }
+      });
+      
+    // Handle local storage updates across tabs in the same browser
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'qaflow_pro_state' && e.newValue) {
+        useStore.setState(JSON.parse(e.newValue));
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
