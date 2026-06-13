@@ -19,7 +19,7 @@ interface FiltersProps {
 }
 
 const selectClass =
-  'w-full appearance-none px-3 py-2 pr-8 text-xs font-medium bg-slate-900/60 dark:bg-slate-900/70 border border-slate-700/60 dark:border-slate-700/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-slate-200 transition-all cursor-pointer hover:border-slate-600 dark:hover:border-slate-600 [background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236366f1\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")] [background-repeat:no-repeat] [background-position:right_0.75rem_center]';
+  'w-full appearance-none px-3 py-2 pr-8 text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-slate-700 dark:text-slate-200 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-sm [background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236366f1\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")] [background-repeat:no-repeat] [background-position:right_0.75rem_center]';
 
 export const Filters: React.FC<FiltersProps> = ({
   search,
@@ -120,7 +120,7 @@ export const Filters: React.FC<FiltersProps> = ({
                   placeholder={cf.name}
                   value={customFilters[cf.id] || ''}
                   onChange={(e) => setCustomFilter(cf.id, e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-slate-900/60 dark:bg-slate-900/70 border border-slate-700/60 dark:border-slate-700/80 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-slate-200 transition-all"
+                  className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-slate-700 dark:text-slate-200 transition-all shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
                 />
               </div>
             ))}
