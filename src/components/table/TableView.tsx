@@ -28,6 +28,7 @@ export const TableView: React.FC<TableViewProps> = ({
   const { users } = useStore();
   const rowIdsInView = rows.map((r) => r.id);
   const allSelected = rowIdsInView.length > 0 && rowIdsInView.every((id) => selectedRowIds.includes(id));
+  const uniqueRoles = Array.from(new Set(users.map(u => u.role)));
 
   return (
     <div className="glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl overflow-hidden shadow-sm">
@@ -49,6 +50,7 @@ export const TableView: React.FC<TableViewProps> = ({
               <th className="px-5 py-3.5">Functionality</th>
               <th className="px-5 py-3.5">QA Status</th>
               <th className="px-5 py-3.5">Priority</th>
+              <th className="px-5 py-3.5">Role</th>
               <th className="px-5 py-3.5">Assignee</th>
               
               {/* Custom Field Columns */}
@@ -180,6 +182,24 @@ export const TableView: React.FC<TableViewProps> = ({
                       </select>
                     </td>
 
+                    {/* Assigned Role selection */}
+                    <td className="px-5 py-3">
+                      <select
+                        value={row.assignedRole || ''}
+                        onChange={(e) => {
+                          onQuickUpdate(row.id, { assignedRole: e.target.value, assignedUser: undefined });
+                        }}
+                        className="bg-transparent border-none text-xs font-semibold p-0.5 focus:ring-0 cursor-pointer text-slate-805 dark:text-slate-250 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded px-1.5 py-0.5"
+                      >
+                        <option value="" className="dark:bg-slate-900">🏢 Any Role</option>
+                        {uniqueRoles.map(role => (
+                          <option key={role} value={role} className="dark:bg-slate-900">
+                            {role}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+
                     {/* Assignee selection */}
                     <td className="px-5 py-3">
                       <select
@@ -188,7 +208,7 @@ export const TableView: React.FC<TableViewProps> = ({
                         className="bg-transparent border-none text-xs font-semibold p-0.5 focus:ring-0 cursor-pointer text-slate-805 dark:text-slate-250 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded px-1.5 py-0.5"
                       >
                         <option value="" className="dark:bg-slate-900">👤 Unassigned</option>
-                        {users.map(u => (
+                        {(row.assignedRole ? users.filter(u => u.role === row.assignedRole) : users).map(u => (
                           <option key={u.id} value={u.name} className="dark:bg-slate-900">
                             {u.name}
                           </option>

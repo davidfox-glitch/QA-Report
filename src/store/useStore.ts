@@ -37,6 +37,7 @@ export interface TestRow {
   functionalityStatus: FunctionalityStatus;
   testingStatus: TestingStatus;
   priority: Priority;
+  assignedRole?: string; // e.g. 'Developer' or 'QA Engineer'
   assignedUser?: string; // User Name
   notes: Note[];
   attachments: Attachment[];
@@ -236,6 +237,7 @@ const defaultRows: TestRow[] = [
     functionalityStatus: 'Working',
     testingStatus: 'Passed',
     priority: 'Medium',
+    assignedRole: 'Developer',
     assignedUser: 'John Doe',
     notes: [],
     attachments: [],
@@ -420,31 +422,32 @@ export const useStore = create<DashboardState>((set, get) => {
       set((state) => {
         const id = `row-${Date.now()}`;
         const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
-        const row: TestRow = {
-          ...newRow,
-          id,
-          notes: [],
-          attachments: [],
-          customFields: {},
-          lastUpdated: nowStr
-        };
-        const rows = [row, ...state.rows];
-        const nextState = { ...state, rows };
+        const newRowWithMeta = { ...newRow, id, lastUpdated: nowStr, notes: [], attachments: [], customFields: newRow.customFields || {} } as TestRow;
+        const rows = [newRowWithMeta, ...state.rows];
         
-        // Add Notification
-        const activeNotifs = [
-          {
+        const activityLogs = [{ id: `log-${Date.now()}`, action: 'Created Task', details: `Added new test point: ${newRow.testPoint}`, timestamp: nowStr }, ...state.activityLogs];
+
+        const notifications = [...state.notifications];
+        if (newRow.assignedUser) {
+          notifications.unshift({
             id: `notif-${Date.now()}`,
-            message: `New Test Point assigned: "${row.testPoint}"`,
+            message: `New Test Point assigned to ${newRow.assignedUser}`,
             timestamp: nowStr,
             read: false,
-            type: 'assignment' as const
-          },
-          ...state.notifications
-        ];
-        
-        saveToLocal({ ...nextState, notifications: activeNotifs });
-        return { rows, notifications: activeNotifs };
+            type: 'assignment'
+          });
+        } else if (newRow.assignedRole) {
+          notifications.unshift({
+            id: `notif-${Date.now()}`,
+            message: `New Test Point assigned to role: ${newRow.assignedRole}`,
+            timestamp: nowStr,
+            read: false,
+            type: 'assignment'
+          });
+        }
+
+        saveToLocal({ ...state, rows, activityLogs, notifications });
+        return { rows, activityLogs, notifications };
       });
     },
 

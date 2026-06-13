@@ -1,5 +1,5 @@
-import React from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { useStore, FunctionalityStatus, TestingStatus, Priority, Attachment } from '../../store/useStore';
 import { FileUpload } from '../files/FileUpload';
 import { AlertCircle, Link2, Calendar, AlignLeft, UserCheck } from 'lucide-react';
@@ -19,6 +19,7 @@ interface RowFormInput {
   functionalityStatus: FunctionalityStatus;
   testingStatus: TestingStatus;
   priority: Priority;
+  assignedRole: string;
   assignedUser: string;
   startDate: string;
   releaseDate: string;
@@ -31,6 +32,8 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
   const isEdit = !!rowId;
   const editingRow = rows.find((r) => r.id === rowId);
 
+  const generateBugId = () => `BUG-${Math.floor(1000 + Math.random() * 9000)}`;
+
   const defaultValues: Partial<RowFormInput> = {
     testPoint: editingRow?.testPoint || '',
     moduleName: editingRow?.moduleName || '',
@@ -41,18 +44,25 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
     functionalityStatus: editingRow?.functionalityStatus || 'Pending',
     testingStatus: editingRow?.testingStatus || 'Pending',
     priority: editingRow?.priority || 'Medium',
+    assignedRole: editingRow?.assignedRole || '',
     assignedUser: editingRow?.assignedUser || '',
     startDate: editingRow?.startDate || '',
     releaseDate: editingRow?.releaseDate || '',
-    customFields: editingRow?.customFields || {}
+    customFields: editingRow?.customFields || (customFieldsDef.some(f => f.id === 'cf-bug-id') ? { 'cf-bug-id': generateBugId() } : {})
   };
 
   const {
     register,
     handleSubmit,
     reset,
+    control,
+    setValue,
     formState: { errors }
   } = useForm<RowFormInput>({ defaultValues });
+
+  const selectedRole = useWatch({ control, name: 'assignedRole' });
+  const uniqueRoles = Array.from(new Set(users.map(u => u.role)));
+  const filteredUsers = selectedRole ? users.filter(u => u.role === selectedRole) : users;
 
   const handleClear = () => {
     if (confirm("Are you sure you want to clear all fields?")) {
@@ -66,10 +76,11 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
         functionalityStatus: 'Pending',
         testingStatus: 'Pending',
         priority: 'Medium',
+        assignedRole: '',
         assignedUser: '',
         startDate: '',
         releaseDate: '',
-        customFields: {}
+        customFields: customFieldsDef.some(f => f.id === 'cf-bug-id') ? { 'cf-bug-id': generateBugId() } : {}
       });
     }
   };
@@ -85,6 +96,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
       functionalityStatus: data.functionalityStatus,
       testingStatus: data.testingStatus,
       priority: data.priority,
+      assignedRole: data.assignedRole || undefined,
       assignedUser: data.assignedUser || undefined,
       startDate: data.startDate || undefined,
       releaseDate: data.releaseDate || undefined,
@@ -275,6 +287,28 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
               </select>
             </div>
 
+            {/* Assigned Role */}
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
+                <UserCheck className="h-3.5 w-3.5 text-slate-400" /> Assigned Role
+              </label>
+              <select
+                {...register('assignedRole')}
+                onChange={(e) => {
+                  register('assignedRole').onChange(e);
+                  setValue('assignedUser', ''); // Clear user when role changes
+                }}
+                className="w-full px-3 py-2 text-xs bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100"
+              >
+                <option value="">Any Role</option>
+                {uniqueRoles.map(role => (
+                  <option key={role} value={role}>{role}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3">
             {/* Assigned User */}
             <div className="space-y-1">
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
@@ -285,7 +319,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
                 className="w-full px-3 py-2 text-xs bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100"
               >
                 <option value="">Unassigned</option>
-                {users.map(u => (
+                {filteredUsers.map(u => (
                   <option key={u.id} value={u.name}>{u.name} ({u.role})</option>
                 ))}
               </select>
