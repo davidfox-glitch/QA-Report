@@ -1,6 +1,7 @@
 // Smart Import Modal Component
 import React, { useState } from 'react';
 import { useStore, TestRow, CustomFieldDef } from '../../store/useStore';
+import { supabase } from '../../lib/supabase';
 import { 
   Download, 
   UploadCloud, 
@@ -182,6 +183,14 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
           throw new Error(result.error || 'AI parsing failed');
         }
         
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUserEmail = session?.user?.email;
+        let currentUserName = undefined;
+        if (currentUserEmail) {
+          const userObj = users.find(u => u.email === currentUserEmail);
+          if (userObj) currentUserName = userObj.name;
+        }
+
         // Ensure each row gets a unique ID and matches structure
         const finalRows = (result.testPoints || []).map((tp: Record<string, unknown>, index: number) => ({
           id: `row-${Date.now()}-${index}`,
@@ -191,10 +200,10 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
           howToTest: (tp.howToTest as string) || '',
           expectedResult: (tp.expectedResult as string) || '',
           actualResult: (tp.actualResult as string) || '',
-          functionalityStatus: (tp.functionalityStatus as any) || 'Pending',
-          testingStatus: (tp.testingStatus as any) || 'Pending',
+          functionalityStatus: 'Pending',
+          testingStatus: 'Pending',
           priority: (tp.priority as any) || 'Medium',
-          assignedUser: (tp.assignedUser as string) || undefined,
+          assignedUser: currentUserName || (tp.assignedUser as string) || undefined,
           notes: [],
           attachments: [],
           customFields: {},

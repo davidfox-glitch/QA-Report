@@ -50,8 +50,29 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors }
   } = useForm<RowFormInput>({ defaultValues });
+
+  const handleClear = () => {
+    if (confirm("Are you sure you want to clear all fields?")) {
+      reset({
+        testPoint: '',
+        moduleName: '',
+        url: '',
+        howToTest: '',
+        expectedResult: '',
+        actualResult: '',
+        functionalityStatus: 'Pending',
+        testingStatus: 'Pending',
+        priority: 'Medium',
+        assignedUser: '',
+        startDate: '',
+        releaseDate: '',
+        customFields: {}
+      });
+    }
+  };
 
   const onSubmit = (data: RowFormInput) => {
     const rowData = {
@@ -343,20 +364,31 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex justify-end space-x-2 border-t border-slate-200/50 dark:border-slate-800/50 pt-4 mt-6">
+      <div className="flex justify-between items-center border-t border-slate-200/50 dark:border-slate-800/50 pt-4 mt-6">
         <button
           type="button"
-          onClick={onClose}
-          className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+          onClick={handleClear}
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 rounded-xl transition-colors"
+          title="Clear all fields"
         >
-          Cancel
+          <AlertCircle className="h-3.5 w-3.5" />
+          Clear Fields
         </button>
-        <button
-          type="submit"
-          className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all"
-        >
-          {isEdit ? 'Save Changes' : 'Create Entry'}
-        </button>
+        <div className="flex space-x-2">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all"
+          >
+            {isEdit ? 'Save Changes' : 'Create Entry'}
+          </button>
+        </div>
       </div>
     </form>
   );

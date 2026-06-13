@@ -44,6 +44,7 @@ export interface TestRow {
   lastUpdated: string;
   startDate?: string;
   releaseDate?: string;
+  deletedAt?: string;
 }
 
 export interface ProjectSettings {
@@ -120,6 +121,7 @@ interface DashboardState {
   activityLogs: any[];
   archiveRow: (id: string) => void;
   trashRow: (id: string) => void;
+  trashMultipleRows: (ids: string[]) => void;
   restoreRow: (id: string) => void;
   hardDeleteRow: (id: string) => void;
   logActivity: (action: string, details?: string) => void;
@@ -835,15 +837,48 @@ export const useStore = create<DashboardState>((set, get) => {
         const targetRow = rowInActive || rowInArchive;
         if (!targetRow) return state;
 
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const targetRowWithDeletedAt = { ...targetRow, deletedAt: new Date().toISOString() };
+
         const rows = state.rows.filter(r => r.id !== id);
         const archivedRows = state.archivedRows.filter(r => r.id !== id);
-        const trashRows = [targetRow, ...state.trashRows];
+        const trashRows = [targetRowWithDeletedAt, ...state.trashRows];
         
-        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
         const activityLogs = [{ id: `log-${Date.now()}`, action: 'Moved to Trash', details: `Task ${targetRow.testPoint} moved to trash`, timestamp: nowStr }, ...state.activityLogs];
 
         saveToLocal({ ...state, rows, archivedRows, trashRows, activityLogs });
         return { rows, archivedRows, trashRows, activityLogs };
+      });
+    },
+
+    trashMultipleRows: (ids) => {
+      set((state) => {
+        const rowsToTrash: TestRow[] = [];
+        const nowIsoStr = new Date().toISOString();
+        
+        for (const id of ids) {
+          const rowInActive = state.rows.find(r => r.id === id);
+          const rowInArchive = state.archivedRows.find(r => r.id === id);
+          const targetRow = rowInActive || rowInArchive;
+          if (targetRow) {
+            rowsToTrash.push({ ...targetRow, deletedAt: nowIsoStr });
+          }
+        }
+
+        if (rowsToTrash.length === 0) return state;
+
+        const nowStr = nowIsoStr.replace('T', ' ').substring(0, 16);
+        const rows = state.rows.filter(r => !ids.includes(r.id));
+        const archivedRows = state.archivedRows.filter(r => !ids.includes(r.id));
+        const trashRows = [...rowsToTrash, ...state.trashRows];
+        
+        const activityLogs = [{ id: `log-${Date.now()}`, action: 'Moved to Trash', details: `${rowsToTrash.length} tasks moved to trash`, timestamp: nowStr }, ...state.activityLogs];
+
+        // Also deselect the rows that were trashed
+        const selectedRowIds = state.selectedRowIds.filter(id => !ids.includes(id));
+
+        saveToLocal({ ...state, rows, archivedRows, trashRows, activityLogs, selectedRowIds });
+        return { rows, archivedRows, trashRows, activityLogs, selectedRowIds };
       });
     },
 

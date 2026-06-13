@@ -64,8 +64,8 @@ export default function App() {
     toggleSelectRow,
     toggleSelectAllRows,
     clearSelection,
-    deleteRow,
-    deleteMultipleRows,
+    trashRow,
+    trashMultipleRows,
     bulkUpdateStatus,
     updateRow,
     clearNotifications,
@@ -550,7 +550,7 @@ export default function App() {
               toggleSelectRow={toggleSelectRow}
               toggleSelectAllRows={toggleSelectAllRows}
               onEditRow={(id) => setEditingRowId(id)}
-              onDeleteRow={deleteRow}
+              onDeleteRow={trashRow}
               onOpenNotes={(id) => setNotesRowId(id)}
               onQuickUpdate={updateRow}
             />
@@ -590,8 +590,8 @@ export default function App() {
         selectedCount={selectedRowIds.length}
         onClear={clearSelection}
         onDeleteSelected={() => {
-          if (confirm(`Delete ${selectedRowIds.length} selected pages?`)) {
-            deleteMultipleRows(selectedRowIds);
+          if (confirm(`Move ${selectedRowIds.length} selected items to trash?`)) {
+            trashMultipleRows(selectedRowIds);
           }
         }}
         onBulkUpdate={(func, test, prio) => bulkUpdateStatus(selectedRowIds, func, test, prio)}
