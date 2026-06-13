@@ -462,37 +462,74 @@ export default function App() {
 
               {/* Notifications panel dropdown */}
               {isNotificationsOpen && (
-                <div className="absolute right-0 mt-2.5 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 p-4 space-y-3">
-                  <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-850 pb-2">
-                    <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Alert Logs</span>
+                <div className="absolute right-0 mt-2.5 w-80 bg-white dark:bg-slate-900/95 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl shadow-slate-900/20 dark:shadow-slate-950/50 z-50 overflow-hidden backdrop-blur-xl">
+                  {/* Header */}
+                  <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 dark:border-slate-800/70 bg-slate-50/50 dark:bg-slate-900/50">
+                    <div className="flex items-center gap-2">
+                      <Bell className="h-3.5 w-3.5 text-indigo-500" />
+                      <span className="text-xs font-bold text-slate-800 dark:text-slate-200">Notifications</span>
+                      {unreadCount > 0 && (
+                        <span className="flex h-4 w-4 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/60 text-[9px] font-bold text-indigo-600 dark:text-indigo-400">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </div>
                     <button
                       onClick={clearNotifications}
-                      className="text-[9px] font-bold text-slate-400 hover:text-rose-550"
+                      className="text-[9px] font-bold text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors px-2 py-1 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/20"
                     >
                       Clear All
                     </button>
                   </div>
-                  <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-1">
+
+                  {/* Notification List */}
+                  <div className="space-y-px max-h-[300px] overflow-y-auto">
                     {notifications.length === 0 ? (
-                      <p className="text-[10px] text-slate-400 text-center py-4">No recent activity logs.</p>
+                      <div className="text-center py-8 px-4">
+                        <Bell className="h-8 w-8 text-slate-200 dark:text-slate-700 mx-auto mb-2" />
+                        <p className="text-xs text-slate-400 dark:text-slate-500 font-medium">All caught up!</p>
+                        <p className="text-[10px] text-slate-300 dark:text-slate-600 mt-0.5">No recent notifications</p>
+                      </div>
                     ) : (
-                      notifications.map(n => (
-                        <div
-                          key={n.id}
-                          onClick={() => {
-                            markNotificationRead(n.id);
-                            setIsNotificationsOpen(false);
-                          }}
-                          className={`p-2 rounded-xl text-[10px] transition-all cursor-pointer ${
-                            n.read 
-                              ? 'bg-slate-50/20 dark:bg-slate-950/10 text-slate-500' 
-                              : 'bg-indigo-500/5 dark:bg-indigo-500/10 border-l-2 border-indigo-500 font-medium'
-                          }`}
-                        >
-                          <p className="leading-snug">{n.message}</p>
-                          <span className="text-[8px] text-slate-400 block mt-1">{n.timestamp}</span>
-                        </div>
-                      ))
+                      notifications.map((n) => {
+                        const isAssignment = n.type === 'assignment';
+                        const isGeneral = n.type === 'general';
+                        return (
+                          <div
+                            key={n.id}
+                            onClick={() => { markNotificationRead(n.id); setIsNotificationsOpen(false); }}
+                            className={`flex items-start gap-3 px-4 py-3 cursor-pointer transition-all hover:bg-slate-50 dark:hover:bg-slate-800/50 ${
+                              !n.read ? 'bg-indigo-50/60 dark:bg-indigo-500/5' : ''
+                            }`}
+                          >
+                            {/* Icon */}
+                            <div className={`mt-0.5 shrink-0 h-7 w-7 rounded-xl flex items-center justify-center ${
+                              isAssignment ? 'bg-violet-100 dark:bg-violet-900/30' :
+                              isGeneral ? 'bg-sky-100 dark:bg-sky-900/30' :
+                              'bg-slate-100 dark:bg-slate-800'
+                            }`}>
+                              <Bell className={`h-3.5 w-3.5 ${
+                                isAssignment ? 'text-violet-600 dark:text-violet-400' :
+                                isGeneral ? 'text-sky-600 dark:text-sky-400' :
+                                'text-slate-400'
+                              }`} />
+                            </div>
+
+                            {/* Content */}
+                            <div className="flex-1 min-w-0">
+                              <p className={`text-xs leading-snug ${n.read ? 'text-slate-500 dark:text-slate-400' : 'text-slate-700 dark:text-slate-200 font-medium'}`}>
+                                {n.message}
+                              </p>
+                              <span className="text-[9px] text-slate-400 dark:text-slate-500 mt-0.5 block">{n.timestamp}</span>
+                            </div>
+
+                            {/* Unread dot */}
+                            {!n.read && (
+                              <div className="mt-1.5 h-2 w-2 rounded-full bg-indigo-500 shrink-0" />
+                            )}
+                          </div>
+                        );
+                      })
                     )}
                   </div>
                 </div>

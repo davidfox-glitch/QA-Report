@@ -22,7 +22,6 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({ onCl
   });
 
   const logoValue = watch('clientLogo');
-  const aiProviderValue = watch('aiProvider');
 
   const onSubmit = (data: ProjectSettings) => {
     updateSettings(data);
@@ -120,21 +119,8 @@ export const ProjectSettingsModal: React.FC<ProjectSettingsModalProps> = ({ onCl
             <option value="gemini">Google Gemini AI</option>
             <option value="openai">OpenAI GPT Engine</option>
           </select>
-        </div>
-
-        {/* API Key */}
-        <div className="space-y-1">
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-            {aiProviderValue === 'gemini' ? 'Gemini API Key' : 'OpenAI API Key'}
-          </label>
-          <input
-            type="password"
-            {...register('apiKey')}
-            placeholder={aiProviderValue === 'gemini' ? 'AIzaSy...' : 'sk-proj-...'}
-            className="w-full px-3 py-2 text-sm bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100 font-mono"
-          />
-          <p className="text-[9px] text-slate-400">
-            Leave blank to use the secure dynamic local summary engine instead.
+          <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">
+            AI is powered by the secure dynamic local engine. No API key required.
           </p>
         </div>
       </div>

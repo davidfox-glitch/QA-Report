@@ -122,8 +122,8 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
           <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
             {row.moduleName}
           </h4>
-          <p className="text-xs text-indigo-500 truncate" title={row.url}>
-            {row.url}
+          <p className="text-xs text-slate-500 dark:text-slate-400 truncate" title={row.testPoint}>
+            {row.testPoint}
           </p>
         </div>
 
