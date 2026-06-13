@@ -109,7 +109,7 @@ interface DashboardState {
 
   // Test rows (items) data
   rows: TestRow[];
-  addRow: (row: Omit<TestRow, 'id' | 'lastUpdated' | 'notes' | 'attachments' | 'customFields'>) => void;
+  addRow: (row: Omit<TestRow, 'id' | 'lastUpdated' | 'notes' | 'attachments'>) => void;
   updateRow: (id: string, updates: Partial<TestRow>) => void;
   deleteRow: (id: string) => void;
   deleteMultipleRows: (ids: string[]) => void;
