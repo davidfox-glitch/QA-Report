@@ -330,71 +330,71 @@ export default function App() {
 
           {/* Core View Switcher tabs (Center) */}
           <div className="flex-none flex justify-center">
-            <nav className="flex items-center space-x-1 bg-slate-150/80 dark:bg-slate-900/80 border border-slate-200/40 dark:border-slate-850 p-0.5 rounded-xl">
+            <nav className="flex items-center space-x-0.5 bg-slate-150/80 dark:bg-slate-900/80 border border-slate-200/40 dark:border-slate-850 p-0.5 rounded-xl">
             <button
               onClick={() => setCurrentView('dashboard')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                 currentView === 'dashboard'
                   ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
               }`}
             >
-              <LayoutDashboard className="h-3.5 w-3.5" />
-              <span>Dashboard</span>
+              <LayoutDashboard className="h-3 w-3" />
+              <span className="hidden xl:inline">Dashboard</span>
             </button>
             <button
               onClick={() => setCurrentView('table')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                 currentView === 'table'
                   ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
               }`}
             >
-              <LayoutGrid className="h-3.5 w-3.5" />
+              <LayoutGrid className="h-3 w-3" />
               <span>Table</span>
             </button>
             <button
               onClick={() => setCurrentView('kanban')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                 currentView === 'kanban'
                   ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
               }`}
             >
-              <Kanban className="h-3.5 w-3.5" />
+              <Kanban className="h-3 w-3" />
               <span>Kanban</span>
             </button>
             <button
               onClick={() => setCurrentView('analytics')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                 currentView === 'analytics'
                   ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
               }`}
             >
-              <BarChart3 className="h-3.5 w-3.5" />
+              <BarChart3 className="h-3 w-3" />
               <span>Analytics</span>
             </button>
             <button
               onClick={() => setCurrentView('archive')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                 currentView === 'archive'
                   ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
               }`}
             >
-              <Archive className="h-3.5 w-3.5" />
+              <Archive className="h-3 w-3" />
               <span>Archive</span>
             </button>
             <button
               onClick={() => setCurrentView('trash')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                 currentView === 'trash'
                   ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                   : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
               }`}
             >
-              <Trash2 className="h-3.5 w-3.5" />
+              <Trash2 className="h-3 w-3" />
               <span>Trash</span>
             </button>
             {/* Admin-Only Navigation Links */}
@@ -402,35 +402,35 @@ export default function App() {
               <>
                 <button
                   onClick={() => setCurrentView('timeline')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                     currentView === 'timeline'
                       ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                       : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
                   }`}
                 >
-                  <CalendarRange className="h-3.5 w-3.5" />
+                  <CalendarRange className="h-3 w-3" />
                   <span>Timeline</span>
                 </button>
                 <button
                   onClick={() => setCurrentView('users')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                     currentView === 'users'
                       ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                       : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
                   }`}
                 >
-                  <Users className="h-3.5 w-3.5" />
+                  <Users className="h-3 w-3" />
                   <span>Team</span>
                 </button>
                 <button
                   onClick={() => setCurrentView('docs')}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                  className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                     currentView === 'docs'
                       ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                       : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
                   }`}
                 >
-                  <BookOpen className="h-3.5 w-3.5" />
+                  <BookOpen className="h-3 w-3" />
                   <span>Docs</span>
                 </button>
               </>
@@ -536,34 +536,34 @@ export default function App() {
             {/* Smart Import Wizard */}
             <button
               onClick={() => setIsImportWizardOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl transition-all"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl transition-all"
             >
-              <Upload className="h-3.5 w-3.5" />
-              Import Sheet
+              <Upload className="h-3 w-3" />
+              Import
             </button>
 
             {/* Settings Trigger */}
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="flex items-center justify-center p-2 text-slate-500 dark:text-slate-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-all"
+              className="flex items-center justify-center p-1.5 text-slate-500 dark:text-slate-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-all"
               title="Project Settings"
             >
-              <Settings className="h-4 w-4" />
+              <Settings className="h-3.5 w-3.5" />
             </button>
 
             {/* Theme Toggle */}
             <button
               onClick={toggleDarkMode}
-              className="flex items-center justify-center p-2 text-slate-500 dark:text-slate-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-all"
+              className="flex items-center justify-center p-1.5 text-slate-500 dark:text-slate-400 bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-all"
               title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
             >
-              {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              {darkMode ? <Sun className="h-3.5 w-3.5" /> : <Moon className="h-3.5 w-3.5" />}
             </button>
 
             {/* Generate Report */}
             <button
               onClick={() => setIsExportOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl shadow-md shadow-indigo-500/10 hover:shadow-lg transition-all"
+              className="flex items-center gap-1 px-2.5 py-1.5 text-[11px] font-bold bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white rounded-xl shadow-md shadow-indigo-500/10 hover:shadow-lg transition-all"
             >
               Generate Report
             </button>
@@ -572,22 +572,10 @@ export default function App() {
               onClick={async () => {
                 await supabase.auth.signOut();
               }}
-              className="flex items-center justify-center p-2 text-rose-500 hover:text-rose-600 bg-rose-50/50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/40 border border-rose-100 dark:border-rose-900/50 rounded-xl transition-all"
+              className="flex items-center justify-center p-1.5 text-rose-500 hover:text-rose-600 bg-rose-50/50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/40 border border-rose-100 dark:border-rose-900/50 rounded-xl transition-all"
               title="Sign Out"
             >
-              <LogOut className="h-4 w-4" />
-            </button>
-
-            {/* Add Entry */}
-            <button
-              onClick={() => {
-                setEditingRowId(null);
-                setIsAddRowOpen(true);
-              }}
-              className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add Test Point
+              <LogOut className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -612,6 +600,7 @@ export default function App() {
             setCustomFilter={setCustomFilter}
             onAddField={() => setIsAddFieldOpen(true)}
             onManageFields={() => setIsManageFieldsOpen(true)}
+            onAddTestPoint={() => { setEditingRowId(null); setIsAddRowOpen(true); }}
           />
         )}
 

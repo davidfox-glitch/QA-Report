@@ -66,32 +66,32 @@ export const TableView: React.FC<TableViewProps> = ({
           {/* Table Headers */}
           <thead>
             <tr className="bg-surface-container-lowest/80 border-b border-white/10 backdrop-blur-md">
-              <th className="px-6 py-4 w-10 text-center">
+              <th className="px-4 py-3 w-10 text-center">
                 <input
                   type="checkbox"
                   checked={allSelected}
                   onChange={() => toggleSelectAllRows(rowIdsInView)}
-                  className="rounded border-white/20 bg-surface-container text-primary focus:ring-primary/50 h-4 w-4 cursor-pointer"
+                  className="rounded border-white/20 bg-surface-container text-primary focus:ring-primary/50 h-3.5 w-3.5 cursor-pointer"
                 />
               </th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider min-w-[200px]">Test Point / Module</th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider min-w-[150px]">Expected vs Actual</th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Functionality</th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">QA Status</th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Priority</th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Role</th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Assignee</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider min-w-[180px]">Test Point / Module</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider min-w-[130px]">Expected vs Actual</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Functionality</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">QA Status</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Priority</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Role</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Assignee</th>
               
               {/* Custom Field Columns */}
               {customFieldsDef.map((field) => (
-                <th key={field.id} className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider truncate max-w-[120px]">
+                <th key={field.id} className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider truncate max-w-[120px]">
                   {field.name}
                 </th>
               ))}
               
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-center">Notes</th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Updated</th>
-              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-center w-24">Actions</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider text-center">Notes</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Updated</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider text-center w-20">Actions</th>
             </tr>
           </thead>
 
@@ -117,7 +117,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     }`}
                   >
                     {/* Checkbox */}
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 py-3 text-center">
                       <input
                         type="checkbox"
                         checked={isSelected}
@@ -128,7 +128,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Test Point */}
-                    <td className="px-6 py-4 max-w-[280px]">
+                    <td className="px-4 py-3 max-w-[280px]">
                       <div className="flex flex-col space-y-0.5">
                         <span className="text-body-sm font-medium text-primary block truncate" title={row.testPoint}>
                           {row.testPoint}
@@ -141,7 +141,7 @@ export const TableView: React.FC<TableViewProps> = ({
 
                     {/* How to test, expected, actual */}
                     <td 
-                      className="px-6 py-4 max-w-[300px] cursor-pointer hover:bg-white/5 transition-colors rounded-lg"
+                      className="px-4 py-3 max-w-[300px] cursor-pointer hover:bg-white/5 transition-colors rounded-lg"
                       onClick={() => onOpenDetails(row)}
                       title="Click to view full details"
                     >
@@ -163,7 +163,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Functionality Status (Dropdown inline editable) */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className={`inline-flex rounded-md ${getStatusColorClass(row.functionalityStatus)}`}>
                         <select
                           value={row.functionalityStatus}
@@ -179,7 +179,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Testing Status (Dropdown inline editable) */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className={`inline-flex rounded-md ${getStatusColorClass(row.testingStatus)}`}>
                         <select
                           value={row.testingStatus}
@@ -195,7 +195,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Priority (Dropdown inline editable) */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2 relative group/priority">
                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${getPriorityDotColor(row.priority)}`}></span>
                         <select
@@ -212,7 +212,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Assigned Role selection */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <select
                         value={row.assignedRole || ''}
                         onChange={(e) => {
@@ -230,7 +230,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Assignee selection */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
                         {row.assignedUser ? (
                           <div className="w-6 h-6 rounded-full bg-tertiary-container flex-shrink-0 flex items-center justify-center text-[10px] text-on-tertiary font-bold shadow-md shadow-tertiary-container/20">
@@ -256,14 +256,14 @@ export const TableView: React.FC<TableViewProps> = ({
                     {customFieldsDef.map((field) => {
                       const val = row.customFields[field.id];
                       return (
-                        <td key={field.id} className="px-6 py-4 text-body-sm text-on-surface-variant truncate max-w-[120px]">
+                        <td key={field.id} className="px-4 py-3 text-body-sm text-on-surface-variant truncate max-w-[120px]">
                           {val !== undefined && val !== null ? String(val) : '-'}
                         </td>
                       );
                     })}
 
                     {/* Notes Trigger */}
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => onOpenNotes(row.id)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
@@ -279,14 +279,14 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Last Updated */}
-                    <td className="px-6 py-4">
+                    <td className="px-4 py-3">
                       <span className="text-[11px] text-on-surface-variant whitespace-nowrap block">
                         {row.lastUpdated}
                       </span>
                     </td>
 
                     {/* Actions */}
-                    <td className="px-6 py-4 text-center">
+                    <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => onEditRow(row.id)}
