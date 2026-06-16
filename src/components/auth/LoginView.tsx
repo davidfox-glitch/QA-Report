@@ -58,9 +58,7 @@ export const LoginView: React.FC = () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: process.env.NODE_ENV === 'development'
-          ? 'http://localhost:3000/auth/callback' 
-          : 'https://qa-report-seven.vercel.app/auth/callback', 
+        redirectTo: `${window.location.origin}/auth/callback`, 
       },
     });
     

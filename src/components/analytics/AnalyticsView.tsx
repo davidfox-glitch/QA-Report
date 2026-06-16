@@ -26,7 +26,7 @@ interface AnalyticsViewProps {
 }
 
 export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
-  const { users } = useStore();
+  const { users, modules } = useStore();
 
   // 1. Passed vs Failed Data
   const passed = rows.filter((r) => r.testingStatus === 'Passed').length;
@@ -35,10 +35,10 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
   const inProgress = rows.filter((r) => r.testingStatus === 'In Progress').length;
 
   const passedVsFailedData = [
-    { name: 'Passed', value: passed, color: '#10b981' },
-    { name: 'Failed', value: failed, color: '#ef4444' },
-    { name: 'In Progress', value: inProgress, color: '#0ea5e9' },
-    { name: 'Pending', value: pending, color: '#6366f1' }
+    { name: 'Passed', value: passed, color: '#d0bcff' }, // primary
+    { name: 'Failed', value: failed, color: '#ffb4ab' }, // error
+    { name: 'In Progress', value: inProgress, color: '#c4c1fb' }, // tertiary
+    { name: 'Pending', value: pending, color: '#3f465c' } // secondary-container
   ].filter(d => d.value > 0);
 
   // 2. Progress Timeline Data (Velocity of updates by Date)
@@ -57,7 +57,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
   // 3. Module Completion Data (Pass vs Fail per Module)
   const moduleMap: Record<string, { name: string; Passed: number; Failed: number }> = {};
   rows.forEach((r) => {
-    const mod = r.moduleName || 'General';
+    const mod = modules.find(m => m.id === r.moduleId)?.name || 'General';
     if (!moduleMap[mod]) {
       moduleMap[mod] = { name: mod, Passed: 0, Failed: 0 };
     }
@@ -94,9 +94,12 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
       backgroundColor: 'rgba(15, 23, 42, 0.95)',
       border: '1px solid rgba(255, 255, 255, 0.1)',
       borderRadius: '12px',
-      color: '#fff',
-      fontSize: '11px',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+      color: '#d4e4fa',
+      fontSize: '12px',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)'
+    },
+    itemStyle: {
+      color: '#d4e4fa'
     }
   };
 
@@ -104,16 +107,17 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
     <div className="space-y-6">
       
       {/* Top Row: Donut and Line charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Chart 1: Passed vs Failed */}
-        <div className="glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-5 flex flex-col h-[320px]">
-          <h4 className="text-xs font-bold font-display uppercase tracking-wider text-slate-700 dark:text-slate-350 mb-2">
-            Passed vs Failed Distribution
-          </h4>
+        <div className="lg:col-span-4 glass-card p-6 rounded-xl premium-border flex flex-col h-[380px]">
+          <h3 className="font-headline-md text-body-lg font-bold text-on-surface mb-2">
+            Test Outcomes
+          </h3>
+          <p className="text-body-sm text-on-surface-variant mb-4">Overall success metrics</p>
           <div className="flex-1 min-h-0 relative flex items-center justify-center">
             {passedVsFailedData.length === 0 ? (
-              <p className="text-xs text-slate-500 dark:text-slate-400">No test cases found.</p>
+              <p className="text-body-sm text-on-surface-variant">No test cases found.</p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -121,17 +125,18 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
                     data={passedVsFailedData}
                     cx="50%"
                     cy="50%"
-                    innerRadius={65}
-                    outerRadius={90}
+                    innerRadius={70}
+                    outerRadius={100}
                     paddingAngle={3}
                     dataKey="value"
+                    stroke="none"
                   >
                     {passedVsFailedData.map((entry, index) => (
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
                   <Tooltip {...customTooltipStyle} />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 10 }} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12, color: '#cbc3d7' }} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -139,24 +144,25 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
         </div>
 
         {/* Chart 2: Progress Timeline */}
-        <div className="glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-5 flex flex-col h-[320px]">
-          <h4 className="text-xs font-bold font-display uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-            Audit Updates Velocity Timeline
-          </h4>
+        <div className="lg:col-span-8 glass-card p-6 rounded-xl premium-border flex flex-col h-[380px]">
+          <h3 className="font-headline-md text-body-lg font-bold text-on-surface mb-2">
+            Audit Velocity
+          </h3>
+          <p className="text-body-sm text-on-surface-variant mb-4">Daily velocity of QA audits across projects</p>
           <div className="flex-1 min-h-0">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={progressTimelineData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorUpdates" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#d0bcff" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#d0bcff" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.08)" />
-                <XAxis dataKey="date" stroke="#94a3b8" fontSize={9} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.05)" />
+                <XAxis dataKey="date" stroke="#cbc3d7" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#cbc3d7" fontSize={11} tickLine={false} axisLine={false} />
                 <Tooltip {...customTooltipStyle} />
-                <Area type="monotone" dataKey="Updates" stroke="#6366f1" strokeWidth={2} fillOpacity={1} fill="url(#colorUpdates)" />
+                <Area type="monotone" dataKey="Updates" stroke="#d0bcff" strokeWidth={3} fillOpacity={1} fill="url(#colorUpdates)" />
               </AreaChart>
             </ResponsiveContainer>
           </div>
@@ -164,27 +170,28 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
 
       </div>
 
-      {/* Middle Row: Module Completion and Testing Distribution */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Middle Row: Module Completion, Priorities, Team Activity */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         {/* Chart 3: Module Completion */}
-        <div className="glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-5 flex flex-col h-[340px]">
-          <h4 className="text-xs font-bold font-display uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-            Module Testing Completion Rate
-          </h4>
+        <div className="glass-card p-6 rounded-xl premium-border flex flex-col h-[380px]">
+          <h3 className="font-headline-md text-body-lg font-bold text-on-surface mb-2">
+            Module Completion
+          </h3>
+          <p className="text-body-sm text-on-surface-variant mb-4">Pass vs Fail per component</p>
           <div className="flex-1 min-h-0">
             {moduleCompletionData.length === 0 ? (
-              <p className="text-xs text-slate-500 dark:text-slate-400">No module data mapped.</p>
+              <p className="text-body-sm text-on-surface-variant">No module data mapped.</p>
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={moduleCompletionData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.08)" />
-                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={9} tickLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} />
-                  <Tooltip {...customTooltipStyle} cursor={{ fill: 'rgba(148,163,184,0.04)' }} />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 10 }} />
-                  <Bar dataKey="Passed" fill="#10b981" stackId="a" radius={[0, 0, 0, 0]} />
-                  <Bar dataKey="Failed" name="Failed (Bugs)" fill="#ef4444" stackId="a" radius={[4, 4, 0, 0]} />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.05)" />
+                  <XAxis dataKey="name" stroke="#cbc3d7" fontSize={11} tickLine={false} axisLine={false} />
+                  <YAxis stroke="#cbc3d7" fontSize={11} tickLine={false} axisLine={false} />
+                  <Tooltip {...customTooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                  <Bar dataKey="Passed" fill="#d0bcff" stackId="a" radius={[0, 0, 0, 0]} />
+                  <Bar dataKey="Failed" name="Failed (Bugs)" fill="#ffb4ab" stackId="a" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -192,48 +199,49 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
         </div>
 
         {/* Chart 4: Testing Distribution (Radar chart mapping priorities) */}
-        <div className="glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-5 flex flex-col h-[340px]">
-          <h4 className="text-xs font-bold font-display uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-            Priority Testing Distribution
-          </h4>
+        <div className="glass-card p-6 rounded-xl premium-border flex flex-col h-[380px]">
+          <h3 className="font-headline-md text-body-lg font-bold text-on-surface mb-2">
+            Testing Priorities
+          </h3>
+          <p className="text-body-sm text-on-surface-variant mb-4">Urgency distribution matrix</p>
           <div className="flex-1 min-h-0 flex items-center justify-center">
-            <ResponsiveContainer width="100%" height="90%">
-              <RadarChart cx="50%" cy="50%" outerRadius="75%" data={priorityStats}>
-                <PolarGrid stroke="rgba(148, 163, 184, 0.12)" />
-                <PolarAngleAxis dataKey="subject" stroke="#94a3b8" fontSize={10} />
-                <PolarRadiusAxis stroke="#94a3b8" fontSize={8} />
-                <Radar name="Passed" dataKey="Passed" stroke="#10b981" fill="#10b981" fillOpacity={0.25} />
-                <Radar name="Failed" dataKey="Failed" stroke="#ef4444" fill="#ef4444" fillOpacity={0.25} />
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="65%" data={priorityStats}>
+                <PolarGrid stroke="rgba(255, 255, 255, 0.1)" />
+                <PolarAngleAxis dataKey="subject" stroke="#cbc3d7" fontSize={11} />
+                <PolarRadiusAxis stroke="rgba(255, 255, 255, 0.1)" fontSize={9} axisLine={false} tick={false} />
+                <Radar name="Passed" dataKey="Passed" stroke="#d0bcff" fill="#d0bcff" fillOpacity={0.25} />
+                <Radar name="Failed" dataKey="Failed" stroke="#ffb4ab" fill="#ffb4ab" fillOpacity={0.25} />
                 <Tooltip {...customTooltipStyle} />
-                <Legend verticalAlign="bottom" height={24} iconType="circle" wrapperStyle={{ fontSize: 9 }} />
+                <Legend verticalAlign="bottom" height={24} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-      </div>
-
-      {/* Bottom Row: Team Activity */}
-      <div className="glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl p-5 flex flex-col h-[320px]">
-        <h4 className="text-xs font-bold font-display uppercase tracking-wider text-slate-700 dark:text-slate-300 mb-2">
-          Team Activity and Task Allocation
-        </h4>
-        <div className="flex-1 min-h-0">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={teamActivityData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(148, 163, 184, 0.08)" />
-              <XAxis dataKey="name" stroke="#94a3b8" fontSize={9} tickLine={false} />
-              <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} />
-              <Tooltip {...customTooltipStyle} cursor={{ fill: 'rgba(148,163,184,0.04)' }} />
-              <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 10 }} />
-              <Bar dataKey="Passed" fill="#10b981" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Bugs" name="Bugs Found" fill="#ef4444" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Total" name="Total Assigned" fill="#6366f1" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
+        {/* Chart 5: Team Activity */}
+        <div className="glass-card p-6 rounded-xl premium-border flex flex-col h-[380px]">
+          <h3 className="font-headline-md text-body-lg font-bold text-on-surface mb-2">
+            Team Allocation
+          </h3>
+          <p className="text-body-sm text-on-surface-variant mb-4">Workload breakdown by engineer</p>
+          <div className="flex-1 min-h-0">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={teamActivityData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255, 255, 255, 0.05)" />
+                <XAxis dataKey="name" stroke="#cbc3d7" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke="#cbc3d7" fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip {...customTooltipStyle} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 12 }} />
+                <Bar dataKey="Passed" fill="#d0bcff" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Bugs" name="Bugs Found" fill="#ffb4ab" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Total" name="Total Assigned" fill="#c4c1fb" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-      </div>
 
+      </div>
     </div>
   );
 };

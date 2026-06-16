@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QAFlow Performance Analytics</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#2c3a4c",
+                    "surface-tint": "#d0bcff",
+                    "surface-container": "#122131",
+                    "inverse-surface": "#d4e4fa",
+                    "surface-container-lowest": "#010f1f",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "tertiary-container": "#8e8bc2",
+                    "on-primary-container": "#340080",
+                    "inverse-on-surface": "#233143",
+                    "on-secondary": "#283044",
+                    "on-primary-fixed-variant": "#5516be",
+                    "error": "#ffb4ab",
+                    "on-tertiary-fixed-variant": "#444173",
+                    "on-primary": "#3c0091",
+                    "surface-variant": "#273647",
+                    "surface-container-highest": "#273647",
+                    "on-primary-fixed": "#23005c",
+                    "tertiary-fixed": "#e3dfff",
+                    "primary": "#d0bcff",
+                    "inverse-primary": "#6d3bd7",
+                    "on-secondary-container": "#adb4ce",
+                    "primary-fixed-dim": "#d0bcff",
+                    "secondary-container": "#3f465c",
+                    "tertiary": "#c4c1fb",
+                    "tertiary-fixed-dim": "#c4c1fb",
+                    "error-container": "#93000a",
+                    "surface-container-low": "#0d1c2d",
+                    "on-surface-variant": "#cbc3d7",
+                    "background": "#051424",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-tertiary-fixed": "#181445",
+                    "secondary-fixed": "#dae2fd",
+                    "outline-variant": "#494454",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "surface": "#051424",
+                    "outline": "#958ea0",
+                    "on-error": "#690005",
+                    "primary-container": "#a078ff",
+                    "on-tertiary": "#2d2a5b",
+                    "secondary": "#bec6e0",
+                    "primary-fixed": "#e9ddff",
+                    "on-background": "#d4e4fa",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-high": "#1c2b3c",
+                    "surface-dim": "#051424",
+                    "on-tertiary-container": "#262354",
+                    "on-surface": "#d4e4fa"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "body-sm": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "label-caps": ["Geist"]
+            },
+            "fontSize": {
+                    "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #051424;
+            color: #d4e4fa;
+            font-family: 'Geist', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(208, 188, 255, 0.3);
+            box-shadow: 0 0 20px rgba(208, 188, 255, 0.05);
+        }
+
+        .chart-grid-line {
+            stroke: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-item-active {
+            color: #d0bcff;
+            border-bottom: 2px solid #d0bcff;
+            padding-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .premium-border {
+            position: relative;
+        }
+
+        .premium-border::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: linear-gradient(to bottom right, rgba(208, 188, 255, 0.2), transparent);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 bg-surface-container/60 backdrop-blur-xl border-b border-white/10 h-16 flex items-center justify-center">
+<div class="w-full max-w-container-max flex justify-between items-center px-margin-desktop">
+<div class="flex items-center gap-12">
+<div class="text-headline-md font-bold text-primary tracking-tight">QAFlow</div>
+<nav class="hidden md:flex gap-8 items-center">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Table</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Kanban</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1" href="#">Analytics</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">More</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative group hidden sm:block">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">search</span>
+</div>
+<input class="bg-surface-container-low border border-white/10 rounded-lg pl-10 pr-4 py-1.5 text-body-sm text-on-surface focus:outline-none focus:border-primary/50 transition-all w-64" placeholder="Search analytics..." type="text"/>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer active:opacity-80">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary cursor-pointer active:opacity-80">settings</button>
+<div class="h-8 w-8 rounded-full border border-primary/20 overflow-hidden cursor-pointer">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A close-up professional portrait of a tech worker with a focused expression, softly lit by the cool blue and violet glow of computer monitors in a modern dark office. The style is cinematic and high-contrast, perfectly aligning with a midnight violet and navy digital workspace aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBvIwRgxRKw0oQXCEZfmjL5jzQBS-ZntnVAJl3ymXRFejHs59VbKThZgcKwUxrQZ-pIPfeu2m0A3-x7Dd24lVKADW1nMbCfeMpOVMUFu6CALEp4jlCImdt3nff_rcs468_UrfEtSDtQGuaoFAGE9i7i92mDKtFNnPaEtqy8mnUuETBEKf7DuR6wW0enVl2VrmTyx9aHxcUAG3dDeaherpzGdsl9JVbmb2QKwxctvFIWziYUo6ue5ci22OyqBd2l-zP_jD5zTQ6s7hb9"/>
+</div>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-margin-desktop max-w-container-max mx-auto space-y-gutter">
+<!-- Header Section -->
+<section class="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
+<div class="space-y-1">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Performance Analytics</h1>
+<p class="font-body-lg text-on-surface-variant max-w-2xl">Visualizing real-time testing metrics, velocity, and team throughput across all active QA cycles.</p>
+</div>
+<div class="flex gap-4">
+<button class="px-6 py-2.5 rounded-lg border border-white/10 bg-surface-container hover:bg-surface-container-high transition-colors font-body-sm font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">calendar_today</span>
+                    Last 30 Days
+                </button>
+<button class="px-6 py-2.5 rounded-lg bg-primary text-on-primary-container hover:opacity-90 transition-opacity font-body-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                    Create Report
+                </button>
+</div>
+</section>
+<!-- Top Row Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Passed vs Failed Distribution (Donut Chart) -->
+<div class="lg:col-span-4 glass-card p-6 rounded-xl flex flex-col justify-between premium-border">
+<div class="flex justify-between items-start mb-4">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface">Test Outcomes</h3>
+<span class="material-symbols-outlined text-on-surface-variant">info</span>
+</div>
+<div class="relative h-64 flex items-center justify-center">
+<!-- Simple SVG Donut -->
+<svg class="w-48 h-48 -rotate-90" viewbox="0 0 36 36">
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#1E293B" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#d0bcff" stroke-dasharray="72 28" stroke-linecap="round" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#ffb4ab" stroke-dasharray="12 88" stroke-dashoffset="-72" stroke-linecap="round" stroke-width="3"></circle>
+<circle cx="18" cy="18" fill="transparent" r="15.915" stroke="#3f465c" stroke-dasharray="16 84" stroke-dashoffset="-84" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-headline-md font-bold text-on-surface">92.4%</span>
+<span class="text-label-caps text-on-surface-variant">SUCCESS</span>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-3 gap-2">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant font-bold uppercase">Passed</span>
+<span class="text-body-sm font-bold">1,248</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-error"></div>
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant font-bold uppercase">Failed</span>
+<span class="text-body-sm font-bold">184</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-secondary-container"></div>
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant font-bold uppercase">Skipped</span>
+<span class="text-body-sm font-bold">212</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Audit Updates Velocity Timeline (Line Chart) -->
+<div class="lg:col-span-8 glass-card p-6 rounded-xl premium-border">
+<div class="flex justify-between items-center mb-8">
+<div>
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface">Audit Velocity</h3>
+<p class="text-body-sm text-on-surface-variant">Daily velocity of QA audits across projects</p>
+</div>
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded bg-primary/10 text-primary text-label-caps">+14% Growth</span>
+</div>
+</div>
+<div class="h-64 w-full relative">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 800 200">
+<defs>
+<lineargradient id="line-grad" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#d0bcff" stop-opacity="0.3"></stop>
+<stop offset="100%" stop-color="#d0bcff" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Grid lines -->
+<line class="chart-grid-line" stroke-width="1" x1="0" x2="800" y1="40" y2="40"></line>
+<line class="chart-grid-line" stroke-width="1" x1="0" x2="800" y1="80" y2="80"></line>
+<line class="chart-grid-line" stroke-width="1" x1="0" x2="800" y1="120" y2="120"></line>
+<line class="chart-grid-line" stroke-width="1" x1="0" x2="800" y1="160" y2="160"></line>
+<!-- Area Fill -->
+<path d="M0,160 L50,140 L100,155 L150,110 L200,120 L250,80 L300,95 L350,60 L400,75 L450,45 L500,55 L550,30 L600,45 L650,20 L700,35 L750,15 L800,25 L800,200 L0,200 Z" fill="url(#line-grad)"></path>
+<!-- Main Line -->
+<path d="M0,160 L50,140 L100,155 L150,110 L200,120 L250,80 L300,95 L350,60 L400,75 L450,45 L500,55 L550,30 L600,45 L650,20 L700,35 L750,15 L800,25" fill="none" stroke="#d0bcff" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+</svg>
+<div class="flex justify-between mt-4 text-label-caps text-on-surface-variant/60">
+<span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Middle Row Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Module Testing Completion Rate (Bar Chart) -->
+<div class="glass-card p-6 rounded-xl premium-border">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface mb-6">Module Completion</h3>
+<div class="space-y-6">
+<div class="space-y-2">
+<div class="flex justify-between text-body-sm font-medium">
+<span>Core Engine</span>
+<span class="text-primary">98%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[98%] rounded-full shadow-[0_0_10px_rgba(208,188,255,0.4)]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-body-sm font-medium">
+<span>User Auth</span>
+<span class="text-primary">84%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[84%] rounded-full"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-body-sm font-medium">
+<span>Payment Gateway</span>
+<span class="text-primary">62%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[62%] rounded-full opacity-70"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-body-sm font-medium">
+<span>Analytics API</span>
+<span class="text-primary">45%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[45%] rounded-full opacity-50"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Priority Testing Distribution (Radar Chart) -->
+<div class="glass-card p-6 rounded-xl premium-border flex flex-col items-center">
+<h3 class="w-full font-headline-md text-body-lg font-bold text-on-surface mb-4">Testing Priorities</h3>
+<div class="relative w-48 h-48 mt-4">
+<svg class="w-full h-full" viewbox="0 0 100 100">
+<!-- Polygons for structure -->
+<polygon fill="none" points="50,5 95,35 77,90 23,90 5,35" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"></polygon>
+<polygon fill="none" points="50,15 85,40 70,80 30,80 15,40" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"></polygon>
+<polygon fill="none" points="50,25 75,45 63,70 37,70 25,45" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"></polygon>
+<polygon fill="none" points="50,35 65,50 56,60 44,60 35,50" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"></polygon>
+<!-- Radar Data Area -->
+<polygon fill="rgba(208, 188, 255, 0.2)" points="50,10 88,38 72,85 28,82 10,40" stroke="#d0bcff" stroke-width="1.5"></polygon>
+<!-- Center and Vertices Markers -->
+<circle cx="50" cy="10" fill="#d0bcff" r="1.5"></circle>
+<circle cx="88" cy="38" fill="#d0bcff" r="1.5"></circle>
+<circle cx="72" cy="85" fill="#d0bcff" r="1.5"></circle>
+<circle cx="28" cy="82" fill="#d0bcff" r="1.5"></circle>
+<circle cx="10" cy="40" fill="#d0bcff" r="1.5"></circle>
+</svg>
+<!-- Labels -->
+<span class="absolute top-[-10px] left-1/2 -translate-x-1/2 text-[10px] text-on-surface-variant font-bold">URGENT</span>
+<span class="absolute top-[30px] right-[-20px] text-[10px] text-on-surface-variant font-bold">HIGH</span>
+<span class="absolute bottom-[5px] right-[5px] text-[10px] text-on-surface-variant font-bold">MEDIUM</span>
+<span class="absolute bottom-[5px] left-[5px] text-[10px] text-on-surface-variant font-bold">LOW</span>
+<span class="absolute top-[30px] left-[-30px] text-[10px] text-on-surface-variant font-bold">BACKLOG</span>
+</div>
+</div>
+<!-- Team Activity and Task Allocation (Bar Chart with Avatars) -->
+<div class="glass-card p-6 rounded-xl premium-border">
+<h3 class="font-headline-md text-body-lg font-bold text-on-surface mb-6">Team Allocation</h3>
+<div class="space-y-4">
+<div class="flex items-center gap-4">
+<img alt="Team Lead" class="w-10 h-10 rounded-full object-cover border border-white/10" data-alt="A portrait of a male technical manager in his late 30s, dressed in a sleek charcoal sweater, standing in a blurred architectural office space with glowing violet accent lighting. The image captures a sense of leadership and technical proficiency in a high-end corporate dark-mode UI context." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqroBLfsvo3g_-5JRbmp-nRflZMyFAcLD_pYWVt3BYg8jV5PBLgqivFi1zqTBn_TXi2V7MffYmfHjRpxYPDgnljr8C7XKjMJBHbcxseEzEfdlB0BfpuXfGJyQMdW3rxcKtpfxox0pYyzDpLqD8NaKEE_VtAiSzgJKJATvkYBl7LcoSKs2Qeq3J_qXkfweZBe1Uy-Cv9iwifwdeok13I4pgn0Q_V0H_XevD7PsZv4bBGzChBZRr4Gy8fXdcFgEvKjCFFuYouhR6vlNt"/>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between text-body-sm">
+<span class="font-bold">Alex Rivera</span>
+<span class="text-on-surface-variant">24 Tasks</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[85%] rounded-full"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<img alt="QA Engineer" class="w-10 h-10 rounded-full object-cover border border-white/10" data-alt="A portrait of a female software developer with glasses, working in a modern, dark creative studio with ambient violet lighting. She has a confident, collaborative expression. The visual style is crisp and professional, using cinematic lighting to separate her from a tech-focused, bokeh background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGuAqCVahJZp3he-Am4O082s_9rhqONWa27XYt7hkjVQUq0WjZfE0M23jHdkZcssTTr9rU6xkZZdYH8rOchkkw99Q17WiWg92EyEsivWcGWEULMfzfRgpFQRfnlnFMkF7leHNPMdRhQcPyYSBKYO8iJ6zvzUBDac2XkS26oO8j7iO6M9lt0rg1RBxJMfmDDc7WZJEa7Nte1D17lvEmc2B7lT3w9ryp94zDjPjzfRBmf7vX3UjgncNYUFaj3E8bE6DgK12LjICMSR2G"/>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between text-body-sm">
+<span class="font-bold">Sarah Chen</span>
+<span class="text-on-surface-variant">18 Tasks</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%] rounded-full opacity-80"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<img alt="Backend Tester" class="w-10 h-10 rounded-full object-cover border border-white/10" data-alt="A professional headshot of a creative tech specialist in a dark studio setting. Subdued violet and indigo lights highlight the contours of his face and modern attire. The mood is sophisticated and future-oriented, representing a high-performance SaaS platform environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7MB6atc_MOh0o2r6K24wJfuyW1XLogc5w25pYnWkcYJod6LEHmO7kJal5JgqphgWn4OE39hoFfnXjE0wXvvU5POiWHs0stTVW7I2k71DvZhj1WVDBKJDQbMyMoX5ibRz5LpDdA_69YvxWbUTkx68uv5i8OuEFRNQ_CdjlK-YXJwKYFoDaAuu9mzaSvLsMYZyCvCrhLE5i1O57XZ38KFfhvuUMsiJ52PtzrhmptWWctMMiozTxDtcgtshSpS1olwi8vFPMjfM1Ljaw"/>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between text-body-sm">
+<span class="font-bold">Jordan Smith</span>
+<span class="text-on-surface-variant">32 Tasks</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[95%] rounded-full shadow-[0_0_10px_rgba(208,188,255,0.4)]"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<img alt="Lead Automation" class="w-10 h-10 rounded-full object-cover border border-white/10" data-alt="A portrait of a female technical director looking towards the camera with a friendly but professional gaze. The background is a high-tech lab illuminated by soft neon indigo tubes. The overall image uses a limited color palette of dark navy and violet to maintain a consistent brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsT_54u3nj2V-2FfMeYYfKK-voZMwD9bcR885NCjTrwLyYsftyI41cowLOtUPe6nw8liVWzis-v8YYRCe9_RX0zvJQgPW5Q651rrWb2CG1Lbq4dJUkiGRTlM139H5Dyh_bbwnZFdtAi_uWhbNbgaF9Bw9zexoqEuFCff6zzOJPDbckt4JzQKOuWwPxMYC36-R40jO86yjAIuQgfZ6hMUnflrqovSHdeZoPNkkg-x6bUJaSHkb7Q_98TIuqlnFK4bilDxcc65x43jSa"/>
+<div class="flex-1 space-y-1">
+<div class="flex justify-between text-body-sm">
+<span class="font-bold">Elena Vance</span>
+<span class="text-on-surface-variant">12 Tasks</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[40%] rounded-full opacity-60"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Detailed Metrics Section (Bento Style) -->
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-gutter pt-8">
+<div class="lg:col-span-2 glass-card p-8 rounded-xl premium-border flex flex-col justify-center items-start">
+<div class="p-3 bg-primary/10 rounded-lg mb-4">
+<span class="material-symbols-outlined text-primary text-[32px]">speed</span>
+</div>
+<h4 class="text-headline-md font-bold mb-2">Cycle Efficiency</h4>
+<p class="text-body-sm text-on-surface-variant mb-6">Your team is completing test cases 24% faster than last month. Automation coverage has increased to 68% total codebase.</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-bold text-primary">1.4s</span>
+<span class="text-label-caps text-on-surface-variant">AVERAGE EXECUTION</span>
+</div>
+</div>
+<div class="glass-card p-8 rounded-xl premium-border group cursor-pointer">
+<div class="flex flex-col h-full justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-error">bug_report</span>
+<span class="text-error font-bold text-label-caps">High Risk</span>
+</div>
+<h4 class="text-body-lg font-bold mb-1">Critical Faults</h4>
+<p class="text-body-sm text-on-surface-variant">3 undetected memory leaks found in Payment Module.</p>
+</div>
+<div class="mt-4 flex items-center text-primary font-bold text-body-sm group-hover:translate-x-2 transition-transform">
+                        Investigate <span class="material-symbols-outlined ml-1">chevron_right</span>
+</div>
+</div>
+</div>
+<div class="glass-card p-8 rounded-xl premium-border group cursor-pointer">
+<div class="flex flex-col h-full justify-between">
+<div>
+<div class="flex justify-between items-start mb-4">
+<span class="material-symbols-outlined text-surface-tint">verified</span>
+<span class="text-surface-tint font-bold text-label-caps">Certified</span>
+</div>
+<h4 class="text-body-lg font-bold mb-1">Compliance Rate</h4>
+<p class="text-body-sm text-on-surface-variant">SOC2 and ISO27001 test suites passing at 100%.</p>
+</div>
+<div class="mt-4 flex items-center text-primary font-bold text-body-sm group-hover:translate-x-2 transition-transform">
+                        View Audit <span class="material-symbols-outlined ml-1">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="mt-20 border-t border-white/10 py-12 px-margin-desktop bg-surface-container-lowest">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+<div class="flex flex-col gap-2">
+<div class="text-headline-md font-bold text-primary tracking-tight">QAFlow</div>
+<p class="text-body-sm text-on-surface-variant">© 2024 QAFlow Systems. Precision performance analytics for high-stakes engineering.</p>
+</div>
+<div class="flex gap-8">
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#">Documentation</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#">API Reference</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#">Support</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#">Privacy</a>
+</div>
+</div>
+</footer>
+<script>
+        // Simple interaction for the line chart hover effect
+        const dashboard = {
+            init() {
+                console.log("QAFlow Analytics Initialized");
+                this.attachInteractions();
+            },
+            attachInteractions() {
+                document.querySelectorAll('.glass-card').forEach(card => {
+                    card.addEventListener('mouseenter', () => {
+                        card.style.transform = 'translateY(-4px)';
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        card.style.transform = 'translateY(0)';
+                    });
+                });
+            }
+        };
+
+        window.addEventListener('DOMContentLoaded', () => dashboard.init());
+    </script>
+</body></html>

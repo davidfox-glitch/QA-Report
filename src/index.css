@@ -1,10 +1,78 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap');
 
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Geist', system-ui, -apple-system, sans-serif;
+  --font-display: 'Geist', system-ui, -apple-system, sans-serif;
+  
+  --font-body-lg: 'Geist';
+  --font-headline-lg-mobile: 'Geist';
+  --font-body-sm: 'Geist';
+  --font-headline-md: 'Geist';
+  --font-headline-lg: 'Geist';
+  --font-label-caps: 'Geist';
+
+  --color-surface-bright: #2c3a4c;
+  --color-surface-tint: #d0bcff;
+  --color-surface-container: #122131;
+  --color-inverse-surface: #d4e4fa;
+  --color-surface-container-lowest: #010f1f;
+  --color-secondary-fixed-dim: #bec6e0;
+  --color-tertiary-container: #8e8bc2;
+  --color-on-primary-container: #340080;
+  --color-inverse-on-surface: #233143;
+  --color-on-secondary: #283044;
+  --color-on-primary-fixed-variant: #5516be;
+  --color-error: #ffb4ab;
+  --color-on-tertiary-fixed-variant: #444173;
+  --color-on-primary: #3c0091;
+  --color-surface-variant: #273647;
+  --color-surface-container-highest: #273647;
+  --color-on-primary-fixed: #23005c;
+  --color-tertiary-fixed: #e3dfff;
+  --color-primary: #d0bcff;
+  --color-inverse-primary: #6d3bd7;
+  --color-on-secondary-container: #adb4ce;
+  --color-primary-fixed-dim: #d0bcff;
+  --color-secondary-container: #3f465c;
+  --color-tertiary: #c4c1fb;
+  --color-tertiary-fixed-dim: #c4c1fb;
+  --color-error-container: #93000a;
+  --color-surface-container-low: #0d1c2d;
+  --color-on-surface-variant: #cbc3d7;
+  --color-background: #051424;
+  --color-on-secondary-fixed: #131b2e;
+  --color-on-tertiary-fixed: #181445;
+  --color-secondary-fixed: #dae2fd;
+  --color-outline-variant: #494454;
+  --color-on-secondary-fixed-variant: #3f465c;
+  --color-surface: #051424;
+  --color-outline: #958ea0;
+  --color-on-error: #690005;
+  --color-primary-container: #a078ff;
+  --color-on-tertiary: #2d2a5b;
+  --color-secondary: #bec6e0;
+  --color-primary-fixed: #e9ddff;
+  --color-on-background: #d4e4fa;
+  --color-on-error-container: #ffdad6;
+  --color-surface-container-high: #1c2b3c;
+  --color-surface-dim: #051424;
+  --color-on-tertiary-container: #262354;
+  --color-on-surface: #d4e4fa;
+
+  --spacing-container-max: 1280px;
+  --spacing-margin-desktop: 64px;
+  --spacing-unit: 8px;
+  --spacing-margin-mobile: 20px;
+  --spacing-gutter: 24px;
+}
+
+body {
+  background-color: var(--color-background, #051424);
+  font-family: 'Geist', sans-serif;
+  color: var(--color-on-background, #d4e4fa);
+  margin: 0;
 }
 
 /* Custom Scrollbars */
@@ -44,34 +112,45 @@
   animation: fadeIn 0.2s ease-out forwards;
 }
 
-/* Glassmorphism panel styling */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.7);
+.glass-card {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
 }
 
-.dark .glass-panel {
+.premium-stroke {
+  position: relative;
+}
+
+.premium-stroke::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(to bottom right, var(--color-primary, #d0bcff), transparent, transparent);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.violet-glow {
+  box-shadow: 0 0 20px -5px rgba(208, 188, 255, 0.3);
+}
+
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Glassmorphism panel styling */
+.glass-panel {
   background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(51, 65, 85, 0.5);
-}
-
-/* Glassmorphism card styling */
-.glass-card {
-  background: rgba(255, 255, 255, 0.45);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(226, 232, 240, 0.5);
-}
-
-.dark .glass-card {
-  background: rgba(30, 41, 59, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(51, 65, 85, 0.25);
 }
 
 /* Print Layout for PDF reports */

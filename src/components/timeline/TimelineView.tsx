@@ -1,5 +1,5 @@
 import React from 'react';
-import { TestRow } from '../../store/useStore';
+import { useStore, TestRow } from '../../store/useStore';
 import { Calendar, Clock, AlertTriangle } from 'lucide-react';
 
 interface TimelineViewProps {
@@ -8,6 +8,7 @@ interface TimelineViewProps {
 }
 
 export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) => {
+  const { modules } = useStore();
   // Find rows with valid timeline dates
   const timelineRows = rows.filter(r => r.startDate && r.releaseDate);
 
@@ -137,7 +138,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) =
                       {row.testPoint}
                     </span>
                     <div className="flex items-center space-x-1.5 text-[9px] text-slate-400 dark:text-slate-550">
-                      <span className="uppercase font-bold text-[8px] tracking-wider text-slate-450">{row.moduleName}</span>
+                      <span className="uppercase font-bold text-[8px] tracking-wider text-slate-450">{modules.find(m => m.id === row.moduleId)?.name || 'General Module'}</span>
                       <span>•</span>
                       <span>Assignee: {row.assignedUser || 'Unassigned'}</span>
                     </div>

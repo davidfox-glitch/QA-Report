@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useStore, TestRow, TestingStatus, FunctionalityStatus } from '../../store/useStore';
 import { Badge } from '../ui/Badge';
-import { User, StickyNote, Paperclip } from 'lucide-react';
+import { User, StickyNote, Paperclip, MoreVertical } from 'lucide-react';
 
 interface KanbanViewProps {
   rows: TestRow[];
@@ -18,33 +18,33 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   onOpenNotes,
   onQuickUpdate
 }) => {
-  const { users } = useStore();
+  const { users, modules } = useStore();
   const [groupBy, setGroupBy] = useState<GroupByOption>('testing');
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [overColId, setOverColId] = useState<string | null>(null);
 
   const testingColumns = [
-    { id: 'Pending', title: 'Pending Review', dot: 'bg-indigo-500' },
-    { id: 'In Progress', title: 'In Progress', dot: 'bg-sky-500' },
-    { id: 'Passed', title: 'Passed', dot: 'bg-emerald-500' },
-    { id: 'Failed', title: 'Failed (Bugs)', dot: 'bg-rose-500' }
+    { id: 'Pending', title: 'Pending Review', dot: 'bg-outline', textClass: 'text-on-surface', badgeClass: 'bg-surface-container-highest text-on-surface-variant' },
+    { id: 'In Progress', title: 'In Progress', dot: 'bg-primary shadow-[0_0_8px_rgba(208,188,255,0.6)]', textClass: 'text-on-surface', badgeClass: 'bg-primary/10 text-primary border border-primary/20' },
+    { id: 'Passed', title: 'Passed', dot: 'bg-secondary-fixed-dim', textClass: 'text-on-surface', badgeClass: 'bg-secondary-container text-secondary' },
+    { id: 'Failed', title: 'Failed (Bugs)', dot: 'bg-error animate-pulse shadow-[0_0_8px_rgba(255,180,171,0.6)]', textClass: 'text-error', badgeClass: 'bg-error-container text-error' }
   ];
 
   const functionalityColumns = [
-    { id: 'Pending', title: 'Backlog / Pending', dot: 'bg-slate-400' },
-    { id: 'Working', title: 'Operational', dot: 'bg-emerald-500' },
-    { id: 'Partially Working', title: 'Partially Working', dot: 'bg-amber-500' },
-    { id: 'Not Working', title: 'Broken', dot: 'bg-rose-500' }
+    { id: 'Pending', title: 'Backlog / Pending', dot: 'bg-outline', textClass: 'text-on-surface', badgeClass: 'bg-surface-container-highest text-on-surface-variant' },
+    { id: 'Working', title: 'Operational', dot: 'bg-secondary-fixed-dim', textClass: 'text-on-surface', badgeClass: 'bg-secondary-container text-secondary' },
+    { id: 'Partially Working', title: 'Partially Working', dot: 'bg-yellow-500', textClass: 'text-yellow-400', badgeClass: 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' },
+    { id: 'Not Working', title: 'Broken', dot: 'bg-error animate-pulse', textClass: 'text-error', badgeClass: 'bg-error-container text-error' }
   ];
 
   const getColDot = (index: number) => {
-    const dots = ['bg-indigo-500', 'bg-sky-500', 'bg-emerald-500', 'bg-rose-500', 'bg-amber-500', 'bg-violet-500'];
+    const dots = ['bg-primary', 'bg-tertiary', 'bg-secondary', 'bg-error', 'bg-yellow-500', 'bg-blue-500'];
     return dots[index % dots.length];
   };
 
   const userColumns = [
-    ...users.map((u, i) => ({ id: u.name, title: u.name, dot: getColDot(i) })),
-    { id: 'unassigned', title: 'Unassigned', dot: 'bg-slate-400' }
+    ...users.map((u, i) => ({ id: u.name, title: u.name, dot: getColDot(i), textClass: 'text-on-surface', badgeClass: 'bg-surface-container-highest text-on-surface-variant' })),
+    { id: 'unassigned', title: 'Unassigned', dot: 'bg-outline', textClass: 'text-on-surface', badgeClass: 'bg-surface-container-highest text-on-surface-variant' }
   ];
 
   const getColumns = () => {
@@ -91,32 +91,71 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
     setOverColId(null);
   };
 
+  const getCardStyle = (status: TestingStatus) => {
+    switch (status) {
+      case 'In Progress': return 'border-l-4 border-l-primary/60';
+      case 'Failed': return 'border border-error/20 bg-error-container/10';
+      case 'Passed': return 'opacity-80 hover:opacity-100';
+      default: return 'border border-white/5';
+    }
+  };
+
+  const getCardRefPillStyle = (status: TestingStatus) => {
+    switch (status) {
+      case 'In Progress': return 'bg-primary/10 text-primary border border-primary/20';
+      case 'Failed': return 'bg-error-container text-error border border-error/30';
+      case 'Passed': return 'bg-secondary-container text-on-secondary-container border border-white/5';
+      default: return 'bg-surface-container text-on-surface-variant border border-white/10';
+    }
+  };
+
+  const getPriorityText = (priority: string) => {
+    switch(priority) {
+      case 'Critical': return 'BLOCKER';
+      case 'High': return 'HIGH';
+      case 'Medium': return 'MEDIUM';
+      case 'Low': return 'MINOR';
+      default: return 'NORMAL';
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch(priority) {
+      case 'Critical': return 'text-error';
+      case 'High': return 'text-primary';
+      case 'Medium': return 'text-secondary';
+      case 'Low': return 'text-error/60';
+      default: return 'text-on-surface-variant';
+    }
+  };
+
   return (
-    <div className="space-y-4">
-      {/* Group By Toggle */}
+    <div className="space-y-6">
+      {/* Group By Toggle & Header Info */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-0.5 rounded-xl">
+        <div className="flex items-center space-x-1 bg-surface-container-highest/50 border border-white/5 p-1 rounded-xl backdrop-blur-sm">
           {(['testing', 'functionality', 'user'] as GroupByOption[]).map((opt) => (
             <button
               key={opt}
               onClick={() => setGroupBy(opt)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+              className={`px-4 py-2 text-body-sm font-semibold rounded-lg transition-all ${
                 groupBy === opt
-                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                  ? 'bg-primary text-on-primary shadow-lg shadow-primary/20'
+                  : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
               }`}
             >
-              {opt === 'testing' ? 'Group by Testing Status' : opt === 'functionality' ? 'Group by Dev Status' : 'Group by User'}
+              {opt === 'testing' ? 'Group by QA Status' : opt === 'functionality' ? 'Group by Functionality' : 'Group by User'}
             </button>
           ))}
         </div>
-        <p className="text-[10px] text-slate-400 dark:text-slate-500 flex items-center gap-1">
-          🖱️ Drag cards between columns to move them
+        <p className="text-body-sm text-on-surface-variant flex items-center gap-1.5">
+          <span className="material-symbols-outlined text-sm">drag_indicator</span>
+          Drag cards between columns to update
         </p>
       </div>
 
       {/* Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
         {getColumns().map((col) => {
           const colRows = rows.filter((r) => getRowColId(r) === col.id);
           const isOver = overColId === col.id;
@@ -127,32 +166,31 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
               onDragOver={(e) => handleDragOver(e, col.id)}
               onDrop={(e) => handleDrop(e, col.id)}
               onDragLeave={() => setOverColId(null)}
-              className={`glass-panel border rounded-2xl p-4 flex flex-col max-h-[75vh] transition-all duration-200 ${
-                isOver
-                  ? 'border-indigo-500/60 bg-indigo-500/5 dark:bg-indigo-500/5 ring-2 ring-indigo-500/20'
-                  : 'border-slate-200/60 dark:border-slate-800/60'
+              className={`space-y-4 rounded-xl transition-all duration-200 min-h-[500px] ${
+                isOver ? 'bg-primary/5 ring-1 ring-primary/30' : ''
               }`}
             >
               {/* Column Header */}
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800/70 pb-2.5 mb-3">
-                <div className="flex items-center space-x-2">
-                  <div className={`h-2.5 w-2.5 rounded-full ${col.dot}`} />
-                  <h4 className="text-xs font-bold font-display uppercase tracking-wide text-slate-700 dark:text-slate-300 truncate max-w-[150px]">
+              <div className="flex items-center justify-between px-2 pt-2">
+                <div className="flex items-center gap-2">
+                  <div className={`w-2 h-2 rounded-full ${col.dot}`} />
+                  <h3 className={`font-label-caps text-label-caps uppercase tracking-wider ${col.textClass}`}>
                     {col.title}
-                  </h4>
+                  </h3>
+                  <span className={`font-bold text-[10px] px-1.5 py-0.5 rounded ${col.badgeClass}`}>
+                    {colRows.length}
+                  </span>
                 </div>
-                <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded-full">
-                  {colRows.length}
-                </span>
+                {/* <button className="material-symbols-outlined text-on-surface-variant text-lg hover:text-primary transition-colors">add</button> */}
               </div>
 
               {/* Cards */}
-              <div className="flex-1 overflow-y-auto space-y-3 pr-0.5">
+              <div className="flex-1 space-y-4">
                 {colRows.length === 0 ? (
                   <div className={`text-center py-10 border-2 border-dashed rounded-xl transition-colors ${
-                    isOver ? 'border-indigo-400/60 bg-indigo-50/10' : 'border-slate-200/50 dark:border-slate-800/40'
+                    isOver ? 'border-primary/40 bg-primary/5' : 'border-white/5 bg-surface-container/20'
                   }`}>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500">
+                    <p className="text-body-sm text-on-surface-variant">
                       {isOver ? 'Drop here' : 'Empty Column'}
                     </p>
                   </div>
@@ -164,50 +202,48 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                       onDragStart={(e) => handleDragStart(e, card.id)}
                       onDragEnd={handleDragEnd}
                       onClick={() => onEditRow(card.id)}
-                      className={`glass-card border border-slate-200/50 dark:border-slate-800/40 hover:border-slate-300 dark:hover:border-slate-700 p-3.5 rounded-xl shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing space-y-3 group select-none ${
-                        draggingId === card.id ? 'opacity-40 scale-95 rotate-1' : 'hover:scale-[1.02]'
+                      className={`glass-card p-4 rounded-xl space-y-3 cursor-grab active:cursor-grabbing hover:scale-[1.01] ${getCardStyle(card.testingStatus)} ${
+                        draggingId === card.id ? 'opacity-40 scale-95' : ''
                       }`}
                     >
-                      {/* Priority + Date */}
-                      <div className="flex items-center justify-between">
-                        <Badge type="priority" value={card.priority} />
-                        <span className="text-[9px] text-slate-400 dark:text-slate-500">
-                          {card.lastUpdated.split(' ')[0]}
+                      <div className="flex justify-between items-start">
+                        <span className={`status-pill ${getCardRefPillStyle(card.testingStatus)}`}>
+                          Ref: #{card.id.split('-')[0]}-{card.id.split('-')[4]?.substring(0,3) || '001'}
                         </span>
+                        <MoreVertical className="text-on-surface-variant h-4 w-4" />
                       </div>
-
-                      {/* Title & Module */}
-                      <div>
-                        <h5 className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-snug group-hover:text-indigo-500 dark:group-hover:text-indigo-400 transition-colors">
-                          {card.testPoint}
-                        </h5>
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide mt-0.5">
-                          {card.moduleName}
+                      
+                      <h4 className={`font-body-lg text-body-lg font-medium leading-tight ${card.testingStatus === 'Passed' ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>
+                        {card.testPoint}
+                      </h4>
+                      
+                      {card.howToTest && card.testingStatus !== 'Passed' && (
+                        <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                          {card.howToTest}
                         </p>
-                      </div>
+                      )}
 
-                      {/* Footer */}
-                      <div className="flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-100 dark:border-slate-800/60 pt-2.5">
-                        {groupBy !== 'user' && card.assignedUser && (
-                          <span className="text-[9px] bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded flex items-center gap-1">
-                            <User className="h-2.5 w-2.5 text-indigo-500" />
-                            {card.assignedUser}
+                      <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                        <div className="flex items-center gap-2">
+                          {card.assignedUser ? (
+                            <div className={`w-6 h-6 rounded-full bg-surface-variant border border-white/10 flex items-center justify-center text-[10px] text-on-surface font-bold ${card.testingStatus === 'Passed' ? 'opacity-50' : ''}`}>
+                              {card.assignedUser.substring(0, 2).toUpperCase()}
+                            </div>
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-surface-container border border-white/5 flex items-center justify-center text-[10px] text-on-surface-variant font-bold">
+                              --
+                            </div>
+                          )}
+                          <span className="text-[10px] text-on-surface-variant">
+                            {card.lastUpdated.split(' ')[0] || 'Unknown'}
                           </span>
-                        )}
-                        <div className="flex items-center space-x-2 ml-auto shrink-0">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); onOpenNotes(card.id); }}
-                            className="flex items-center space-x-0.5 text-slate-400 hover:text-amber-500 transition-colors"
-                            title="Notes"
-                          >
-                            <StickyNote className="h-3 w-3" />
-                            <span>{card.notes.length}</span>
-                          </button>
-                          <div className="flex items-center space-x-0.5 text-slate-400">
-                            <Paperclip className="h-3 w-3" />
-                            <span>{card.attachments.length}</span>
-                          </div>
                         </div>
+                        
+                        <span className={`text-[10px] font-bold flex items-center gap-1 ${getPriorityColor(card.priority)}`}>
+                          {card.priority === 'Critical' ? <span className="material-symbols-outlined text-sm">priority_high</span> :
+                           card.priority === 'High' ? <span className="material-symbols-outlined text-sm">bolt</span> : null}
+                          {card.testingStatus === 'Passed' ? 'RESOLVED' : getPriorityText(card.priority)}
+                        </span>
                       </div>
                     </div>
                   ))

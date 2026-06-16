@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QAFlow | Test Report Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#2c3a4c",
+                    "surface-tint": "#d0bcff",
+                    "surface-container": "#122131",
+                    "inverse-surface": "#d4e4fa",
+                    "surface-container-lowest": "#010f1f",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "tertiary-container": "#8e8bc2",
+                    "on-primary-container": "#340080",
+                    "inverse-on-surface": "#233143",
+                    "on-secondary": "#283044",
+                    "on-primary-fixed-variant": "#5516be",
+                    "error": "#ffb4ab",
+                    "on-tertiary-fixed-variant": "#444173",
+                    "on-primary": "#3c0091",
+                    "surface-variant": "#273647",
+                    "surface-container-highest": "#273647",
+                    "on-primary-fixed": "#23005c",
+                    "tertiary-fixed": "#e3dfff",
+                    "primary": "#d0bcff",
+                    "inverse-primary": "#6d3bd7",
+                    "on-secondary-container": "#adb4ce",
+                    "primary-fixed-dim": "#d0bcff",
+                    "secondary-container": "#3f465c",
+                    "tertiary": "#c4c1fb",
+                    "tertiary-fixed-dim": "#c4c1fb",
+                    "error-container": "#93000a",
+                    "surface-container-low": "#0d1c2d",
+                    "on-surface-variant": "#cbc3d7",
+                    "background": "#051424",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-tertiary-fixed": "#181445",
+                    "secondary-fixed": "#dae2fd",
+                    "outline-variant": "#494454",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "surface": "#051424",
+                    "outline": "#958ea0",
+                    "on-error": "#690005",
+                    "primary-container": "#a078ff",
+                    "on-tertiary": "#2d2a5b",
+                    "secondary": "#bec6e0",
+                    "primary-fixed": "#e9ddff",
+                    "on-background": "#d4e4fa",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-high": "#1c2b3c",
+                    "surface-dim": "#051424",
+                    "on-tertiary-container": "#262354",
+                    "on-surface": "#d4e4fa"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "body-sm": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "label-caps": ["Geist"]
+            },
+            "fontSize": {
+                    "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #051424;
+            color: #d4e4fa;
+            font-family: 'Geist', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .premium-card {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(208, 188, 255, 0.3), transparent);
+        }
+
+        .status-pill {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .status-passed { background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.2); }
+        .status-failed { background: rgba(239, 68, 68, 0.1); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .status-pending { background: rgba(160, 120, 255, 0.1); color: #d0bcff; border: 1px solid rgba(160, 120, 255, 0.2); }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #334155; }
+
+        .interactive-row { transition: background-color 0.2s ease; cursor: pointer; }
+        .interactive-row:hover { background-color: rgba(30, 41, 59, 0.5); }
+    </style>
+</head>
+<body class="min-h-screen">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 max-w-container-max mx-auto bg-surface-container/60 backdrop-blur-xl border-b border-white/10">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight">QAFlow</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="font-body-lg text-body-lg text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Dashboard</a>
+<a class="font-body-lg text-body-lg text-primary font-bold border-b-2 border-primary pb-1" href="#">Table</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Kanban</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">Analytics</a>
+<a class="font-body-lg text-body-lg text-on-surface-variant font-medium hover:text-primary transition-colors duration-200" href="#">More</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-low border border-outline-variant/30 rounded-lg pl-10 pr-4 py-1.5 text-body-sm w-64 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all" placeholder="Search reports..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">settings</button>
+<div class="flex items-center gap-2 pl-4 border-l border-white/10">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">JD</div>
+<button class="bg-primary text-on-primary font-bold px-4 py-1.5 rounded-lg text-body-sm hover:opacity-90 active:opacity-80 transition-all">Create Report</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-margin-desktop max-w-container-max mx-auto">
+<!-- Dashboard Header & Filters -->
+<section class="mb-gutter flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface">Test Report: v2.4.0-Release</h1>
+<p class="text-on-surface-variant font-body-lg text-body-lg mt-2">Detailed validation summary for the core banking engine.</p>
+</div>
+<div class="flex flex-wrap gap-3">
+<div class="flex items-center gap-2 bg-surface-container-high px-3 py-2 rounded-lg border border-white/5">
+<span class="material-symbols-outlined text-primary text-lg">filter_list</span>
+<select class="bg-transparent border-none text-body-sm focus:ring-0 cursor-pointer">
+<option>All Modules</option>
+<option>Auth</option>
+<option>Ledger</option>
+<option>Payments</option>
+</select>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-high px-3 py-2 rounded-lg border border-white/5">
+<span class="material-symbols-outlined text-primary text-lg">bolt</span>
+<select class="bg-transparent border-none text-body-sm focus:ring-0 cursor-pointer">
+<option>Status: Any</option>
+<option>Passed</option>
+<option>Failed</option>
+<option>In Progress</option>
+</select>
+</div>
+<button class="bg-surface-container-highest border border-white/10 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-lg">download</span>
+<span class="text-body-sm font-medium">Export CSV</span>
+</button>
+</div>
+</section>
+<!-- Main Data Table -->
+<section class="glass-panel rounded-xl overflow-hidden mb-8">
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-lowest/50 border-b border-white/10">
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Case ID</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Test Point / Module</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Expectation vs Actual</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Priority</th>
+<th class="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Assignee</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<!-- Row 1 -->
+<tr class="interactive-row">
+<td class="px-6 py-4 text-body-sm font-medium text-primary">QA-1092</td>
+<td class="px-6 py-4">
+<div class="text-body-sm font-medium">2FA Token Expiry</div>
+<div class="text-[11px] text-on-surface-variant">Security / Auth</div>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<div class="text-body-sm truncate">Exp: 300s expiry. Act: Instant invalidation after 30s.</div>
+</td>
+<td class="px-6 py-4">
+<span class="status-pill status-failed">Failed</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-red-500"></span>
+<span class="text-body-sm">P0 - Critical</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center text-[10px] text-on-tertiary font-bold">AL</div>
+<span class="text-body-sm">Alex Chen</span>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="interactive-row">
+<td class="px-6 py-4 text-body-sm font-medium text-primary">QA-1093</td>
+<td class="px-6 py-4">
+<div class="text-body-sm font-medium">Bulk Transaction Processing</div>
+<div class="text-[11px] text-on-surface-variant">Ledger / Core</div>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<div class="text-body-sm truncate">Exp: 10k TPS. Act: 12.4k TPS recorded.</div>
+</td>
+<td class="px-6 py-4">
+<span class="status-pill status-passed">Passed</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-body-sm">P1 - High</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container flex items-center justify-center text-[10px] text-on-secondary font-bold">SM</div>
+<span class="text-body-sm">Sarah Miller</span>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="interactive-row">
+<td class="px-6 py-4 text-body-sm font-medium text-primary">QA-1094</td>
+<td class="px-6 py-4">
+<div class="text-body-sm font-medium">Cross-Border FX Calc</div>
+<div class="text-[11px] text-on-surface-variant">Payments / FX</div>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<div class="text-body-sm truncate">Exp: 4 decimal precision. Act: Validating...</div>
+</td>
+<td class="px-6 py-4">
+<span class="status-pill status-pending">In Testing</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+<span class="text-body-sm">P1 - High</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-variant flex items-center justify-center text-[10px] text-on-surface font-bold">JW</div>
+<span class="text-body-sm">Jon Wong</span>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="interactive-row">
+<td class="px-6 py-4 text-body-sm font-medium text-primary">QA-1095</td>
+<td class="px-6 py-4">
+<div class="text-body-sm font-medium">User Profile Image Upload</div>
+<div class="text-[11px] text-on-surface-variant">Profile / UI</div>
+</td>
+<td class="px-6 py-4 max-w-xs">
+<div class="text-body-sm truncate">Exp: Max 2MB JPEG. Act: File accepted, resized.</div>
+</td>
+<td class="px-6 py-4">
+<span class="status-pill status-passed">Passed</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-blue-500"></span>
+<span class="text-body-sm">P2 - Medium</span>
+</div>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-tertiary-container flex items-center justify-center text-[10px] text-on-tertiary font-bold">AL</div>
+<span class="text-body-sm">Alex Chen</span>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="bg-surface-container-lowest/50 px-6 py-3 flex items-center justify-between">
+<span class="text-body-sm text-on-surface-variant">Showing 4 of 124 test cases</span>
+<div class="flex gap-2">
+<button class="px-3 py-1 rounded border border-white/10 text-body-sm disabled:opacity-30">Previous</button>
+<button class="px-3 py-1 rounded bg-primary/10 text-primary border border-primary/30 text-body-sm">1</button>
+<button class="px-3 py-1 rounded border border-white/10 text-body-sm">2</button>
+<button class="px-3 py-1 rounded border border-white/10 text-body-sm">Next</button>
+</div>
+</div>
+</section>
+<!-- Summary & Metrics Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter">
+<!-- Regression Coverage -->
+<div class="premium-card p-6 rounded-xl flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<h3 class="text-body-lg font-bold">Regression Coverage</h3>
+<span class="material-symbols-outlined text-primary">data_usage</span>
+</div>
+<div class="flex items-end gap-3">
+<span class="text-4xl font-bold">94.2%</span>
+<span class="text-green-400 text-body-sm pb-1">+2.4% vs last build</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 mt-2">
+<div class="bg-primary h-full rounded-full" style="width: 94.2%;"></div>
+</div>
+<p class="text-body-sm text-on-surface-variant mt-2">1,240 cases automated, 86 manual checks remaining for release sign-off.</p>
+</div>
+<!-- Ready for Deployment Card -->
+<div class="premium-card p-6 rounded-xl col-span-1 lg:col-span-2 flex items-center relative">
+<div class="flex-1">
+<div class="inline-flex items-center gap-2 bg-primary/20 text-primary px-3 py-1 rounded-full mb-4">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-label-caps font-bold">READY FOR DEPLOYMENT</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-white">Stability Index: 9.8/10</h3>
+<p class="text-body-lg text-on-surface-variant mt-2 max-w-md">The current build satisfies all P0 and P1 criteria. Regression suite is healthy with no new critical blockers identified.</p>
+<div class="flex gap-4 mt-6">
+<button class="bg-primary text-on-primary font-bold px-6 py-2 rounded-lg text-body-sm shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">Sign Off &amp; Deploy</button>
+<button class="bg-surface-variant text-on-surface font-bold px-6 py-2 rounded-lg text-body-sm border border-white/10 hover:bg-surface-bright transition-all">View Audit Log</button>
+</div>
+</div>
+<div class="hidden md:block w-48 h-48 relative">
+<div class="absolute inset-0 bg-primary/10 blur-[60px] rounded-full"></div>
+<img alt="Data visualization report" class="w-full h-full object-cover rounded-2xl opacity-80 border border-white/20" data-alt="A highly detailed 3D abstract visualization of glowing purple and blue data streams flowing together to form a solid, crystalline sphere of light. The background is a deep midnight navy with subtle star-like bokeh. The lighting is dramatic and cinematic, reflecting off the glass-like surfaces of the data particles to signify digital stability and completion in a premium SaaS environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnGH-6HIxVI0ks6Ovy0dEO7-M9fbzL_5vX1IxX5uacLlceMPgYdDadezv3N6B_15b9d5Gm-udPplOrDR4POgcE4lV6VwDotM_SkgLTf-9-y5qQXKDRmdgxLX_YTkVQMfVGDIDhuJEqDNHIqwYm7RvmUcwg4nGjUlYj087JcdLHAwxn6aNSYKrRD3YC464bGjS1Bpt5Oxs9VV8oaMEJ9MAyvhrjg3CXQAojTej5oNtGOt6FLV5A8ye1qQQI_IEuNxia_ZiL5dRge-hj"/>
+</div>
+</div>
+</section>
+</main>
+<footer class="mt-12 py-8 px-margin-desktop border-t border-white/5 bg-surface-container-lowest/80">
+<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="text-primary font-bold">QAFlow</span>
+<span class="text-on-surface-variant text-body-sm">© 2024 Precision Testing Systems Inc.</span>
+</div>
+<div class="flex gap-8">
+<a class="text-body-sm text-on-surface-variant hover:text-primary" href="#">Terms of Service</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary" href="#">Privacy Policy</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary" href="#">System Status</a>
+</div>
+</div>
+</footer>
+<script>
+        // Micro-interaction for row clicks
+        document.querySelectorAll('.interactive-row').forEach(row => {
+            row.addEventListener('click', () => {
+                const id = row.cells[0].innerText;
+                console.log(`Opening details for ${id}`);
+                row.style.backgroundColor = 'rgba(208, 188, 255, 0.15)';
+                setTimeout(() => {
+                    row.style.backgroundColor = '';
+                }, 400);
+            });
+        });
+
+        // Subtle parallax effect on premium card light
+        document.addEventListener('mousemove', (e) => {
+            const cards = document.querySelectorAll('.premium-card');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+
+            cards.forEach(card => {
+                const rect = card.getBoundingClientRect();
+                const cardX = (e.clientX - rect.left) / rect.width;
+                const cardY = (e.clientY - rect.top) / rect.height;
+                
+                if (cardX > 0 && cardX < 1 && cardY > 0 && cardY < 1) {
+                    card.style.setProperty('--glow-x', `${cardX * 100}%`);
+                    card.style.setProperty('--glow-y', `${cardY * 100}%`);
+                }
+            });
+        });
+    </script>
+</body></html>

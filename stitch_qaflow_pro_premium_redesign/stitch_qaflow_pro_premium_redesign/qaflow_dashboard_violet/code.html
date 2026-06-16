@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QAFlow Dashboard | Project Health</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "surface-bright": "#2c3a4c",
+            "surface-tint": "#d0bcff",
+            "surface-container": "#122131",
+            "inverse-surface": "#d4e4fa",
+            "surface-container-lowest": "#010f1f",
+            "secondary-fixed-dim": "#bec6e0",
+            "tertiary-container": "#8e8bc2",
+            "on-primary-container": "#340080",
+            "inverse-on-surface": "#233143",
+            "on-secondary": "#283044",
+            "on-primary-fixed-variant": "#5516be",
+            "error": "#ffb4ab",
+            "on-tertiary-fixed-variant": "#444173",
+            "on-primary": "#3c0091",
+            "surface-variant": "#273647",
+            "surface-container-highest": "#273647",
+            "on-primary-fixed": "#23005c",
+            "tertiary-fixed": "#e3dfff",
+            "primary": "#d0bcff",
+            "inverse-primary": "#6d3bd7",
+            "on-secondary-container": "#adb4ce",
+            "primary-fixed-dim": "#d0bcff",
+            "secondary-container": "#3f465c",
+            "tertiary": "#c4c1fb",
+            "tertiary-fixed-dim": "#c4c1fb",
+            "error-container": "#93000a",
+            "surface-container-low": "#0d1c2d",
+            "on-surface-variant": "#cbc3d7",
+            "background": "#051424",
+            "on-secondary-fixed": "#131b2e",
+            "on-tertiary-fixed": "#181445",
+            "secondary-fixed": "#dae2fd",
+            "outline-variant": "#494454",
+            "on-secondary-fixed-variant": "#3f465c",
+            "surface": "#051424",
+            "outline": "#958ea0",
+            "on-error": "#690005",
+            "primary-container": "#a078ff",
+            "on-tertiary": "#2d2a5b",
+            "secondary": "#bec6e0",
+            "primary-fixed": "#e9ddff",
+            "on-background": "#d4e4fa",
+            "on-error-container": "#ffdad6",
+            "surface-container-high": "#1c2b3c",
+            "surface-dim": "#051424",
+            "on-tertiary-container": "#262354",
+            "on-surface": "#d4e4fa"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "container-max": "1280px",
+            "margin-desktop": "64px",
+            "unit": "8px",
+            "margin-mobile": "20px",
+            "gutter": "24px"
+          },
+          "fontFamily": {
+            "body-lg": ["Geist"],
+            "headline-lg-mobile": ["Geist"],
+            "body-sm": ["Geist"],
+            "headline-md": ["Geist"],
+            "headline-lg": ["Geist"],
+            "label-caps": ["Geist"]
+          },
+          "fontSize": {
+            "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+            "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "body-sm": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+            "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+            "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+            "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #051424;
+      font-family: 'Geist', sans-serif;
+      color: #d4e4fa;
+      margin: 0;
+    }
+
+    .glass-card {
+      background: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+    }
+
+    .premium-stroke {
+      position: relative;
+    }
+
+    .premium-stroke::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(to bottom right, #d0bcff, transparent, transparent);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .violet-glow {
+      box-shadow: 0 0 20px -5px rgba(208, 188, 255, 0.3);
+    }
+
+    .scroll-hide::-webkit-scrollbar {
+      display: none;
+    }
+
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+  </style>
+</head>
+<body class="bg-background overflow-x-hidden">
+<!-- TopNavBar (Shared Component) -->
+<nav class="fixed top-0 left-0 w-full z-50 bg-surface-container/60 backdrop-blur-xl border-b border-white/10 h-16 flex justify-center items-center">
+<div class="w-full max-w-container-max flex justify-between items-center px-margin-desktop">
+<div class="flex items-center gap-8">
+<span class="text-headline-md font-headline-md font-bold text-primary tracking-tight cursor-pointer">QAFlow</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-lg text-body-lg" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 font-body-lg text-body-lg" href="#">Table</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 font-body-lg text-body-lg" href="#">Kanban</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 font-body-lg text-body-lg" href="#">Analytics</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 font-body-lg text-body-lg" href="#">More</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-surface-container-low border border-white/10 rounded-lg px-3 py-1.5 gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm text-on-surface w-48 p-0" placeholder="Search documentation..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary-container px-4 py-1.5 rounded-lg font-bold text-body-sm active:opacity-80 transition-all">Create Report</button>
+<div class="flex items-center gap-3 ml-2">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">settings</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="A professional headshot of a software engineer with a neutral background, high-end studio lighting, and a soft focus. The person is wearing a dark navy blazer, maintaining a sophisticated and modern tech professional aesthetic that matches the dark midnight violet design system of the platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyFM2mue7cKAS-jeY0lS1uGXtm-dDIAaYnXh2DB7paBuHpsmJNOEj8oPG0bcXcgS0-GLnhac3tsZoXQMnLnWcEsjudPNXO1kjFiD4ilbYsDUnWHCosvtgXy8U1OqLjfl_BXkz9D83eReCBqgPeSAtT4TfMzaAEoddPO_mxGbBIEWQqSkWKmORfdX9vMCfgMNmbS-jSvxgPYXsR_qz-3tqoOxOrJoq7iNavoifAlWgiDdPCEJMIUYCLROL6AivV-dvexnqHzPw53K_3"/>
+</div>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="mt-24 pb-20 px-margin-mobile md:px-margin-desktop max-w-container-max mx-auto">
+<!-- Hero Header Section -->
+<header class="mb-10">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<span class="text-primary font-label-caps text-label-caps tracking-widest uppercase mb-2 block">System Performance</span>
+<h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Project Health Dashboard</h1>
+</div>
+<div class="flex gap-3">
+<div class="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-xl border border-white/5">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-body-sm text-on-surface font-medium">Live Monitoring Active</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Testing Metrics Overview (KPIs) -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-10">
+<div class="glass-card premium-stroke p-6 rounded-xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label-caps text-label-caps">Total Test Coverage</span>
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<div>
+<h2 class="text-headline-md font-headline-md text-on-background">94.2%</h2>
+<p class="text-body-sm text-primary/80">+2.1% from last sprint</p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label-caps text-label-caps">Bug Velocity</span>
+<span class="material-symbols-outlined text-secondary">bug_report</span>
+</div>
+<div>
+<h2 class="text-headline-md font-headline-md text-on-background">12.4</h2>
+<p class="text-body-sm text-secondary/80">Issues resolved / day</p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label-caps text-label-caps">Stability Score</span>
+<span class="material-symbols-outlined text-primary">verified_user</span>
+</div>
+<div>
+<h2 class="text-headline-md font-headline-md text-on-background">A+</h2>
+<p class="text-body-sm text-primary/80">High performance baseline</p>
+</div>
+</div>
+<div class="glass-card p-6 rounded-xl flex flex-col justify-between h-32">
+<div class="flex justify-between items-start">
+<span class="text-on-surface-variant font-label-caps text-label-caps">Automation Rate</span>
+<span class="material-symbols-outlined text-tertiary">bolt</span>
+</div>
+<div>
+<h2 class="text-headline-md font-headline-md text-on-background">78%</h2>
+<p class="text-body-sm text-tertiary/80">640 scripts automated</p>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Main Content Area (8 Columns) -->
+<div class="lg:col-span-8 space-y-gutter">
+<!-- AI-Powered Report Analyst -->
+<section class="glass-card premium-stroke rounded-2xl overflow-hidden min-h-[400px] flex flex-col">
+<div class="p-6 border-b border-white/10 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="bg-primary/20 p-2 rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+</div>
+<h3 class="text-headline-md font-headline-md text-on-background">AI-Powered Report Analyst</h3>
+</div>
+<span class="text-label-caps text-primary bg-primary/10 px-2 py-1 rounded">Beta v2.4</span>
+</div>
+<div class="flex-grow p-6 grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+<div class="space-y-4">
+<div class="bg-surface-container-lowest p-4 rounded-xl border border-white/5">
+<p class="text-body-lg text-on-surface">"Based on current trends, the Regression cycle for <span class="text-primary font-bold">Project Orion</span> is likely to identify 4 critical bottlenecks in the API layer within the next 48 hours. I recommend increasing load testing coverage by 15%."</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-primary/10 hover:bg-primary/20 border border-primary/30 text-primary px-4 py-2 rounded-lg text-body-sm transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">auto_fix</span>
+                  Optimize Test Suite
+                </button>
+<button class="bg-white/5 hover:bg-white/10 text-on-surface-variant px-4 py-2 rounded-lg text-body-sm transition-all">Detailed Forecast</button>
+</div>
+</div>
+<div class="relative h-64 rounded-xl overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-t from-[#051424] to-transparent z-10"></div>
+
+<div class="absolute bottom-4 left-4 z-20">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_#d0bcff]"></span>
+<span class="text-body-sm text-primary">Neural Analysis Active</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Project Documentation & Health Matrix -->
+<section class="glass-card rounded-2xl p-6">
+<h3 class="text-headline-md font-headline-md text-on-background mb-6">Project Documentation &amp; Health</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="space-y-6">
+<div>
+<div class="flex justify-between mb-2">
+<span class="text-body-sm text-on-surface-variant">Technical Specifications</span>
+<span class="text-body-sm text-primary font-bold">92%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full violet-glow" style="width: 92%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-2">
+<span class="text-body-sm text-on-surface-variant">API Endpoint Definitions</span>
+<span class="text-body-sm text-secondary font-bold">65%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between mb-2">
+<span class="text-body-sm text-on-surface-variant">Security Audit Compliance</span>
+<span class="text-body-sm text-tertiary font-bold">100%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+<div class="flex flex-col justify-center items-center text-center p-6 bg-surface-container-low rounded-xl border border-white/5">
+<div class="relative w-32 h-32 mb-4">
+<svg class="w-full h-full transform -rotate-90">
+<circle class="text-surface-container" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-primary" cx="64" cy="64" fill="transparent" r="58" stroke="currentColor" stroke-dasharray="364.4" stroke-dashoffset="40" stroke-width="8"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="text-headline-md font-bold text-on-background">88</span>
+<span class="text-label-caps text-on-surface-variant">Health Index</span>
+</div>
+</div>
+<p class="text-body-sm text-on-surface-variant">The project environment is exceptionally stable with minimal drift reported in the last 72h.</p>
+</div>
+</div>
+</section>
+<!-- Feature Status Matrix -->
+<section class="glass-card rounded-2xl p-6">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-headline-md font-headline-md text-on-background">Feature Status Matrix</h3>
+<button class="text-body-sm text-primary hover:underline">View Roadmap</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-white/10 text-label-caps text-on-surface-variant">
+<th class="pb-4 font-semibold uppercase tracking-wider">Feature Module</th>
+<th class="pb-4 font-semibold uppercase tracking-wider">Status</th>
+<th class="pb-4 font-semibold uppercase tracking-wider">Stability</th>
+<th class="pb-4 font-semibold uppercase tracking-wider">Assignee</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5">
+<tr class="group hover:bg-white/5 transition-colors">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg">payments</span>
+<span class="text-body-lg text-on-background font-medium">Checkout Flow</span>
+</div>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-green-500/10 text-green-400 text-label-caps rounded-md border border-green-500/20">Deployed</span>
+</td>
+<td class="py-4">
+<div class="flex items-center gap-1">
+<div class="h-1 w-8 bg-primary rounded-full"></div>
+<div class="h-1 w-8 bg-primary rounded-full"></div>
+<div class="h-1 w-8 bg-primary rounded-full"></div>
+</div>
+</td>
+<td class="py-4">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border border-surface bg-surface-bright flex items-center justify-center text-[10px] text-on-surface">JD</div>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-white/5 transition-colors">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary text-lg">shield_person</span>
+<span class="text-body-lg text-on-background font-medium">RBAC Security</span>
+</div>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-yellow-500/10 text-yellow-400 text-label-caps rounded-md border border-yellow-500/20">In Testing</span>
+</td>
+<td class="py-4">
+<div class="flex items-center gap-1">
+<div class="h-1 w-8 bg-secondary rounded-full"></div>
+<div class="h-1 w-8 bg-secondary rounded-full"></div>
+<div class="h-1 w-8 bg-surface-container rounded-full"></div>
+</div>
+</td>
+<td class="py-4">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border border-surface bg-surface-bright flex items-center justify-center text-[10px] text-on-surface">AL</div>
+</div>
+</td>
+</tr>
+<tr class="group hover:bg-white/5 transition-colors">
+<td class="py-4">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary text-lg">cloud_upload</span>
+<span class="text-body-lg text-on-background font-medium">Bulk Upload</span>
+</div>
+</td>
+<td class="py-4">
+<span class="px-2 py-1 bg-primary/10 text-primary text-label-caps rounded-md border border-primary/20">Backlog</span>
+</td>
+<td class="py-4">
+<div class="flex items-center gap-1">
+<div class="h-1 w-8 bg-surface-container rounded-full"></div>
+<div class="h-1 w-8 bg-surface-container rounded-full"></div>
+<div class="h-1 w-8 bg-surface-container rounded-full"></div>
+</div>
+</td>
+<td class="py-4">
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border border-surface bg-surface-bright flex items-center justify-center text-[10px] text-on-surface">MK</div>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+<!-- Sidebar (4 Columns) -->
+<aside class="lg:col-span-4 space-y-gutter">
+<!-- Project Bible -->
+<section class="glass-card rounded-2xl overflow-hidden">
+<div class="p-6 border-b border-white/10 bg-surface-container-high/30">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-primary text-xl">auto_stories</span>
+<h3 class="text-headline-md font-headline-md text-on-background">Project Bible</h3>
+</div>
+<p class="text-body-sm text-on-surface-variant">Core single source of truth</p>
+</div>
+<div class="p-2">
+<div class="space-y-1">
+<div class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl transition-all cursor-pointer group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">description</span>
+<div class="flex-grow">
+<p class="text-body-sm text-on-surface font-medium">Architecture Overview.pdf</p>
+<p class="text-[12px] text-on-surface-variant">Updated 2h ago</p>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">download</span>
+</div>
+<div class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl transition-all cursor-pointer group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">link</span>
+<div class="flex-grow">
+<p class="text-body-sm text-on-surface font-medium">API Endpoints Swagger</p>
+<p class="text-[12px] text-on-surface-variant">Production Environment</p>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</div>
+<div class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl transition-all cursor-pointer group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">security</span>
+<div class="flex-grow">
+<p class="text-body-sm text-on-surface font-medium">Security Protocols.docx</p>
+<p class="text-[12px] text-on-surface-variant">v4.2.1 Stable</p>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">download</span>
+</div>
+<div class="flex items-center gap-3 p-3 hover:bg-white/5 rounded-xl transition-all cursor-pointer group">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary transition-colors">inventory</span>
+<div class="flex-grow">
+<p class="text-body-sm text-on-surface font-medium">Resource Mapping v2</p>
+<p class="text-[12px] text-on-surface-variant">Last edited by Alex</p>
+</div>
+<span class="material-symbols-outlined text-sm text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity">download</span>
+</div>
+</div>
+<button class="w-full mt-2 py-3 text-body-sm text-on-surface-variant hover:text-primary transition-colors flex items-center justify-center gap-2">
+              View All Assets
+              <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</section>
+<!-- Critical Defect Watchlist -->
+<section class="glass-card rounded-2xl p-6 border-l-4 border-l-error">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-error text-xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+<h3 class="text-headline-md font-headline-md text-on-background">Critical Watchlist</h3>
+</div>
+<span class="bg-error-container text-on-error-container px-2 py-0.5 rounded text-[10px] font-bold">4 HIGH</span>
+</div>
+<div class="space-y-4">
+<div class="p-4 bg-error-container/10 border border-error/20 rounded-xl">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-caps text-error font-bold tracking-wider">DEF-902</span>
+<span class="text-[10px] text-on-surface-variant">Reported 45m ago</span>
+</div>
+<h4 class="text-body-sm font-bold text-on-background mb-1">Stripe Webhook Timeout</h4>
+<p class="text-[12px] text-on-surface-variant leading-relaxed">Intermittent failure on checkout success callback affecting 15% of users.</p>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                  Unassigned
+                </div>
+<button class="text-error text-[10px] font-bold uppercase tracking-widest hover:underline">Assign Me</button>
+</div>
+</div>
+<div class="p-4 bg-surface-container-low border border-white/5 rounded-xl">
+<div class="flex justify-between items-start mb-2">
+<span class="text-label-caps text-on-surface-variant font-bold tracking-wider">DEF-884</span>
+<span class="text-[10px] text-on-surface-variant">Reported 3h ago</span>
+</div>
+<h4 class="text-body-sm font-bold text-on-background mb-1">CORS Policy Leak</h4>
+<p class="text-[12px] text-on-surface-variant leading-relaxed">Staging environment leaking internal headers to unauthorized origins.</p>
+<div class="mt-3 flex items-center justify-between">
+<div class="flex items-center gap-1 text-[10px] text-on-surface-variant">
+<span class="material-symbols-outlined text-[14px]">person</span>
+                  Sarah K.
+                </div>
+<button class="text-on-surface-variant text-[10px] font-bold uppercase tracking-widest hover:text-primary">Update</button>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 bg-surface-container hover:bg-surface-variant text-on-surface py-3 rounded-xl text-body-sm font-medium transition-all">
+            Open Defect Manager
+          </button>
+</section>
+<!-- System Stats Mini-Card -->
+<section class="glass-card rounded-2xl p-6 bg-gradient-to-br from-surface-container to-surface-container-lowest">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full border-2 border-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">speed</span>
+</div>
+<div>
+<p class="text-label-caps text-on-surface-variant">Avg. Page Load</p>
+<h4 class="text-headline-md font-bold text-on-background">412ms</h4>
+</div>
+</div>
+</section>
+</aside>
+</div>
+</main>
+<script>
+    // Subtle interaction for glass cards
+    document.querySelectorAll('.glass-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      });
+    });
+
+    // Handle Active State for Nav Links (Simulated)
+    const navLinks = document.querySelectorAll('nav a');
+    navLinks.forEach(link => {
+      link.addEventListener('click', (e) => {
+        navLinks.forEach(l => {
+          l.className = "text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 font-body-lg text-body-lg";
+        });
+        link.className = "text-primary font-bold border-b-2 border-primary pb-1 font-body-lg text-body-lg";
+      });
+    });
+  </script>
+</body></html>

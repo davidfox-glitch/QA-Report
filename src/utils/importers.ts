@@ -126,8 +126,7 @@ export const parseSpreadsheet = (
           const newRow: TestRow = {
             id: `row-${Date.now()}-${i}`,
             testPoint: '',
-            moduleName: '',
-            url: '',
+            moduleId: '',
             howToTest: '',
             expectedResult: '',
             actualResult: '',
@@ -135,7 +134,6 @@ export const parseSpreadsheet = (
             testingStatus: 'Pending',
             priority: 'Medium',
             notes: [],
-            attachments: [],
             customFields: {},
             lastUpdated: nowStr
           };
@@ -149,9 +147,7 @@ export const parseSpreadsheet = (
               if (internalField === 'testPoint') {
                 newRow.testPoint = valStr;
               } else if (internalField === 'moduleName') {
-                newRow.moduleName = valStr;
-              } else if (internalField === 'url') {
-                newRow.url = valStr;
+                newRow.moduleId = valStr;
               } else if (internalField === 'howToTest') {
                 newRow.howToTest = valStr;
               } else if (internalField === 'expectedResult') {
@@ -173,10 +169,10 @@ export const parseSpreadsheet = (
             }
           });
 
-          // Fallback moduleName or testPoint
-          if (newRow.testPoint || newRow.moduleName) {
+          // Fallback moduleId or testPoint
+          if (newRow.testPoint || newRow.moduleId) {
             if (!newRow.testPoint) newRow.testPoint = 'Unnamed Test Point';
-            if (!newRow.moduleName) newRow.moduleName = 'General Module';
+            if (!newRow.moduleId) newRow.moduleId = 'General Module';
             rows.push(newRow);
           }
         }

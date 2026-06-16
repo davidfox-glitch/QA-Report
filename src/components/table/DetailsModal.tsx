@@ -1,6 +1,6 @@
 import React from 'react';
 import { Dialog } from '../ui/Dialog';
-import { TestRow } from '../../store/useStore';
+import { TestRow, useStore } from '../../store/useStore';
 
 interface DetailsModalProps {
   row: TestRow | null;
@@ -8,6 +8,7 @@ interface DetailsModalProps {
 }
 
 export const DetailsModal: React.FC<DetailsModalProps> = ({ row, onClose }) => {
+  const { modules } = useStore();
   return (
     <Dialog
       isOpen={!!row}
@@ -19,7 +20,7 @@ export const DetailsModal: React.FC<DetailsModalProps> = ({ row, onClose }) => {
         <div className="space-y-5">
           <div>
             <h3 className="text-base font-bold text-slate-900 dark:text-white leading-snug">{row.testPoint}</h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider font-semibold">{row.moduleName || 'General Module'}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 uppercase tracking-wider font-semibold">{modules.find(m => m.id === row.moduleId)?.name || 'General Module'}</p>
           </div>
 
           {row.howToTest && (

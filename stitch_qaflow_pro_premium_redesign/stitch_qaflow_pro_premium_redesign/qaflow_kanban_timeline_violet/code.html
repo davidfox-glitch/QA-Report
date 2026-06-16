@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>QAFlow | Kanban &amp; Timeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-bright": "#2c3a4c",
+                    "surface-tint": "#d0bcff",
+                    "surface-container": "#122131",
+                    "inverse-surface": "#d4e4fa",
+                    "surface-container-lowest": "#010f1f",
+                    "secondary-fixed-dim": "#bec6e0",
+                    "tertiary-container": "#8e8bc2",
+                    "on-primary-container": "#340080",
+                    "inverse-on-surface": "#233143",
+                    "on-secondary": "#283044",
+                    "on-primary-fixed-variant": "#5516be",
+                    "error": "#ffb4ab",
+                    "on-tertiary-fixed-variant": "#444173",
+                    "on-primary": "#3c0091",
+                    "surface-variant": "#273647",
+                    "surface-container-highest": "#273647",
+                    "on-primary-fixed": "#23005c",
+                    "tertiary-fixed": "#e3dfff",
+                    "primary": "#d0bcff",
+                    "inverse-primary": "#6d3bd7",
+                    "on-secondary-container": "#adb4ce",
+                    "primary-fixed-dim": "#d0bcff",
+                    "secondary-container": "#3f465c",
+                    "tertiary": "#c4c1fb",
+                    "tertiary-fixed-dim": "#c4c1fb",
+                    "error-container": "#93000a",
+                    "surface-container-low": "#0d1c2d",
+                    "on-surface-variant": "#cbc3d7",
+                    "background": "#051424",
+                    "on-secondary-fixed": "#131b2e",
+                    "on-tertiary-fixed": "#181445",
+                    "secondary-fixed": "#dae2fd",
+                    "outline-variant": "#494454",
+                    "on-secondary-fixed-variant": "#3f465c",
+                    "surface": "#051424",
+                    "outline": "#958ea0",
+                    "on-error": "#690005",
+                    "primary-container": "#a078ff",
+                    "on-tertiary": "#2d2a5b",
+                    "secondary": "#bec6e0",
+                    "primary-fixed": "#e9ddff",
+                    "on-background": "#d4e4fa",
+                    "on-error-container": "#ffdad6",
+                    "surface-container-high": "#1c2b3c",
+                    "surface-dim": "#051424",
+                    "on-tertiary-container": "#262354",
+                    "on-surface": "#d4e4fa"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "container-max": "1280px",
+                    "margin-desktop": "64px",
+                    "unit": "8px",
+                    "margin-mobile": "20px",
+                    "gutter": "24px"
+            },
+            "fontFamily": {
+                    "body-lg": ["Geist"],
+                    "headline-lg-mobile": ["Geist"],
+                    "body-sm": ["Geist"],
+                    "headline-md": ["Geist"],
+                    "headline-lg": ["Geist"],
+                    "label-caps": ["Geist"]
+            },
+            "fontSize": {
+                    "body-lg": ["16px", {"lineHeight": "1.6", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-lg-mobile": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "1.5", "letterSpacing": "0", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "headline-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #051424;
+            color: #d4e4fa;
+            font-family: 'Geist', sans-serif;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-card:hover {
+            border-color: rgba(208, 188, 255, 0.3);
+            box-shadow: 0 0 20px rgba(208, 188, 255, 0.05);
+        }
+
+        .timeline-grid {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: calc(100% / 4) 100%;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(208, 188, 255, 0.2);
+            border-radius: 10px;
+        }
+
+        .status-pill {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body class="custom-scrollbar">
+<!-- TopNavBar Implementation from JSON -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-16 max-w-container-max mx-auto bg-surface-container/60 backdrop-blur-xl border-b border-white/10">
+<div class="flex items-center gap-8">
+<div class="text-headline-md font-headline-md font-bold text-primary tracking-tight">QAFlow</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-80 font-body-lg text-body-lg" href="#">Dashboard</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-80 font-body-lg text-body-lg" href="#">Table</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-80 font-body-lg text-body-lg" href="#">Kanban</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-80 font-body-lg text-body-lg" href="#">Analytics</a>
+<a class="text-on-surface-variant font-medium hover:text-primary transition-colors duration-200 cursor-pointer active:opacity-80 font-body-lg text-body-lg" href="#">More</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden lg:flex items-center bg-surface-variant/30 rounded-lg px-3 py-1.5 border border-white/5">
+<span class="material-symbols-outlined text-outline text-sm mr-2">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-48 text-on-surface p-0" placeholder="Search report..." type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary p-2">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary p-2">settings</span>
+</div>
+<button class="bg-primary text-on-primary-container px-4 py-2 rounded-lg font-bold text-body-sm hover:opacity-90 transition-opacity">
+                Create Report
+            </button>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/20">
+<img alt="User profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcWHjJjCBZ5dBTxE46t6O8LCTnhiTa5c4inLCDpN_zabK_bjXRkanaUvSl6wcbpkscle_yd9e0tNR9wo8FWOmCUhVdF2nOEjZx3PDDi-XChyRAHwppuT3mmDzumZgrys1dqVgdzRjWHwQtz2TabOlkl261cymFHyuGN8xJY9i-0Lw1AAd6I1HtvdshOgkYUG2lYQDkZo0lyOnbuqb-UQt7f5Xm-RKMcoiYs3anycX-nKwSFy_vxEw03623R_NdOdINylSgLqJ_8NGJ"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-margin-desktop max-w-container-max mx-auto space-y-12">
+<!-- SECTION: Project Timeline (4-Week Grid) -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">Project Timeline</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">4-Week active test cycle oversight</p>
+</div>
+<div class="flex gap-2">
+<button class="glass-card px-4 py-2 rounded-lg text-label-caps font-label-caps text-on-surface-variant">Oct 2023</button>
+<button class="bg-surface-variant/40 px-4 py-2 rounded-lg text-label-caps font-label-caps text-primary border border-primary/20">Nov 2023</button>
+</div>
+</div>
+<div class="glass-card rounded-xl overflow-hidden">
+<div class="grid grid-cols-4 border-b border-white/10 bg-surface-container-low/50">
+<div class="p-4 text-center font-label-caps text-label-caps text-on-surface-variant border-r border-white/5 uppercase tracking-widest">Week 01</div>
+<div class="p-4 text-center font-label-caps text-label-caps text-on-surface-variant border-r border-white/5 uppercase tracking-widest">Week 02</div>
+<div class="p-4 text-center font-label-caps text-label-caps text-on-surface-variant border-r border-white/5 uppercase tracking-widest">Week 03</div>
+<div class="p-4 text-center font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Week 04</div>
+</div>
+<div class="relative min-h-[320px] p-6 timeline-grid">
+<!-- Dynamic Progress Bars -->
+<div class="space-y-6">
+<!-- Bar 1 -->
+<div class="flex items-center group">
+<div class="w-32 flex-shrink-0 text-body-sm font-medium text-on-surface-variant truncate pr-4">Auth Security Scan</div>
+<div class="flex-grow relative h-8 bg-surface-container-highest/20 rounded-full overflow-hidden">
+<div class="absolute left-[5%] w-[45%] h-full bg-gradient-to-r from-primary/60 to-primary flex items-center px-4 rounded-full shadow-[0_0_15px_rgba(208,188,255,0.3)]">
+<span class="text-[10px] font-bold text-on-primary-container whitespace-nowrap">ST-402 • 72% Complete</span>
+</div>
+</div>
+</div>
+<!-- Bar 2 -->
+<div class="flex items-center group">
+<div class="w-32 flex-shrink-0 text-body-sm font-medium text-on-surface-variant truncate pr-4">API Load Testing</div>
+<div class="flex-grow relative h-8 bg-surface-container-highest/20 rounded-full overflow-hidden">
+<div class="absolute left-[40%] w-[35%] h-full bg-gradient-to-r from-tertiary/60 to-tertiary flex items-center px-4 rounded-full shadow-[0_0_15px_rgba(196,193,251,0.3)]">
+<span class="text-[10px] font-bold text-on-tertiary-container whitespace-nowrap">ST-405 • In Progress</span>
+</div>
+</div>
+</div>
+<!-- Bar 3 -->
+<div class="flex items-center group">
+<div class="w-32 flex-shrink-0 text-body-sm font-medium text-on-surface-variant truncate pr-4">UI Regression</div>
+<div class="flex-grow relative h-8 bg-surface-container-highest/20 rounded-full overflow-hidden">
+<div class="absolute left-[15%] w-[80%] h-full bg-gradient-to-r from-secondary-container to-secondary-fixed-dim flex items-center px-4 rounded-full">
+<span class="text-[10px] font-bold text-on-secondary-container whitespace-nowrap">ST-409 • Multi-stage Cycle</span>
+</div>
+</div>
+</div>
+<!-- Bar 4 -->
+<div class="flex items-center group">
+<div class="w-32 flex-shrink-0 text-body-sm font-medium text-on-surface-variant truncate pr-4">Data Migration</div>
+<div class="flex-grow relative h-8 bg-surface-container-highest/20 rounded-full overflow-hidden">
+<div class="absolute left-[65%] w-[25%] h-full bg-gradient-to-r from-error/40 to-error flex items-center px-4 rounded-full shadow-[0_0_15px_rgba(255,180,171,0.3)] border border-error/50">
+<span class="text-[10px] font-bold text-on-error flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">warning</span> Critical Block</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Current Time Indicator -->
+<div class="absolute top-0 bottom-0 left-[55%] w-px bg-primary/40 shadow-[0_0_8px_rgba(208,188,255,0.8)] z-10">
+<div class="absolute -top-3 -left-1.5 w-3 h-3 bg-primary rounded-full ring-4 ring-primary/20"></div>
+<div class="absolute -top-8 -left-8 bg-primary text-on-primary-container px-2 py-1 rounded text-[10px] font-bold">TODAY</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION: Kanban Board -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="font-headline-md text-headline-md text-primary">Quality Board</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Live execution and bug tracking</p>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex -space-x-2">
+<img alt="Team member" class="w-8 h-8 rounded-full border-2 border-surface shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-4Wpa5iQrCyNNnXulxXpOMmRszt90tUY7WFB3Mnwwf5SJHN5QvhTbOuKC-my7DC7azQY-_RH8sQx5MwklgX2AmQXScBHMwboJmj5WirBkbqyfErm1Sun1yw-H8MORZ0zSSIdiBMRKz9Yo9x9Trwkqeu7TzjiiGNOMqVUg4mZeXnV-5Zk8s1mIiRyuACFDZp2Q-sB_slrOk0wAP7FxOP-TIA9IRmjNyrwHeUXZmDl6xAtRUtwNan11gNXdMNEqI9GBk1A-sxHNFTOV"/>
+<img alt="Team member" class="w-8 h-8 rounded-full border-2 border-surface shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhEMkZAz0S0bVKaFGi6hVXLcxYWjn-z89ckOq8XRlLBg8yPKAu0AkkAqBMYbgMNTlCGRZhSYxBQjVxNxVjE57ybIu6SVAubf8ZSphER0_93_dLGR2Hep8pNBSIvGU_QQZQHUkdNZRVknLHuj8JUSQLw6tUETQTNAm18jDC1-6Dvb-960QL_uGBvhPsEXQKo_GyZomEsb9e-kncKoY7OcWvLB9F-ZpruQOIQK34K6DTmlOXUOxRqsDylSL1HtN7rK6c9aEszgtih1LE"/>
+<img alt="Team member" class="w-8 h-8 rounded-full border-2 border-surface shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPrkFehzbDhOTJga6nnoNSJazH9VTNi8vIKGIv1U3JzMR_XNvZsge4PvB74XID0Y4rVDCbmATom4uc9FI_HXWspYUaqF3F0bsWbZVmLGbTu1etUX0Oz6H3NnXNN0ku4IjSpTYCR7CD_z-vFfGw_nBkmnhwHTSsqzUupSBCQjLQfkn3ZAgEyvxliOrMH3a0K-106FvmEwqqPYu_hF-4XgyHlX8dG5zC6QbXVsSTg36Bn_Tsp9cGVmuSMUaSfTYtvkDI372fTpZ3JeRA"/>
+<div class="w-8 h-8 rounded-full border-2 border-surface bg-surface-container-highest flex items-center justify-center text-[10px] font-bold text-on-surface-variant">+4</div>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary">filter_list</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Column: Pending Review -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-outline"></div>
+<h3 class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Pending Review</h3>
+<span class="text-on-surface-variant font-bold text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded">3</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant text-lg">add</button>
+</div>
+<!-- Kanban Card 1 -->
+<div class="glass-card p-4 rounded-xl space-y-3 cursor-grab active:cursor-grabbing">
+<div class="flex justify-between items-start">
+<span class="status-pill bg-surface-container text-on-surface-variant border border-white/10">Ref: #QA-901</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">more_vert</span>
+</div>
+<h4 class="font-body-lg text-body-lg font-medium text-on-surface leading-tight">Dark Mode Contrast Validation</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Validate accessibility ratios for all midnight-violet components across viewports.</p>
+<div class="flex items-center justify-between pt-2 border-t border-white/5">
+<div class="flex items-center gap-2">
+<img alt="Assignee" class="w-6 h-6 rounded-full grayscale hover:grayscale-0 transition-all" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWRjSU-vLnBx4xp6o9D78uIqE7n2Gv2FgGnvCfCmOwsOqJjTbHpFVt67aBoJ6yZVUKZKucmXjVK0oWExY8kPTc_DNKswMcIMhZF9V2JYGQ7CI4Oq4Blm4zzaqHfitil1O7oHLnXUzBVNd4coMJrS1__8DBpOqkx2RqONpx040p0RGURHm9ehdW5nBqlM4Oqr3ZPxUC5XKuH8W07SwVCYAeGwuhS9K-0-SpG7uzydlsNLZLBUe0kGyzRwz8bmitATkxcTosRFypyLtY"/>
+<span class="text-[10px] text-on-surface-variant">Nov 12</span>
+</div>
+<span class="text-[10px] font-bold text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">priority_high</span> MEDIUM
+                            </span>
+</div>
+</div>
+</div>
+<!-- Column: In Progress -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_rgba(208,188,255,0.6)]"></div>
+<h3 class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">In Progress</h3>
+<span class="text-primary font-bold text-[10px] bg-primary/10 px-1.5 py-0.5 rounded border border-primary/20">2</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant text-lg">add</button>
+</div>
+<!-- Kanban Card 2 -->
+<div class="glass-card p-4 rounded-xl space-y-3 border-l-4 border-l-primary/60">
+<div class="flex justify-between items-start">
+<span class="status-pill bg-primary/10 text-primary border border-primary/20">Ref: #QA-882</span>
+<span class="material-symbols-outlined text-on-surface-variant text-sm">more_vert</span>
+</div>
+<h4 class="font-body-lg text-body-lg font-medium text-on-surface leading-tight">Websocket Latency Stress Test</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Simulate 50k concurrent connections to monitor server response spikes.</p>
+<div class="flex items-center justify-between pt-2 border-t border-white/5">
+<div class="flex items-center gap-2">
+<img alt="Assignee" class="w-6 h-6 rounded-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1tAYo2GUG10mDs8iG8NCRASOTugqtpgIrPOd3r3fRHlmEmfwkhSn7-FiWVqLC0y98c4LEczyC9JU3D2kmNJX_abw1NXyEWuuOSb4fBdFM_xvogK3CpcuZnOlTIhO3stOq8dNYzB0ntanh2MxRnC3Tnhp4hmMOqZeo1Zvoy8wgO00l-gLzyZFcpe9G2QFRu2Z7YiCZ-fIVS_rqXu1p2n9pLDF5Afu5ygGJR7S5ijhWEgq8HhJNAuD3fOA_pZw8dCcQN8dn_g9wDSlE"/>
+<span class="text-[10px] text-on-surface-variant">Nov 15</span>
+</div>
+<span class="text-[10px] font-bold text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">bolt</span> HIGH
+                            </span>
+</div>
+</div>
+</div>
+<!-- Column: Passed -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary-fixed-dim"></div>
+<h3 class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Passed</h3>
+<span class="text-secondary font-bold text-[10px] bg-secondary-container px-1.5 py-0.5 rounded">12</span>
+</div>
+</div>
+<!-- Kanban Card 3 -->
+<div class="glass-card p-4 rounded-xl space-y-3 opacity-80 hover:opacity-100">
+<div class="flex justify-between items-start">
+<span class="status-pill bg-secondary-container text-on-secondary-container border border-white/5">Ref: #QA-765</span>
+<span class="material-symbols-outlined text-on-secondary-container text-sm">check_circle</span>
+</div>
+<h4 class="font-body-lg text-body-lg font-medium text-on-surface-variant line-through leading-tight">SSO Integration Layer</h4>
+<div class="flex items-center justify-between pt-2 border-t border-white/5">
+<div class="flex items-center gap-2">
+<img alt="Assignee" class="w-6 h-6 rounded-full opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPAHTlxZg9Kbp5Dl_Idjc_ysC05AMC1v3KhgN9-mbjbJSD4ZECtWsJoN5IQyB3aUoXKHTGxsc3bYGg0J9Zaq-k5LWZd9IDusdMMVJrEngUjKdBKQVCHTDZEf7a2kWdRGsv6T9e9VluqMdltLE8NgBx8g1uahierB7Y2d8nmha2azxmh2qffI0pTQ40OtubUv5Q4_ube7JAGo9gKXJCp0LykC4WhPyXihgIqPPSAXXq63LRI7nVNaiXQKa1xZNO-5-R3k0WMacMu1wG"/>
+<span class="text-[10px] text-on-surface-variant">Oct 28</span>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">RESOLVED</span>
+</div>
+</div>
+</div>
+<!-- Column: Failed (Bugs) -->
+<div class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse shadow-[0_0_8px_rgba(255,180,171,0.6)]"></div>
+<h3 class="font-label-caps text-label-caps text-error uppercase tracking-wider">Failed (Bugs)</h3>
+<span class="text-error font-bold text-[10px] bg-error-container px-1.5 py-0.5 rounded">4</span>
+</div>
+</div>
+<!-- Kanban Card 4 -->
+<div class="glass-card p-4 rounded-xl space-y-3 border border-error/20 bg-error-container/10">
+<div class="flex justify-between items-start">
+<span class="status-pill bg-error-container text-on-error-container border border-error/30">Ref: #BUG-441</span>
+<span class="material-symbols-outlined text-error text-sm">error</span>
+</div>
+<h4 class="font-body-lg text-body-lg font-medium text-on-surface leading-tight">Payment Gateway Timeout</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">Intermittent 504 errors when processing Stripe 3D Secure v2 callbacks.</p>
+<div class="flex items-center justify-between pt-2 border-t border-white/5">
+<div class="flex items-center gap-2">
+<img alt="Assignee" class="w-6 h-6 rounded-full border border-error/40" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZMYTFw1LMhDaxpXlkCQG58D4mEaKKPqz6C420oUKMs2D2D--fzO5wtziqDeu-lvyYWuLH6sQEJess4UjH3OOrfvbfx-gzHoGBH5ExzMyG_u92AF-f389om1ysYa2BcDCnp1bHXebYY_lBoex5lDBIx8FDmjyz2dhHiISnh20XSiJ9DN-JHe9OWR6xTOz3sQ49XX6R3YEQs2HE6KMFC1lFMTmrChHLYBn6ZBV2Onh6ECYBb8j7mfoBQOlLMzzkaAlWmOT1nxSYll4x"/>
+<span class="text-[10px] text-on-surface-variant">Nov 10</span>
+</div>
+<span class="text-[10px] font-bold text-error flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">priority_high</span> BLOCKER
+                            </span>
+</div>
+</div>
+<!-- Kanban Card 5 -->
+<div class="glass-card p-4 rounded-xl space-y-3 border border-error/10 bg-error-container/5">
+<div class="flex justify-between items-start">
+<span class="status-pill bg-error-container/40 text-on-error-container/80 border border-error/20">Ref: #BUG-442</span>
+<span class="material-symbols-outlined text-error/60 text-sm">bug_report</span>
+</div>
+<h4 class="font-body-lg text-body-lg font-medium text-on-surface-variant leading-tight">Avatar Upload Overflow</h4>
+<div class="flex items-center justify-between pt-2 border-t border-white/5">
+<div class="flex items-center gap-2">
+<img alt="Assignee" class="w-6 h-6 rounded-full grayscale opacity-50" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0pmy1pKaASDDsabjyOqrruQmej_NmueRdOS09lsb5rZlmN5jBGij5_0mu5fAvcJowAt4Jj47gq-NOhK3fupwrQkzu_jDwrY92o-uUQIiBWPuPJNgPV6kjzakj9cit-_BD5CV_eo_0bMi4qBm_cDFZ09F3cG3Vw5oGbO-fe4p19Q50EZoRl0ytyFsUWoIuwZr_OQftMjLA5AtQhK5Yyt1WmaSUuu82h1L-FXgjN5J6gHN5JyblaI1wGVvtLP1MTSwrBHLMK4EQXQaf"/>
+<span class="text-[10px] text-on-surface-variant">Nov 11</span>
+</div>
+<span class="text-[10px] font-bold text-error/60">MINOR</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- FAB Action (Contextual to Dashboard/Kanban) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-on-primary-container rounded-full shadow-2xl shadow-primary/40 flex items-center justify-center hover:scale-110 transition-transform active:scale-95 group z-50">
+<span class="material-symbols-outlined text-2xl group-hover:rotate-90 transition-transform">add</span>
+</button>
+<!-- Floating Background Elements for Depth -->
+<div class="fixed top-1/4 -left-24 w-96 h-96 bg-primary/5 blur-[120px] pointer-events-none -z-10"></div>
+<div class="fixed bottom-1/4 -right-24 w-96 h-96 bg-tertiary/5 blur-[120px] pointer-events-none -z-10"></div>
+<script>
+        // Simple micro-interaction for cards
+        document.querySelectorAll('.glass-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-4px)';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0px)';
+            });
+        });
+
+        // Search Bar Focus Effect
+        const searchInput = document.querySelector('input[type="text"]');
+        const searchContainer = searchInput?.parentElement;
+        if (searchInput && searchContainer) {
+            searchInput.addEventListener('focus', () => {
+                searchContainer.classList.add('border-primary/40', 'bg-surface-variant/50');
+            });
+            searchInput.addEventListener('blur', () => {
+                searchContainer.classList.remove('border-primary/40', 'bg-surface-variant/50');
+            });
+        }
+    </script>
+</body></html>

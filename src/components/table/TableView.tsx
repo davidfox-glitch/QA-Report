@@ -1,6 +1,6 @@
 import React from 'react';
 import { useStore, TestRow, CustomFieldDef, FunctionalityStatus, TestingStatus, Priority } from '../../store/useStore';
-import { Edit, Trash2, StickyNote, Paperclip } from 'lucide-react';
+import { Edit, Trash2, StickyNote } from 'lucide-react';
 
 interface TableViewProps {
   rows: TestRow[];
@@ -13,7 +13,6 @@ interface TableViewProps {
   onOpenNotes: (id: string) => void;
   onQuickUpdate: (id: string, updates: Partial<TestRow>) => void;
   onOpenDetails: (row: TestRow) => void;
-  onOpenFiles: (id: string) => void;
 }
 
 export const TableView: React.FC<TableViewProps> = ({
@@ -26,58 +25,83 @@ export const TableView: React.FC<TableViewProps> = ({
   onDeleteRow,
   onOpenNotes,
   onQuickUpdate,
-  onOpenDetails,
-  onOpenFiles
+  onOpenDetails
 }) => {
-  const { users } = useStore();
+  const { users, modules } = useStore();
   const rowIdsInView = rows.map((r) => r.id);
   const allSelected = rowIdsInView.length > 0 && rowIdsInView.every((id) => selectedRowIds.includes(id));
   const uniqueRoles = Array.from(new Set(users.map(u => u.role)));
 
+  const getStatusColorClass = (status: string) => {
+    switch (status) {
+      case 'Passed':
+      case 'Working':
+        return 'status-passed text-[#4ade80] bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.2)]';
+      case 'Failed':
+      case 'Not Working':
+        return 'status-failed text-[#f87171] bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.2)]';
+      case 'In Progress':
+      case 'Partially Working':
+        return 'status-pill text-[#60a5fa] bg-[rgba(59,130,246,0.1)] border border-[rgba(59,130,246,0.2)]';
+      case 'Pending':
+      default:
+        return 'status-pending text-[#d0bcff] bg-[rgba(160,120,255,0.1)] border border-[rgba(160,120,255,0.2)]';
+    }
+  };
+
+  const getPriorityDotColor = (priority: string) => {
+    switch (priority) {
+      case 'Critical': return 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]';
+      case 'High': return 'bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.6)]';
+      case 'Medium': return 'bg-blue-500';
+      case 'Low': return 'bg-slate-400';
+      default: return 'bg-slate-500';
+    }
+  };
+
   return (
-    <div className="glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl overflow-hidden shadow-sm">
-      <div className="overflow-x-auto w-full">
+    <section className="glass-panel rounded-xl overflow-hidden mb-8 shadow-2xl animate-fade-in border border-white/5">
+      <div className="overflow-x-auto custom-scrollbar w-full">
         <table className="w-full text-left border-collapse">
           {/* Table Headers */}
           <thead>
-            <tr className="bg-slate-50/50 dark:bg-slate-900/60 border-b border-slate-200 dark:border-slate-800 text-xs font-bold font-display uppercase tracking-wider text-slate-400 dark:text-slate-500">
-              <th className="px-4 py-3.5 w-10 text-center">
+            <tr className="bg-surface-container-lowest/80 border-b border-white/10 backdrop-blur-md">
+              <th className="px-6 py-4 w-10 text-center">
                 <input
                   type="checkbox"
                   checked={allSelected}
                   onChange={() => toggleSelectAllRows(rowIdsInView)}
-                  className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500/30 h-4 w-4 cursor-pointer"
+                  className="rounded border-white/20 bg-surface-container text-primary focus:ring-primary/50 h-4 w-4 cursor-pointer"
                 />
               </th>
-              <th className="px-5 py-3.5 min-w-[200px]">Test Point / Module</th>
-              <th className="px-5 py-3.5 min-w-[150px]">Expected vs Actual</th>
-              <th className="px-5 py-3.5">Functionality</th>
-              <th className="px-5 py-3.5">QA Status</th>
-              <th className="px-5 py-3.5">Priority</th>
-              <th className="px-5 py-3.5">Role</th>
-              <th className="px-5 py-3.5">Assignee</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider min-w-[200px]">Test Point / Module</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider min-w-[150px]">Expected vs Actual</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Functionality</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">QA Status</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Priority</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Role</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Assignee</th>
               
               {/* Custom Field Columns */}
               {customFieldsDef.map((field) => (
-                <th key={field.id} className="px-5 py-3.5 truncate max-w-[120px]">
+                <th key={field.id} className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider truncate max-w-[120px]">
                   {field.name}
                 </th>
               ))}
               
-              <th className="px-5 py-3.5 text-center">Notes</th>
-              <th className="px-5 py-3.5 text-center">Files</th>
-              <th className="px-5 py-3.5">Updated</th>
-              <th className="px-5 py-3.5 text-center w-24">Actions</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-center">Notes</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider">Updated</th>
+              <th className="px-6 py-4 font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider text-center w-24">Actions</th>
             </tr>
           </thead>
 
           {/* Table Body */}
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-850">
+          <tbody className="divide-y divide-white/5">
             {rows.length === 0 ? (
               <tr>
                 <td
                   colSpan={11 + customFieldsDef.length}
-                  className="text-center py-16 text-slate-500 dark:text-slate-400 text-sm"
+                  className="text-center py-16 text-on-surface-variant text-body-sm"
                 >
                   No QA records found. Try clearing filters or importing a sheet.
                 </td>
@@ -88,49 +112,50 @@ export const TableView: React.FC<TableViewProps> = ({
                 return (
                   <tr
                     key={row.id}
-                    className={`hover:bg-slate-50/30 dark:hover:bg-slate-900/10 transition-colors ${
-                      isSelected ? 'bg-indigo-500/5 dark:bg-indigo-500/10' : ''
+                    className={`interactive-row transition-colors group ${
+                      isSelected ? 'bg-primary/10' : ''
                     }`}
                   >
                     {/* Checkbox */}
-                    <td className="px-4 py-3 text-center">
+                    <td className="px-6 py-4 text-center">
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSelectRow(row.id)}
-                        className="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500/30 h-4 w-4 cursor-pointer"
+                        className="rounded border-white/20 bg-surface-container text-primary focus:ring-primary/50 h-4 w-4 cursor-pointer opacity-30 group-hover:opacity-100 transition-opacity"
+                        style={{ opacity: isSelected ? 1 : undefined }}
                       />
                     </td>
 
                     {/* Test Point */}
-                    <td className="px-5 py-3 max-w-[280px]">
+                    <td className="px-6 py-4 max-w-[280px]">
                       <div className="flex flex-col space-y-0.5">
-                        <span className="text-xs font-semibold text-slate-850 dark:text-slate-200 block truncate" title={row.testPoint}>
+                        <span className="text-body-sm font-medium text-primary block truncate" title={row.testPoint}>
                           {row.testPoint}
                         </span>
-                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                          {row.moduleName || 'General Module'}
+                        <span className="text-[11px] text-on-surface-variant block">
+                          {modules.find(m => m.id === row.moduleId)?.name || 'General Module'}
                         </span>
                       </div>
                     </td>
 
                     {/* How to test, expected, actual */}
                     <td 
-                      className="px-5 py-3 max-w-[250px] cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                      className="px-6 py-4 max-w-[300px] cursor-pointer hover:bg-white/5 transition-colors rounded-lg"
                       onClick={() => onOpenDetails(row)}
                       title="Click to view full details"
                     >
-                      <div className="flex flex-col space-y-1 text-[10px]">
+                      <div className="flex flex-col space-y-1 text-body-sm">
                         {row.howToTest && (
-                          <p className="text-slate-500 dark:text-slate-400 line-clamp-1">
-                            <span className="font-bold text-slate-700 dark:text-slate-300">Test:</span> {row.howToTest}
+                          <p className="text-on-surface-variant line-clamp-1 truncate">
+                            <span className="font-medium text-on-surface">Test:</span> {row.howToTest}
                           </p>
                         )}
-                        <p className="text-slate-650 dark:text-slate-400 truncate">
-                          <span className="font-bold text-slate-700 dark:text-slate-300">Exp:</span> {row.expectedResult}
+                        <p className="text-on-surface-variant truncate">
+                          <span className="font-medium text-on-surface">Exp:</span> {row.expectedResult}
                         </p>
                         {row.actualResult && (
-                          <p className="text-rose-500/90 truncate">
+                          <p className="text-error truncate">
                             <span className="font-bold">Act:</span> {row.actualResult}
                           </p>
                         )}
@@ -138,59 +163,66 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Functionality Status (Dropdown inline editable) */}
-                    <td className="px-5 py-3">
-                      <select
-                        value={row.functionalityStatus}
-                        onChange={(e) => onQuickUpdate(row.id, { functionalityStatus: e.target.value as FunctionalityStatus })}
-                        className="bg-transparent border-none text-xs font-semibold p-0.5 focus:ring-0 cursor-pointer text-slate-800 dark:text-slate-200 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded px-1.5 py-0.5"
-                      >
-                        <option value="Working" className="dark:bg-slate-900">🟢 Working</option>
-                        <option value="Partially Working" className="dark:bg-slate-900">🟡 Partially</option>
-                        <option value="Not Working" className="dark:bg-slate-900">🔴 Broken</option>
-                        <option value="Pending" className="dark:bg-slate-900">⚪ Pending</option>
-                      </select>
+                    <td className="px-6 py-4">
+                      <div className={`inline-flex rounded-md ${getStatusColorClass(row.functionalityStatus)}`}>
+                        <select
+                          value={row.functionalityStatus}
+                          onChange={(e) => onQuickUpdate(row.id, { functionalityStatus: e.target.value as FunctionalityStatus })}
+                          className="bg-transparent border-none focus:ring-0 cursor-pointer outline-none appearance-none hover:brightness-110 text-[11px] font-bold tracking-wider uppercase pl-2 pr-4 py-1"
+                        >
+                          <option value="Working" className="bg-surface text-on-surface normal-case">Working</option>
+                          <option value="Partially Working" className="bg-surface text-on-surface normal-case">Partially Working</option>
+                          <option value="Not Working" className="bg-surface text-on-surface normal-case">Not Working</option>
+                          <option value="Pending" className="bg-surface text-on-surface normal-case">Pending</option>
+                        </select>
+                      </div>
                     </td>
 
                     {/* Testing Status (Dropdown inline editable) */}
-                    <td className="px-5 py-3">
-                      <select
-                        value={row.testingStatus}
-                        onChange={(e) => onQuickUpdate(row.id, { testingStatus: e.target.value as TestingStatus })}
-                        className="bg-transparent border-none text-xs font-semibold p-0.5 focus:ring-0 cursor-pointer text-slate-800 dark:text-slate-200 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded px-1.5 py-0.5"
-                      >
-                        <option value="Passed" className="dark:bg-slate-900">🟢 Passed</option>
-                        <option value="Failed" className="dark:bg-slate-900">🔴 Failed</option>
-                        <option value="Pending" className="dark:bg-slate-900">⚪ Pending</option>
-                        <option value="In Progress" className="dark:bg-slate-900">🟡 In Progress</option>
-                      </select>
+                    <td className="px-6 py-4">
+                      <div className={`inline-flex rounded-md ${getStatusColorClass(row.testingStatus)}`}>
+                        <select
+                          value={row.testingStatus}
+                          onChange={(e) => onQuickUpdate(row.id, { testingStatus: e.target.value as TestingStatus })}
+                          className="bg-transparent border-none focus:ring-0 cursor-pointer outline-none appearance-none hover:brightness-110 text-[11px] font-bold tracking-wider uppercase pl-2 pr-4 py-1"
+                        >
+                          <option value="Passed" className="bg-surface text-on-surface normal-case">Passed</option>
+                          <option value="Failed" className="bg-surface text-on-surface normal-case">Failed</option>
+                          <option value="Pending" className="bg-surface text-on-surface normal-case">Pending</option>
+                          <option value="In Progress" className="bg-surface text-on-surface normal-case">In Progress</option>
+                        </select>
+                      </div>
                     </td>
 
                     {/* Priority (Dropdown inline editable) */}
-                    <td className="px-5 py-3">
-                      <select
-                        value={row.priority}
-                        onChange={(e) => onQuickUpdate(row.id, { priority: e.target.value as Priority })}
-                        className="bg-transparent border-none text-xs font-semibold p-0.5 focus:ring-0 cursor-pointer text-slate-800 dark:text-slate-200 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded px-1.5 py-0.5"
-                      >
-                        <option value="Critical" className="dark:bg-slate-900">🔥 Critical</option>
-                        <option value="High" className="dark:bg-slate-900">🟠 High</option>
-                        <option value="Medium" className="dark:bg-slate-900">🔵 Medium</option>
-                        <option value="Low" className="dark:bg-slate-900">⚪ Low</option>
-                      </select>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2 relative group/priority">
+                        <span className={`w-2 h-2 rounded-full flex-shrink-0 ${getPriorityDotColor(row.priority)}`}></span>
+                        <select
+                          value={row.priority}
+                          onChange={(e) => onQuickUpdate(row.id, { priority: e.target.value as Priority })}
+                          className="bg-transparent border-none text-body-sm p-0 focus:ring-0 cursor-pointer text-on-surface outline-none appearance-none hover:text-primary transition-colors flex-grow"
+                        >
+                          <option value="Critical" className="bg-surface text-on-surface">P0 - Critical</option>
+                          <option value="High" className="bg-surface text-on-surface">P1 - High</option>
+                          <option value="Medium" className="bg-surface text-on-surface">P2 - Medium</option>
+                          <option value="Low" className="bg-surface text-on-surface">P3 - Low</option>
+                        </select>
+                      </div>
                     </td>
 
                     {/* Assigned Role selection */}
-                    <td className="px-5 py-3">
+                    <td className="px-6 py-4">
                       <select
                         value={row.assignedRole || ''}
                         onChange={(e) => {
                           onQuickUpdate(row.id, { assignedRole: e.target.value, assignedUser: undefined });
                         }}
-                        className="bg-transparent border-none text-xs font-semibold p-0.5 focus:ring-0 cursor-pointer text-slate-805 dark:text-slate-250 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded px-1.5 py-0.5"
+                        className="bg-transparent border-none text-body-sm p-0 focus:ring-0 cursor-pointer text-on-surface-variant outline-none hover:text-primary transition-colors appearance-none"
                       >
-                        <option value="" className="dark:bg-slate-900">🏢 Any Role</option>
+                        <option value="" className="bg-surface text-on-surface">🏢 Any Role</option>
                         {uniqueRoles.map(role => (
-                          <option key={role} value={role} className="dark:bg-slate-900">
+                          <option key={role} value={role} className="bg-surface text-on-surface">
                             {role}
                           </option>
                         ))}
@@ -198,39 +230,46 @@ export const TableView: React.FC<TableViewProps> = ({
                     </td>
 
                     {/* Assignee selection */}
-                    <td className="px-5 py-3">
-                      <select
-                        value={row.assignedUser || ''}
-                        onChange={(e) => onQuickUpdate(row.id, { assignedUser: e.target.value })}
-                        className="bg-transparent border-none text-xs font-semibold p-0.5 focus:ring-0 cursor-pointer text-slate-805 dark:text-slate-250 outline-none hover:bg-slate-100 dark:hover:bg-slate-800 rounded px-1.5 py-0.5"
-                      >
-                        <option value="" className="dark:bg-slate-900">👤 Unassigned</option>
-                        {(row.assignedRole ? users.filter(u => u.role === row.assignedRole) : users).map(u => (
-                          <option key={u.id} value={u.name} className="dark:bg-slate-900">
-                            {u.name}
-                          </option>
-                        ))}
-                      </select>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        {row.assignedUser ? (
+                          <div className="w-6 h-6 rounded-full bg-tertiary-container flex-shrink-0 flex items-center justify-center text-[10px] text-on-tertiary font-bold shadow-md shadow-tertiary-container/20">
+                            {row.assignedUser.substring(0, 2).toUpperCase()}
+                          </div>
+                        ) : null}
+                        <select
+                          value={row.assignedUser || ''}
+                          onChange={(e) => onQuickUpdate(row.id, { assignedUser: e.target.value })}
+                          className={`bg-transparent border-none text-body-sm p-0 focus:ring-0 cursor-pointer outline-none hover:text-primary transition-colors appearance-none flex-grow ${row.assignedUser ? 'text-on-surface' : 'text-on-surface-variant'}`}
+                        >
+                          <option value="" className="bg-surface text-on-surface">Unassigned</option>
+                          {(row.assignedRole ? users.filter(u => u.role === row.assignedRole) : users).map(u => (
+                            <option key={u.id} value={u.name} className="bg-surface text-on-surface">
+                              {u.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
                     </td>
 
                     {/* Custom Fields values */}
                     {customFieldsDef.map((field) => {
                       const val = row.customFields[field.id];
                       return (
-                        <td key={field.id} className="px-5 py-3 text-xs text-slate-600 dark:text-slate-400 truncate max-w-[120px]">
+                        <td key={field.id} className="px-6 py-4 text-body-sm text-on-surface-variant truncate max-w-[120px]">
                           {val !== undefined && val !== null ? String(val) : '-'}
                         </td>
                       );
                     })}
 
                     {/* Notes Trigger */}
-                    <td className="px-5 py-3 text-center">
+                    <td className="px-6 py-4 text-center">
                       <button
                         onClick={() => onOpenNotes(row.id)}
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-semibold transition-all ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
                           row.notes.length > 0
-                            ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'
-                            : 'text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-650 dark:hover:text-slate-300'
+                            ? 'bg-primary/20 text-primary hover:bg-primary/30 border border-primary/20 shadow-sm shadow-primary/10'
+                            : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface border border-transparent'
                         }`}
                         title="Manage Notes"
                       >
@@ -239,35 +278,19 @@ export const TableView: React.FC<TableViewProps> = ({
                       </button>
                     </td>
 
-                    {/* Attachments Trigger */}
-                    <td className="px-5 py-3 text-center">
-                      <button
-                        onClick={() => onOpenFiles(row.id)}
-                        className="inline-flex items-center justify-center p-2 rounded-xl text-slate-400 hover:bg-indigo-50 hover:text-indigo-600 dark:hover:bg-indigo-500/10 dark:hover:text-indigo-400 transition-all relative group"
-                        title="Upload/View Files"
-                      >
-                        <Paperclip className="h-4 w-4" />
-                        {row.attachments?.length > 0 && (
-                          <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900/50 text-[9px] font-bold text-indigo-600 dark:text-indigo-400 ring-2 ring-white dark:ring-slate-900">
-                            {row.attachments.length}
-                          </span>
-                        )}
-                      </button>
-                    </td>
-
                     {/* Last Updated */}
-                    <td className="px-5 py-3">
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 whitespace-nowrap block">
+                    <td className="px-6 py-4">
+                      <span className="text-[11px] text-on-surface-variant whitespace-nowrap block">
                         {row.lastUpdated}
                       </span>
                     </td>
 
                     {/* Actions */}
-                    <td className="px-5 py-3 text-center">
-                      <div className="flex items-center justify-center space-x-1.5">
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => onEditRow(row.id)}
-                          className="p-1 rounded-lg text-slate-400 hover:bg-indigo-50 dark:hover:bg-indigo-950/20 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                          className="p-1.5 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors border border-white/5"
                           title="Edit Row"
                         >
                           <Edit className="h-4 w-4" />
@@ -278,7 +301,7 @@ export const TableView: React.FC<TableViewProps> = ({
                               onDeleteRow(row.id);
                             }
                           }}
-                          className="p-1 rounded-lg text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-600 transition-colors"
+                          className="p-1.5 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-error transition-colors border border-white/5"
                           title="Delete Row"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -292,6 +315,6 @@ export const TableView: React.FC<TableViewProps> = ({
           </tbody>
         </table>
       </div>
-    </div>
+    </section>
   );
 };

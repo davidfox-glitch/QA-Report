@@ -2,12 +2,13 @@ import * as XLSX from 'xlsx';
 import { Document, Packer, Paragraph, Table, TableRow, TableCell, TextRun, HeadingLevel, WidthType, AlignmentType, BorderStyle } from 'docx';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { TestRow, ProjectSettings, CustomFieldDef } from '../store/useStore';
+import { useStore, TestRow, ProjectSettings, CustomFieldDef, Module } from '../store/useStore';
 
 // ----------------------------------------------------
 // 1. EXCEL EXPORTER
 // ----------------------------------------------------
 export const exportToExcel = (rows: TestRow[], settings: ProjectSettings, customFieldsDef: CustomFieldDef[]) => {
+  const { modules } = useStore.getState();
   const formattedRows = rows.map((row) => {
     const customFieldsData: Record<string, any> = {};
     customFieldsDef.forEach((def) => {
@@ -15,12 +16,10 @@ export const exportToExcel = (rows: TestRow[], settings: ProjectSettings, custom
     });
 
     const notesSummary = row.notes.map((n) => `[${n.timestamp}] ${n.text}`).join('\n');
-    const attachmentsSummary = row.attachments.map((a) => a.name).join(', ');
 
     return {
       'Test Point': row.testPoint,
-      'Module Name': row.moduleName,
-      'Page URL': row.url,
+      'Module Name': modules.find(m => m.id === row.moduleId)?.name || 'General Module',
       'How To Test': row.howToTest,
       'Expected Result': row.expectedResult,
       'Actual Result': row.actualResult,
@@ -30,7 +29,6 @@ export const exportToExcel = (rows: TestRow[], settings: ProjectSettings, custom
       'Assigned User': row.assignedUser || 'Unassigned',
       'Last Updated': row.lastUpdated,
       'Notes History': notesSummary,
-      'Attachments': attachmentsSummary,
       ...customFieldsData
     };
   });
@@ -43,7 +41,6 @@ export const exportToExcel = (rows: TestRow[], settings: ProjectSettings, custom
   worksheet['!cols'] = [
     { wch: 30 }, // Test Point
     { wch: 20 }, // Module Name
-    { wch: 25 }, // Page URL
     { wch: 30 }, // How To Test
     { wch: 30 }, // Expected
     { wch: 30 }, // Actual
@@ -81,6 +78,7 @@ export const exportToDocx = async (
     pendingTasksSummary: string;
   }
 ) => {
+  const { modules } = useStore.getState();
   const total = rows.length;
   const passed = rows.filter(r => r.testingStatus === 'Passed').length;
   const failed = rows.filter(r => r.testingStatus === 'Failed').length;
@@ -103,7 +101,7 @@ export const exportToDocx = async (
         children: [
           new TableCell({ children: [
             new Paragraph({ children: [new TextRun({ text: row.testPoint, bold: true })] }),
-            new Paragraph({ children: [new TextRun({ text: `Module: ${row.moduleName}`, size: 18, color: '666666' })] })
+            new Paragraph({ children: [new TextRun({ text: `Module: ${modules.find((m: Module) => m.id === row.moduleId)?.name || 'General Module'}`, size: 18, color: '666666' })] })
           ] }),
           new TableCell({ children: [new Paragraph({ text: row.functionalityStatus })] }),
           new TableCell({ children: [new Paragraph({ text: row.testingStatus })] }),
@@ -131,7 +129,7 @@ export const exportToDocx = async (
   rows.filter(r => r.notes.length > 0).forEach((row) => {
     notesParagraphs.push(
       new Paragraph({
-        children: [new TextRun({ text: `${row.testPoint} (Module: ${row.moduleName})`, bold: true, size: 22 })],
+        children: [new TextRun({ text: `${row.testPoint} (Module: ${modules.find((m: Module) => m.id === row.moduleId)?.name || 'General Module'})`, bold: true, size: 22 })],
         spacing: { before: 150, after: 50 }
       })
     );

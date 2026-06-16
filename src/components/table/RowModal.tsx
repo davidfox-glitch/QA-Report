@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useStore, FunctionalityStatus, TestingStatus, Priority, Attachment } from '../../store/useStore';
-import { FileUpload } from '../files/FileUpload';
-import { AlertCircle, Link2, Calendar, AlignLeft, UserCheck } from 'lucide-react';
+import { useStore, FunctionalityStatus, TestingStatus, Priority } from '../../store/useStore';
+import { AlertCircle, Calendar, AlignLeft, UserCheck } from 'lucide-react';
 
 interface RowModalProps {
   rowId?: string; // If provided, we are editing. If undefined, we are adding.
@@ -11,8 +10,7 @@ interface RowModalProps {
 
 interface RowFormInput {
   testPoint: string;
-  moduleName: string;
-  url: string;
+  moduleId: string;
   howToTest: string;
   expectedResult: string;
   actualResult: string;
@@ -27,7 +25,7 @@ interface RowFormInput {
 }
 
 export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
-  const { rows, addRow, updateRow, customFieldsDef, addAttachment, deleteAttachment, users } = useStore();
+  const { rows, addRow, updateRow, customFieldsDef, users, modules, activeModuleId } = useStore();
 
   const isEdit = !!rowId;
   const editingRow = rows.find((r) => r.id === rowId);
@@ -36,8 +34,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
 
   const defaultValues: Partial<RowFormInput> = {
     testPoint: editingRow?.testPoint || '',
-    moduleName: editingRow?.moduleName || '',
-    url: editingRow?.url || '',
+    moduleId: editingRow?.moduleId || activeModuleId || '',
     howToTest: editingRow?.howToTest || '',
     expectedResult: editingRow?.expectedResult || '',
     actualResult: editingRow?.actualResult || '',
@@ -68,8 +65,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
     if (confirm("Are you sure you want to clear all fields?")) {
       reset({
         testPoint: '',
-        moduleName: '',
-        url: '',
+        moduleId: activeModuleId || '',
         howToTest: '',
         expectedResult: '',
         actualResult: '',
@@ -88,8 +84,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
   const onSubmit = (data: RowFormInput) => {
     const rowData = {
       testPoint: data.testPoint,
-      moduleName: data.moduleName,
-      url: data.url,
+      moduleId: data.moduleId,
       howToTest: data.howToTest,
       expectedResult: data.expectedResult,
       actualResult: data.actualResult,
@@ -117,20 +112,6 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
     onClose();
   };
 
-  const handleAddAttachment = (attachment: Attachment) => {
-    if (isEdit && rowId) {
-      addAttachment(rowId, attachment);
-    } else {
-      alert("Please save the test point record first. You can upload attachments when editing.");
-    }
-  };
-
-  const handleDeleteAttachment = (attachmentId: string) => {
-    if (isEdit && rowId) {
-      deleteAttachment(rowId, attachmentId);
-    }
-  };
-
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[75vh] overflow-y-auto pr-1">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -155,35 +136,25 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
             )}
           </div>
 
-          {/* Module Name */}
+          {/* Module */}
           <div className="space-y-1">
             <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-              Module Name
+              Module
             </label>
-            <input
-              type="text"
-              {...register('moduleName', { required: 'Module name is required' })}
-              placeholder="e.g. Authentication"
+            <select
+              {...register('moduleId', { required: 'Module is required' })}
               className="w-full px-3 py-2 text-sm bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100"
-            />
-            {errors.moduleName && (
+            >
+              <option value="">Select a Module</option>
+              {modules.map(m => (
+                <option key={m.id} value={m.id}>{m.name}</option>
+              ))}
+            </select>
+            {errors.moduleId && (
               <p className="text-[10px] text-rose-500 flex items-center gap-1 mt-0.5">
-                <AlertCircle className="h-3 w-3" /> {errors.moduleName.message}
+                <AlertCircle className="h-3 w-3" /> {errors.moduleId.message}
               </p>
             )}
-          </div>
-
-          {/* URL */}
-          <div className="space-y-1">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
-              <Link2 className="h-3 w-3 text-slate-400" /> Page URL / Path
-            </label>
-            <input
-              type="text"
-              {...register('url')}
-              placeholder="https://example.com/login"
-              className="w-full px-3 py-2 text-sm bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100"
-            />
           </div>
 
           {/* How to test */}
@@ -373,26 +344,6 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
               </div>
             </div>
           )}
-
-          {/* Attachments & Screenshots */}
-          <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">
-              Attachments & Screenshots
-            </label>
-            {isEdit && editingRow ? (
-              <FileUpload
-                attachments={editingRow.attachments || []}
-                onAdd={handleAddAttachment}
-                onDelete={handleDeleteAttachment}
-              />
-            ) : (
-              <div className="p-4 border border-dashed border-slate-200 dark:border-slate-800 rounded-xl text-center">
-                <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-normal">
-                  File attachment uploads unlock once you save this new test point entry.
-                </p>
-              </div>
-            )}
-          </div>
 
         </div>
       </div>

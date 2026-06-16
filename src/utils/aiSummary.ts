@@ -1,4 +1,4 @@
-import { TestRow, ProjectSettings } from '../store/useStore';
+import { useStore, TestRow, ProjectSettings, Module } from '../store/useStore';
 
 export interface AISummaryResult {
   testingSummary: string;
@@ -11,6 +11,7 @@ export const generateTestingSummary = async (
   rows: TestRow[],
   settings: ProjectSettings
 ): Promise<AISummaryResult> => {
+  const { modules } = useStore.getState();
   const total = rows.length;
   const passed = rows.filter((r) => r.testingStatus === 'Passed').length;
   const failed = rows.filter((r) => r.testingStatus === 'Failed').length;
@@ -28,13 +29,12 @@ export const generateTestingSummary = async (
   const passRate = total > 0 ? Math.round((passed / total) * 100) : 0;
   const completionRate = total > 0 ? Math.round(((passed + failed) / total) * 100) : 0;
 
-  // Check if API Key is configured
   if (settings.apiKey && settings.apiKey.trim()) {
     try {
       const recordsText = JSON.stringify(
         rows.map((r) => ({
           testPoint: r.testPoint,
-          moduleName: r.moduleName,
+          moduleName: modules.find((m: Module) => m.id === r.moduleId)?.name || 'General Module',
           functionality: r.functionalityStatus,
           testing: r.testingStatus,
           priority: r.priority,
@@ -142,7 +142,7 @@ Provide a professional testing summary. You MUST return a JSON object containing
   - Pending: \`${pending}\`
 
 ${failed > 0 
-  ? `#### Flagged Defects:\n` + rows.filter(r => r.testingStatus === 'Failed').slice(0, 3).map(r => `*   **${r.testPoint}** (${r.moduleName}) - Priority: \`${r.priority}\`. Expecting: _${r.expectedResult}_. Got: _${r.actualResult}_`).join('\n')
+  ? `#### Flagged Defects:\n` + rows.filter(r => r.testingStatus === 'Failed').slice(0, 3).map(r => `*   **${r.testPoint}** (${modules.find((m: Module) => m.id === r.moduleId)?.name || 'General'}) - Priority: \`${r.priority}\`. Expecting: _${r.expectedResult}_. Got: _${r.actualResult}_`).join('\n')
   : '🎉 All verified test cases are currently passing.'
 }`;
 

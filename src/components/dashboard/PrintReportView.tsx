@@ -1,5 +1,5 @@
 import React from 'react';
-import { TestRow, ProjectSettings, CustomFieldDef } from '../../store/useStore';
+import { useStore, TestRow, ProjectSettings, CustomFieldDef } from '../../store/useStore';
 import { Layers, CheckCircle2, ShieldAlert, AlertTriangle, ListChecks, FileText, Sparkles } from 'lucide-react';
 
 interface PrintReportViewProps {
@@ -20,6 +20,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
   customFieldsDef,
   lastAiSummary
 }) => {
+  const { modules } = useStore();
   const total = rows.length;
   const passed = rows.filter(r => r.testingStatus === 'Passed').length;
   const failed = rows.filter(r => r.testingStatus === 'Failed').length;
@@ -189,7 +190,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
               <div key={row.id} className="py-2 flex justify-between text-[11px]">
                 <div className="space-y-0.5">
                   <p className="font-semibold text-slate-800">{row.testPoint}</p>
-                  <p className="text-[9px] text-slate-400">Module: {row.moduleName} • URL: {row.url}</p>
+                  <p className="text-[9px] text-slate-400">Module: {(modules.find(m => m.id === row.moduleId)?.name || 'General')} • URL: {''}</p>
                 </div>
                 <span className="text-[9px] font-bold text-emerald-650 bg-emerald-50 px-2 py-0.5 rounded h-fit">Passed</span>
               </div>
@@ -211,7 +212,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
               <div key={row.id} className="py-2.5 flex justify-between text-[11px] items-start">
                 <div className="space-y-1 max-w-[80%]">
                   <p className="font-semibold text-slate-850">{row.testPoint}</p>
-                  <p className="text-[9px] text-slate-400">Module: {row.moduleName} • URL: {row.url}</p>
+                  <p className="text-[9px] text-slate-400">Module: {(modules.find(m => m.id === row.moduleId)?.name || 'General')} • URL: {''}</p>
                   <p className="text-[9px] text-rose-500 bg-rose-50 p-1.5 rounded-lg border border-rose-100">
                     <span className="font-bold">Actual Outcome:</span> {row.actualResult || 'No outcome documented.'}
                   </p>
@@ -239,7 +240,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
               <div key={row.id} className="py-2 flex justify-between text-[11px]">
                 <div className="space-y-0.5">
                   <p className="font-semibold text-slate-800">{row.testPoint}</p>
-                  <p className="text-[9px] text-slate-450">Module: {row.moduleName} • Assignee: {row.assignedUser || 'Unassigned'}</p>
+                  <p className="text-[9px] text-slate-450">Module: {(modules.find(m => m.id === row.moduleId)?.name || 'General')} • Assignee: {row.assignedUser || 'Unassigned'}</p>
                 </div>
                 <span className={`text-[9px] font-bold px-2 py-0.5 rounded h-fit ${
                   row.testingStatus === 'In Progress' ? 'text-sky-650 bg-sky-50' : 'text-slate-650 bg-slate-100'

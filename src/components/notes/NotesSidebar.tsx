@@ -8,7 +8,7 @@ interface NotesSidebarProps {
 }
 
 export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) => {
-  const { rows, addNote, updateNote, deleteNote, addNotification, logActivity } = useStore();
+  const { rows, addNote, updateNote, deleteNote, addNotification, logActivity, modules } = useStore();
   const [newNoteText, setNewNoteText] = useState('');
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
@@ -88,13 +88,12 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
     setAiPrompt('');
     setSelectedImage(null);
     setAiLoading(true);
-
     try {
       const resp = await fetch('/api/analyze-image', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          prompt: `Context: Module "${row.moduleName}", Expected Result: "${row.expectedResult}". \n\nUser Question: ${userMessage}`,
+          prompt: `Context: Module "${modules.find(m => m.id === row.moduleId)?.name || 'General Module'}", Expected Result: "${row.expectedResult}". \n\nUser Question: ${userMessage}`,
           imageBase64: userImg 
         })
       });
@@ -120,7 +119,7 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
             Selected Module
           </p>
           <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200">
-            {row.moduleName}
+            {modules.find(m => m.id === row.moduleId)?.name || 'General Module'}
           </h4>
           <p className="text-xs text-slate-500 dark:text-slate-400 truncate" title={row.testPoint}>
             {row.testPoint}

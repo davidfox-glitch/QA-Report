@@ -1,0 +1,10 @@
+- [ ] Define `Client`, `Project`, and `Module` interfaces in `useStore.ts`.
+- [ ] Add state properties for `clients`, `projects`, `modules`, `activeClientId`, `activeProjectId`, `activeModuleId`.
+- [ ] Update `TestRow` to use `moduleId` instead of `moduleName`.
+- [ ] Implement data migration in `useStore.ts` constructor/initialization to move existing rows into a default hierarchy.
+- [ ] Create CRUD functions for Clients, Projects, and Modules in the store.
+- [ ] Update UI components (`Sidebar.tsx`, `Header.tsx` or wherever navigation happens) to render the Client -> Project -> Module hierarchy.
+- [ ] Update `RowModal.tsx` to save test points to the active Module, and show a dropdown if necessary.
+- [ ] Update `TableView`, `KanbanView`, `TimelineView` to only show rows for the active Module (or active Project if showing "All Modules").
+- [ ] Update `DashboardView` and Analytics to handle the new hierarchy.
+- [ ] Ensure "Master Report" logic pulls all rows for the active Project across its Modules.

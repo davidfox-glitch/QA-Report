@@ -7,6 +7,7 @@ export const ArchiveView: React.FC = () => {
   const restoreRow = useStore((state) => state.restoreRow);
   const trashRow = useStore((state) => state.trashRow);
   const setCurrentView = useStore((state) => state.setCurrentView);
+  const modules = useStore((state) => state.modules);
 
   // Basic grouping by month (e.g. "June 2026")
   const groupedTasks = useMemo(() => {
@@ -48,7 +49,6 @@ export const ArchiveView: React.FC = () => {
           const passed = rows.filter(r => r.testingStatus === 'Passed').length;
           const failed = rows.filter(r => r.testingStatus === 'Failed').length;
           const notesCount = rows.reduce((acc, r) => acc + r.notes.length, 0);
-          const attachCount = rows.reduce((acc, r) => acc + r.attachments.length, 0);
           const users = new Set(rows.map(r => r.assignedUser).filter(Boolean));
 
           return (
@@ -59,7 +59,6 @@ export const ArchiveView: React.FC = () => {
                   <span className="flex items-center gap-1"><CheckCircle className="w-4 h-4 text-green-500"/> {passed} Passed</span>
                   <span className="flex items-center gap-1"><XCircle className="w-4 h-4 text-red-500"/> {failed} Failed</span>
                   <span className="flex items-center gap-1"><FileText className="w-4 h-4 text-blue-500"/> {notesCount} Notes</span>
-                  <span className="flex items-center gap-1"><ImageIcon className="w-4 h-4 text-purple-500"/> {attachCount} Files</span>
                   <span className="flex items-center gap-1"><Users className="w-4 h-4 text-orange-500"/> {users.size} Users</span>
                   <span className="font-medium bg-gray-200 dark:bg-gray-700 px-2 py-1 rounded">Total: {rows.length}</span>
                 </div>
@@ -69,7 +68,7 @@ export const ArchiveView: React.FC = () => {
                   <div key={row.id} className="p-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                     <div>
                       <h3 className="text-md font-medium text-gray-900 dark:text-white">{row.testPoint}</h3>
-                      <p className="text-sm text-gray-500">Module: {row.moduleName} • Completed: {row.lastUpdated}</p>
+                      <p className="text-sm text-gray-500">Module: {(modules.find(m => m.id === row.moduleId)?.name || 'General')} • Completed: {row.lastUpdated}</p>
                     </div>
                     <div className="flex items-center gap-2">
                        <button className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg flex items-center gap-1">

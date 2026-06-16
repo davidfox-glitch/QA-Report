@@ -28,7 +28,6 @@ import { SmartImportModal } from './components/dashboard/SmartImportModal';
 import { DocumentationDashboard } from './components/dashboard/DocumentationDashboard';
 import { ArchiveView } from './components/dashboard/ArchiveView';
 import { TrashView } from './components/dashboard/TrashView';
-import { FilesModal } from './components/table/FilesModal';
 import { DetailsModal } from './components/table/DetailsModal';
 
 // Icons
@@ -144,8 +143,6 @@ export default function App() {
       const notesMatch = row.notes.some((n) => n.text.toLowerCase().includes(q));
       const textMatch =
         row.testPoint.toLowerCase().includes(q) ||
-        row.moduleName.toLowerCase().includes(q) ||
-        row.url.toLowerCase().includes(q) ||
         row.howToTest.toLowerCase().includes(q) ||
         row.expectedResult.toLowerCase().includes(q) ||
         row.actualResult.toLowerCase().includes(q) ||
@@ -620,7 +617,7 @@ export default function App() {
 
         {/* Active View Router */}
         <div className="min-h-[400px]">
-          {currentView === 'dashboard' && <DashboardView />}
+          {currentView === 'dashboard' && <DashboardView rows={filteredRows} />}
 
           {currentView === 'table' && (
             <TableView
@@ -634,7 +631,6 @@ export default function App() {
               onOpenNotes={(id) => setNotesRowId(id)}
               onQuickUpdate={updateRow}
               onOpenDetails={setDetailsRow}
-              onOpenFiles={setFilesRowId}
             />
           )}
 
@@ -697,7 +693,7 @@ export default function App() {
         <RowModal onClose={() => setIsAddRowOpen(false)} />
       </Dialog>
       
-      <FilesModal rowId={filesRowId} onClose={() => setFilesRowId(null)} />
+
       <DetailsModal row={detailsRow} onClose={() => setDetailsRow(null)} />
 
       {/* 2. Edit Entry Dialog */}

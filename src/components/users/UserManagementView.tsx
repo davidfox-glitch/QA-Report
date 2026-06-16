@@ -13,7 +13,7 @@ import { Badge } from '../ui/Badge';
 import { Dialog } from '../ui/Dialog';
 
 export const UserManagementView: React.FC = () => {
-  const { users, rows, addUser, deleteUser, updateRow } = useStore();
+  const { users, rows, addUser, deleteUser, updateRow, modules } = useStore();
   
   // Selection/editing states
   const [selectedUser, setSelectedUser] = useState<User | null>(users[0] || null);
@@ -291,7 +291,7 @@ export const UserManagementView: React.FC = () => {
                       >
                         <div className="space-y-0.5 max-w-[75%]">
                           <h5 className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">{row.testPoint}</h5>
-                          <span className="text-[9px] text-slate-400 block truncate">{row.moduleName}</span>
+                          <span className="text-[9px] text-slate-400 block truncate">{modules.find(m => m.id === row.moduleId)?.name || 'General Module'}</span>
                         </div>
                         <Badge type="testing" value={row.testingStatus} />
                       </div>

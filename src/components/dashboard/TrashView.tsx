@@ -6,7 +6,9 @@ import { PermanentDeleteModal } from './PermanentDeleteModal';
 export const TrashView: React.FC = () => {
   const trashRows = useStore((state) => state.trashRows);
   const restoreRow = useStore((state) => state.restoreRow);
+  const hardDeleteRow = useStore((state) => state.hardDeleteRow);
   const setCurrentView = useStore((state) => state.setCurrentView);
+  const modules = useStore((state) => state.modules);
   
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -78,7 +80,7 @@ export const TrashView: React.FC = () => {
                   <div key={row.id} className="p-4 flex flex-col md:flex-row items-start md:items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors gap-4">
                     <div>
                       <h3 className="text-md font-medium text-gray-900 dark:text-white">{row.testPoint}</h3>
-                      <p className="text-sm text-gray-500">Module: {row.moduleName} • Status: {row.testingStatus}</p>
+                      <p className="text-sm text-gray-500">Module: {(modules.find(m => m.id === row.moduleId)?.name || 'General')} • Status: {row.testingStatus}</p>
                     </div>
                     <div className="flex items-center gap-2 w-full md:w-auto">
                        <button onClick={() => restoreRow(row.id)} className="flex-1 md:flex-none px-3 py-1.5 text-sm bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center justify-center gap-1">
