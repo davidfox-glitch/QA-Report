@@ -21,6 +21,15 @@ CREATE TABLE public.users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- 3. Create Registered Accounts Table
+CREATE TABLE public.registered_accounts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  email TEXT UNIQUE NOT NULL,
+  name TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+
 -- 3. Create Test Points Table (Active Tasks)
 CREATE TABLE public.test_points (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

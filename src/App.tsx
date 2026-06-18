@@ -29,6 +29,7 @@ import { DocumentationDashboard } from './components/dashboard/DocumentationDash
 import { ArchiveView } from './components/dashboard/ArchiveView';
 import { TrashView } from './components/dashboard/TrashView';
 import { DetailsModal } from './components/table/DetailsModal';
+import { ChatbotWidget } from './components/chat/ChatbotWidget';
 
 // Icons
 import {
@@ -780,6 +781,7 @@ export default function App() {
         />
       </div>
 
+      <ChatbotWidget />
     </div>
   );
 }
