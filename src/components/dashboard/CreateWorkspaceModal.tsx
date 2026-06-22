@@ -78,7 +78,7 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ onCl
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
               className="w-full px-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="e.g. QAFlow Pro Platform"
+              placeholder="e.g. QAFlow"
             />
           </div>
 

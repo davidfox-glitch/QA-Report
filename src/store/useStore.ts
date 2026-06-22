@@ -382,7 +382,7 @@ export const useStore = create<DashboardState>((set, get) => {
     };
   return {
     settings: savedState?.settings || {
-      projectName: 'QAFlow Pro Platform',
+      projectName: 'QAFlow',
       clientName: 'Genus Tech Inc',
       clientLogo: '',
       projectDescription: 'Comprehensive QA tracking, automated workflows, and status analysis report for Genus platforms.',
@@ -396,7 +396,7 @@ export const useStore = create<DashboardState>((set, get) => {
     },
     currentView: savedState?.currentView || 'dashboard',
     clients: savedState?.clients || [{ id: 'client-1', name: 'Genus Tech Inc' }],
-    projects: savedState?.projects || [{ id: 'project-1', clientId: 'client-1', name: 'QAFlow Pro Platform' }],
+    projects: savedState?.projects || [{ id: 'project-1', clientId: 'client-1', name: 'QAFlow' }],
     modules: savedState?.modules || [
       { id: 'module-1', projectId: 'project-1', name: 'Authentication - Login' },
       { id: 'module-2', projectId: 'project-1', name: 'Social Manager - Analytics' },
