@@ -18,7 +18,7 @@ interface RowFormInput {
   testingStatus: TestingStatus;
   priority: Priority;
   assignedRole: string;
-  assignedUser: string;
+  assignedUsers: string[];
   startDate: string;
   releaseDate: string;
   customFields: Record<string, string | number>;
@@ -42,7 +42,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
     testingStatus: editingRow?.testingStatus || 'Pending',
     priority: editingRow?.priority || 'Medium',
     assignedRole: editingRow?.assignedRole || '',
-    assignedUser: editingRow?.assignedUser || '',
+    assignedUsers: editingRow?.assignedUsers || [],
     startDate: editingRow?.startDate || '',
     releaseDate: editingRow?.releaseDate || '',
     customFields: editingRow?.customFields || (customFieldsDef.some(f => f.id === 'cf-bug-id') ? { 'cf-bug-id': generateBugId() } : {})
@@ -73,7 +73,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
         testingStatus: 'Pending',
         priority: 'Medium',
         assignedRole: '',
-        assignedUser: '',
+        assignedUsers: [],
         startDate: '',
         releaseDate: '',
         customFields: customFieldsDef.some(f => f.id === 'cf-bug-id') ? { 'cf-bug-id': generateBugId() } : {}
@@ -92,7 +92,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
       testingStatus: data.testingStatus,
       priority: data.priority,
       assignedRole: data.assignedRole || undefined,
-      assignedUser: data.assignedUser || undefined,
+      assignedUsers: data.assignedUsers && data.assignedUsers.length > 0 ? data.assignedUsers : undefined,
       startDate: data.startDate || undefined,
       releaseDate: data.releaseDate || undefined,
       customFields: data.customFields
@@ -102,10 +102,12 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
       updateRow(rowId, rowData);
     } else {
       addRow(rowData);
-      // Push notification to assigned user if any
-      if (data.assignedUser) {
+      // Push notification to assigned users
+      if (data.assignedUsers && data.assignedUsers.length > 0) {
         import('../../services/notifications').then(({ sendPush }) => {
-          sendPush(data.assignedUser, 'New Test Point Assigned', `A new test point "${data.testPoint}" has been assigned to you.`);
+          data.assignedUsers.forEach(user => {
+            sendPush(user, 'New Test Point Assigned', `A new test point "${data.testPoint}" has been assigned to you.`);
+          });
         });
       }
     }
@@ -267,7 +269,7 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
                 {...register('assignedRole')}
                 onChange={(e) => {
                   register('assignedRole').onChange(e);
-                  setValue('assignedUser', ''); // Clear user when role changes
+                  setValue('assignedUsers', []); // Clear users when role changes
                 }}
                 className="w-full px-3 py-2 text-xs bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100"
               >
@@ -285,15 +287,44 @@ export const RowModal: React.FC<RowModalProps> = ({ rowId, onClose }) => {
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1">
                 <UserCheck className="h-3.5 w-3.5 text-slate-400" /> Assigned User
               </label>
-              <select
-                {...register('assignedUser')}
-                className="w-full px-3 py-2 text-xs bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100"
-              >
-                <option value="">Unassigned</option>
-                {filteredUsers.map(u => (
-                  <option key={u.id} value={u.name}>{u.name} ({u.role})</option>
-                ))}
-              </select>
+              <div className="flex flex-col gap-2">
+                {useWatch({ control, name: 'assignedUsers' })?.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {useWatch({ control, name: 'assignedUsers' }).map((user: string) => (
+                      <div key={user} className="flex items-center gap-1 text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded-md">
+                        <span>{user}</span>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const current = useWatch({ control, name: 'assignedUsers' }) as string[];
+                            setValue('assignedUsers', current.filter(u => u !== user));
+                          }}
+                          className="text-slate-400 hover:text-rose-500 transition-colors"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <select
+                  value=""
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      const current = useWatch({ control, name: 'assignedUsers' }) || [];
+                      setValue('assignedUsers', Array.from(new Set([...current, e.target.value])));
+                    }
+                  }}
+                  className="w-full px-3 py-2 text-xs bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100"
+                >
+                  <option value="">Add Assignee...</option>
+                  {filteredUsers
+                    .filter(u => !(useWatch({ control, name: 'assignedUsers' }) || []).includes(u.name))
+                    .map(u => (
+                      <option key={u.id} value={u.name}>{u.name} ({u.email}) - {u.role}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
 

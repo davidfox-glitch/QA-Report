@@ -203,7 +203,7 @@ export const SmartImportModal: React.FC<SmartImportModalProps> = ({ onClose }) =
           functionalityStatus: 'Pending',
           testingStatus: 'Pending',
           priority: (tp.priority as any) || 'Medium',
-          assignedUser: currentUserName || (tp.assignedUser as string) || undefined,
+          assignedUsers: currentUserName ? [currentUserName] : (tp.assignedUsers ? (Array.isArray(tp.assignedUsers) ? tp.assignedUsers as string[] : [tp.assignedUsers as string]) : []),
           notes: [],
           attachments: [],
           customFields: {},

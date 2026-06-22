@@ -24,7 +24,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ rows }) => {
   const inProgress = rows.filter(r => r.testingStatus === 'In Progress').length;
   
   // Unique assigned users from rows
-  const activeAssignedUsers = Array.from(new Set(rows.map(r => r.assignedUser).filter(Boolean))).length;
+  const activeAssignedUsers = Array.from(new Set(rows.flatMap(r => r.assignedUsers || []).filter(Boolean))).length;
   
   // Completion rate (Passed + Failed / Total)
   const completionRate = total > 0 ? Math.round(((passed + failed) / total) * 100) : 0;

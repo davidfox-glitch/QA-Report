@@ -80,7 +80,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
 
   // 5. Team Activity (Assigned tests breakdown per user)
   const teamActivityData = users.map((u) => {
-    const userRows = rows.filter(r => r.assignedUser === u.name);
+    const userRows = rows.filter(r => r.assignedUsers?.includes(u.name));
     return {
       name: u.name.split(' ')[0], // First name for layout fitting
       Passed: userRows.filter(r => r.testingStatus === 'Passed').length,

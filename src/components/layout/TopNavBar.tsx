@@ -25,6 +25,8 @@ export const TopNavBar: React.FC = () => {
   // We should ideally get session and currentUserRole from App, but we can also manage it here 
   // or fetch from supabase if needed. For simplicity, we'll assume Admin if not provided.
   const currentUserRole = 'Admin'; // Hardcoding to Admin based on our App.tsx change
+  const ADMIN_ROLES = ['Admin', 'Manager', 'Boss', 'QA Lead', 'QA Engineer', 'QA', 'Project Manager'];
+  const isAdmin = ADMIN_ROLES.includes(currentUserRole);
   
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -48,7 +50,7 @@ export const TopNavBar: React.FC = () => {
                   <div className="p-2 text-label-caps text-on-surface-variant uppercase tracking-widest border-b border-white/5 mb-1">
                     Your Workspaces
                   </div>
-                  {projects.filter(p => currentUserRole === 'Admin' || rows.some(r => r.assignedUser === 'admin@qaflow.com' && modules.find(m => m.id === r.moduleId)?.projectId === p.id)).map(project => {
+                  {projects.filter(p => isAdmin || rows.some(r => r.assignedUsers?.includes('admin@qaflow.com') && modules.find(m => m.id === r.moduleId)?.projectId === p.id)).map(project => {
                     const client = clients.find(c => c.id === project.clientId);
                     const isActive = activeProjectId === project.id;
                     return (

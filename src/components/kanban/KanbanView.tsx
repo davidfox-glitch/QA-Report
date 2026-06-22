@@ -56,13 +56,13 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   const moveCard = (cardId: string, targetColId: string) => {
     if (groupBy === 'testing') onQuickUpdate(cardId, { testingStatus: targetColId as TestingStatus });
     else if (groupBy === 'functionality') onQuickUpdate(cardId, { functionalityStatus: targetColId as FunctionalityStatus });
-    else onQuickUpdate(cardId, { assignedUser: targetColId === 'unassigned' ? '' : targetColId });
+    else onQuickUpdate(cardId, { assignedUsers: targetColId === 'unassigned' ? [] : [targetColId] });
   };
 
   const getRowColId = (row: TestRow) => {
     if (groupBy === 'testing') return row.testingStatus;
     if (groupBy === 'functionality') return row.functionalityStatus;
-    return row.assignedUser || 'unassigned';
+    return row.assignedUsers?.[0] || 'unassigned';
   };
 
   // Drag handlers
@@ -138,9 +138,9 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
             <button
               key={opt}
               onClick={() => setGroupBy(opt)}
-              className={`px-4 py-2 text-body-sm font-semibold rounded-lg transition-all ${
+              className={`px-3 py-1.5 text-[10px] sm:text-xs font-semibold rounded-full transition-all ${
                 groupBy === opt
-                  ? 'bg-primary text-on-primary shadow-lg shadow-primary/20'
+                  ? 'bg-primary text-on-primary shadow-md shadow-primary/20'
                   : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
               }`}
             >
@@ -148,8 +148,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
             </button>
           ))}
         </div>
-        <p className="text-body-sm text-on-surface-variant flex items-center gap-1.5">
-          <span className="material-symbols-outlined text-sm">drag_indicator</span>
+        <p className="text-xs text-on-surface-variant flex items-center gap-1.5">
           Drag cards between columns to update
         </p>
       </div>
@@ -225,9 +224,9 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
 
                       <div className="flex items-center justify-between pt-2 border-t border-white/5">
                         <div className="flex items-center gap-2">
-                          {card.assignedUser ? (
-                            <div className={`w-6 h-6 rounded-full bg-surface-variant border border-white/10 flex items-center justify-center text-[10px] text-on-surface font-bold ${card.testingStatus === 'Passed' ? 'opacity-50' : ''}`}>
-                              {card.assignedUser.substring(0, 2).toUpperCase()}
+                          {card.assignedUsers && card.assignedUsers.length > 0 ? (
+                            <div className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300 ring-2 ring-white dark:ring-slate-900 shadow-sm" title={card.assignedUsers.join(', ')}>
+                              {card.assignedUsers[0].substring(0, 2).toUpperCase()}
                             </div>
                           ) : (
                             <div className="w-6 h-6 rounded-full bg-surface-container border border-white/5 flex items-center justify-center text-[10px] text-on-surface-variant font-bold">

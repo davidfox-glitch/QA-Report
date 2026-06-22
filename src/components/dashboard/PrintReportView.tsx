@@ -240,7 +240,7 @@ export const PrintReportView: React.FC<PrintReportViewProps> = ({
               <div key={row.id} className="py-2 flex justify-between text-[11px]">
                 <div className="space-y-0.5">
                   <p className="font-semibold text-slate-800">{row.testPoint}</p>
-                  <p className="text-[9px] text-slate-450">Module: {(modules.find(m => m.id === row.moduleId)?.name || 'General')} • Assignee: {row.assignedUser || 'Unassigned'}</p>
+                  <p className="text-[9px] text-slate-450">Module: {(modules.find(m => m.id === row.moduleId)?.name || 'General')} • Assignees: {row.assignedUsers?.join(', ') || 'Unassigned'}</p>
                 </div>
                 <span className={`text-[9px] font-bold px-2 py-0.5 rounded h-fit ${
                   row.testingStatus === 'In Progress' ? 'text-sky-650 bg-sky-50' : 'text-slate-650 bg-slate-100'

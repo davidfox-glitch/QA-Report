@@ -17,20 +17,49 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) =
 
   // Compute date ranges
   const getDaysArray = () => {
-    // Default 30 day window starting from today minus 5 days
+    if (timelineRows.length > 0) {
+      let minDate = new Date(timelineRows[0].startDate!);
+      let maxDate = new Date(timelineRows[0].releaseDate!);
+
+      timelineRows.forEach(r => {
+        const s = new Date(r.startDate!);
+        const e = new Date(r.releaseDate!);
+        if (!isNaN(s.getTime()) && s < minDate) minDate = s;
+        if (!isNaN(e.getTime()) && e > maxDate) maxDate = e;
+      });
+
+      // Pad by 2 days
+      minDate.setDate(minDate.getDate() - 2);
+      maxDate.setDate(maxDate.getDate() + 2);
+      
+      let totalDays = Math.ceil((maxDate.getTime() - minDate.getTime()) / (1000 * 3600 * 24));
+      // Ensure a reasonable window
+      totalDays = Math.max(14, Math.min(totalDays, 90)); 
+      
+      const daysArr = [];
+      for (let i = 0; i < totalDays; i++) {
+        const d = new Date(minDate);
+        d.setDate(minDate.getDate() + i);
+        daysArr.push(d);
+      }
+      return daysArr;
+    }
+
+    // Default 28 day window
     const start = new Date();
     start.setDate(start.getDate() - 5);
-    const days = [];
+    const daysArr = [];
     for (let i = 0; i < 28; i++) {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
-      days.push(d);
+      daysArr.push(d);
     }
-    return days;
+    return daysArr;
   };
 
   const days = getDaysArray();
-  const timeLabels = days.filter((_, idx) => idx % 4 === 0); // show label every 4 days
+  const labelInterval = Math.max(1, Math.floor(days.length / 8));
+  const timeLabels = days.filter((_, idx) => idx % labelInterval === 0);
 
   const calculateOffsetAndWidth = (startStr: string, endStr: string) => {
     const start = new Date(startStr);
@@ -70,7 +99,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) =
         <div className="flex items-center space-x-2">
           <Calendar className="h-4 w-4 text-indigo-500" />
           <h4 className="text-sm font-bold font-display text-slate-800 dark:text-slate-200">
-            Project Timeline (4-Week Grid)
+            Project Timeline
           </h4>
         </div>
         {missingDatesCount > 0 && (
@@ -140,7 +169,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) =
                     <div className="flex items-center space-x-1.5 text-[9px] text-slate-400 dark:text-slate-550">
                       <span className="uppercase font-bold text-[8px] tracking-wider text-slate-450">{modules.find(m => m.id === row.moduleId)?.name || 'General Module'}</span>
                       <span>•</span>
-                      <span>Assignee: {row.assignedUser || 'Unassigned'}</span>
+                      <span>Assignees: {row.assignedUsers?.join(', ') || 'Unassigned'}</span>
                     </div>
                   </div>
 
@@ -148,7 +177,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) =
                   <div className="w-2/3 relative min-h-[56px] flex items-center px-4 bg-slate-50/5 dark:bg-slate-900/5">
                     {/* Day background Grid separators */}
                     {timeLabels.map((_, idx) => {
-                      const leftPercent = (days.findIndex((d, dIdx) => dIdx === idx * 4) / days.length) * 100;
+                      const leftPercent = (days.findIndex((d, dIdx) => dIdx === idx * labelInterval) / days.length) * 100;
                       return (
                         <div
                           key={idx}
@@ -174,7 +203,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) =
                           {row.testPoint}
                         </span>
                         <span className="text-[8px] font-mono shrink-0 opacity-80">
-                          {Math.round(widthPercent / (100 / 28))}d
+                          {Math.round(widthPercent / (100 / days.length))}d
                         </span>
                       </div>
                     )}

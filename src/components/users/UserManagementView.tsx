@@ -24,7 +24,7 @@ export const UserManagementView: React.FC = () => {
   const [newUserAvatar, setNewUserAvatar] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80');
 
   // Filter rows assigned to selected user
-  const assignedRows = rows.filter(r => r.assignedUser === selectedUser?.name);
+  const assignedRows = rows.filter(r => r.assignedUsers?.includes(selectedUser?.name || ''));
 
   const [loading, setLoading] = useState(false);
 
@@ -37,13 +37,15 @@ export const UserManagementView: React.FC = () => {
 
     setLoading(true);
     
-    // Step 1: Insert invite record into Supabase whitelist table (ignore duplicates)
+    // Step 1: Insert invite record into Supabase users table (ignore duplicates)
     const { data: insertedRows, error: insertError } = await supabase
-      .from('invited_users')
+      .from('users')
       .upsert([
         {
           email: newUserEmail,
+          name: newUserName,
           role: newUserRole,
+          avatar: newUserAvatar,
         },
       ], { onConflict: 'email', ignoreDuplicates: true })
       .select();
@@ -99,7 +101,9 @@ export const UserManagementView: React.FC = () => {
     }
 
     // Step 3: Add to local Zustand store so the UI updates immediately
+    const insertedUser = insertedRows?.[0];
     addUser({
+      id: insertedUser?.id || `user-${Date.now()}`,
       name: newUserName,
       email: newUserEmail,
       role: newUserRole,
@@ -129,12 +133,15 @@ export const UserManagementView: React.FC = () => {
   const handleDelete = async (id: string, name: string) => {
     if (confirm(`Are you sure you want to remove user "${name}"? all assigned test points will be updated to unassigned.`)) {
       try {
-        // Delete from Supabase first
-        const { error } = await supabase.from('users').delete().eq('id', id);
-        if (error) {
-          console.error('Supabase user delete error:', error.message);
-          toast.error('Failed to delete user from server');
-          return;
+        const userToDelete = users.find(u => u.id === id);
+        if (userToDelete && userToDelete.email) {
+          // Delete from Supabase first
+          const { error } = await supabase.from('users').delete().eq('email', userToDelete.email);
+          if (error) {
+            console.error('Supabase user delete error:', error.message);
+            toast.error('Failed to delete user from server');
+            return;
+          }
         }
       } catch (err) {
         console.error('Unexpected error deleting user:', err);
@@ -145,8 +152,8 @@ export const UserManagementView: React.FC = () => {
       deleteUser(id);
       // Clean up assigned rows
       rows.forEach(row => {
-        if (row.assignedUser === name) {
-          updateRow(row.id, { assignedUser: '' });
+        if (row.assignedUsers?.includes(name)) {
+          updateRow(row.id, { assignedUsers: row.assignedUsers.filter(u => u !== name) });
         }
       });
       if (selectedUser?.id === id) {
@@ -179,7 +186,7 @@ export const UserManagementView: React.FC = () => {
         {/* Left Side: Users Directory list */}
         <div className="lg:col-span-2 glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-850">
           {users.map((user) => {
-            const userTasksCount = rows.filter(r => r.assignedUser === user.name).length;
+            const userTasksCount = rows.filter(r => r.assignedUsers?.includes(user.name)).length;
             const isSelected = selectedUser?.id === user.id;
 
             return (
@@ -215,7 +222,7 @@ export const UserManagementView: React.FC = () => {
                       {userTasksCount} Assigned
                     </span>
                     <span className="text-[9px] text-slate-400 dark:text-slate-550 block">
-                      {rows.filter(r => r.assignedUser === user.name && r.testingStatus === 'Passed').length} Passed
+                      {rows.filter(r => r.assignedUsers?.includes(user.name) && r.testingStatus === 'Passed').length} Passed
                     </span>
                   </div>
 

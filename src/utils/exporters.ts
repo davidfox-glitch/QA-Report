@@ -26,7 +26,7 @@ export const exportToExcel = (rows: TestRow[], settings: ProjectSettings, custom
       'Functionality Status': row.functionalityStatus,
       'Testing Status': row.testingStatus,
       'Priority': row.priority,
-      'Assigned User': row.assignedUser || 'Unassigned',
+      'Assigned Users': row.assignedUsers?.join(', ') || 'Unassigned',
       'Last Updated': row.lastUpdated,
       'Notes History': notesSummary,
       ...customFieldsData
@@ -106,7 +106,7 @@ export const exportToDocx = async (
           new TableCell({ children: [new Paragraph({ text: row.functionalityStatus })] }),
           new TableCell({ children: [new Paragraph({ text: row.testingStatus })] }),
           new TableCell({ children: [new Paragraph({ text: row.priority })] }),
-          new TableCell({ children: [new Paragraph({ text: row.assignedUser || 'Unassigned' })] })
+          new TableCell({ children: [new Paragraph({ text: row.assignedUsers?.join(', ') || 'Unassigned' })] })
         ]
       });
     });

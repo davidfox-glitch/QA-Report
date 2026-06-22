@@ -150,7 +150,7 @@ export default function App() {
         row.priority.toLowerCase().includes(q) ||
         row.testingStatus.toLowerCase().includes(q) ||
         row.functionalityStatus.toLowerCase().includes(q) ||
-        (row.assignedUser && row.assignedUser.toLowerCase().includes(q));
+        (row.assignedUsers && row.assignedUsers.some(u => u.toLowerCase().includes(q)));
 
       if (!textMatch && !notesMatch) return false;
     }
@@ -174,7 +174,7 @@ export default function App() {
   });
 
   const [session, setSession] = useState<Session | null>(null);
-  const [currentUserRole, setCurrentUserRole] = useState<'Admin' | 'User'>('User');
+  const [currentUserRole, setCurrentUserRole] = useState<string>('User');
   const [authInitialized, setAuthInitialized] = useState(false);
   const [isBlocked, setIsBlocked] = useState(false);
   const [invitedEmails, setInvitedEmails] = useState<string[]>(['dawoodhashmi2006@gmail.com']);
@@ -237,7 +237,7 @@ export default function App() {
   // Fetch invited emails dynamically
   useEffect(() => {
     const fetchInvites = async () => {
-      const { data, error } = await supabase.from('invited_users').select('email');
+      const { data, error } = await supabase.from('users').select('email');
       if (data && !error) {
         setInvitedEmails(prev => {
           const emails = data.map(row => row.email);
@@ -264,13 +264,16 @@ export default function App() {
       }
     }
   }, [session, invitedEmails, isCheckingInvite]);
+  const ADMIN_ROLES = ['Admin', 'Manager', 'Boss', 'QA Lead', 'QA Engineer', 'QA', 'Project Manager'];
+  const isAdmin = ADMIN_ROLES.includes(currentUserRole);
+
   // Role-Based Route Protection Logic
   React.useEffect(() => {
     // If a standard User tries to access protected views, redirect to dashboard
-    if (currentUserRole !== 'Admin' && (currentView === 'timeline' || currentView === 'users')) {
+    if (!isAdmin && (currentView === 'timeline' || currentView === 'users')) {
       setCurrentView('dashboard');
     }
-  }, [currentView, currentUserRole, setCurrentView]);
+  }, [currentView, isAdmin, setCurrentView]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -399,7 +402,7 @@ export default function App() {
               <span>Trash</span>
             </button>
             {/* Admin-Only Navigation Links */}
-            {currentUserRole === 'Admin' && (
+            {isAdmin && (
               <>
                 <button
                   onClick={() => setCurrentView('timeline')}

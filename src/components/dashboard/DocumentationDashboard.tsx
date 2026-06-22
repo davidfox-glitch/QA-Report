@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BookOpen, CheckCircle, Clock, AlertTriangle, FileText, Database, Shield, Cpu, Activity } from 'lucide-react';
+import { BookOpen, CheckCircle, Clock, AlertTriangle, FileText, Database, Shield, Cpu, Activity, ShieldAlert, Zap } from 'lucide-react';
 
 interface ProjectStatus {
   'Current Progress %': number;
@@ -160,6 +160,48 @@ export const DocumentationDashboard: React.FC = () => {
                   </span>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Critical Defect Watchlist */}
+          <div className="bg-white dark:bg-slate-900 rounded-xl border-l-4 border-l-rose-500 border border-slate-200 dark:border-slate-800 shadow-sm p-5">
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="text-rose-500 w-4 h-4" />
+                <h3 className="font-bold text-slate-800 dark:text-white">Critical Watchlist</h3>
+              </div>
+              <span className="bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 px-2 py-0.5 rounded text-[10px] font-bold">4 HIGH</span>
+            </div>
+            <div className="space-y-3">
+              <div className="p-3 bg-rose-50 dark:bg-rose-500/5 border border-rose-100 dark:border-rose-500/20 rounded-lg">
+                <div className="flex justify-between items-start mb-1">
+                  <span className="text-xs text-rose-600 dark:text-rose-400 font-bold tracking-wider">DEF-902</span>
+                  <span className="text-[10px] text-slate-500">45m ago</span>
+                </div>
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">Stripe Webhook Timeout</h4>
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">Intermittent failure on checkout success callback affecting 15% of users.</p>
+              </div>
+              <div className="p-3 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-lg">
+                <div className="flex justify-between items-start mb-1">
+                  <span className="text-xs text-slate-500 font-bold tracking-wider">DEF-884</span>
+                  <span className="text-[10px] text-slate-500">3h ago</span>
+                </div>
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">CORS Policy Leak</h4>
+                <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed">Staging environment leaking internal headers to unauthorized origins.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* System Stats Mini-Card */}
+          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm p-5 bg-gradient-to-br from-indigo-50/50 to-white dark:from-slate-800 dark:to-slate-900">
+            <div className="flex items-center gap-4">
+              <div className="w-10 h-10 rounded-full border-2 border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center bg-white dark:bg-slate-800">
+                <Zap className="text-indigo-500 w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-0.5">Avg. Page Load</p>
+                <h4 className="text-xl font-extrabold text-slate-800 dark:text-white">412ms</h4>
+              </div>
             </div>
           </div>
         </div>

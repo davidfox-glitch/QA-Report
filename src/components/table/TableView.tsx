@@ -216,7 +216,7 @@ export const TableView: React.FC<TableViewProps> = ({
                       <select
                         value={row.assignedRole || ''}
                         onChange={(e) => {
-                          onQuickUpdate(row.id, { assignedRole: e.target.value, assignedUser: undefined });
+                          onQuickUpdate(row.id, { assignedRole: e.target.value, assignedUsers: [] });
                         }}
                         className="bg-transparent border-none text-body-sm p-0 focus:ring-0 cursor-pointer text-on-surface-variant outline-none hover:text-primary transition-colors appearance-none"
                       >
@@ -231,21 +231,42 @@ export const TableView: React.FC<TableViewProps> = ({
 
                     {/* Assignee selection */}
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {row.assignedUser ? (
-                          <div className="w-6 h-6 rounded-full bg-tertiary-container flex-shrink-0 flex items-center justify-center text-[10px] text-on-tertiary font-bold shadow-md shadow-tertiary-container/20">
-                            {row.assignedUser.substring(0, 2).toUpperCase()}
+                      <div className="flex flex-col gap-1.5">
+                        {row.assignedUsers && row.assignedUsers.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {row.assignedUsers.map(user => (
+                              <div key={user} className="flex items-center gap-1 text-[10px] bg-tertiary-container/30 text-on-tertiary-container border border-tertiary-container/50 px-1.5 py-0.5 rounded-md">
+                                <span>{user}</span>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    onQuickUpdate(row.id, { assignedUsers: row.assignedUsers!.filter(u => u !== user) });
+                                  }}
+                                  className="text-on-tertiary-container/60 hover:text-error transition-colors"
+                                  title="Remove Assignee"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ))}
                           </div>
-                        ) : null}
+                        )}
                         <select
-                          value={row.assignedUser || ''}
-                          onChange={(e) => onQuickUpdate(row.id, { assignedUser: e.target.value })}
-                          className={`bg-transparent border-none text-body-sm p-0 focus:ring-0 cursor-pointer outline-none hover:text-primary transition-colors appearance-none flex-grow ${row.assignedUser ? 'text-on-surface' : 'text-on-surface-variant'}`}
+                          value=""
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              const newUsers = [...(row.assignedUsers || []), e.target.value];
+                              onQuickUpdate(row.id, { assignedUsers: Array.from(new Set(newUsers)) });
+                            }
+                          }}
+                          className={`bg-transparent border-none text-body-sm p-0 focus:ring-0 cursor-pointer outline-none hover:text-primary transition-colors appearance-none w-full max-w-[150px] ${!row.assignedUsers?.length ? 'text-on-surface-variant' : 'text-on-surface'}`}
                         >
-                          <option value="" className="bg-surface text-on-surface">Unassigned</option>
-                          {(row.assignedRole ? users.filter(u => u.role === row.assignedRole) : users).map(u => (
+                          <option value="" className="bg-surface text-on-surface">Add Assignee...</option>
+                          {(row.assignedRole ? users.filter(u => u.role === row.assignedRole) : users)
+                            .filter(u => !(row.assignedUsers || []).includes(u.name))
+                            .map(u => (
                             <option key={u.id} value={u.name} className="bg-surface text-on-surface">
-                              {u.name}
+                              {u.name} ({u.email}) - {u.role}
                             </option>
                           ))}
                         </select>

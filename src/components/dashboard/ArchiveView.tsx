@@ -49,7 +49,7 @@ export const ArchiveView: React.FC = () => {
           const passed = rows.filter(r => r.testingStatus === 'Passed').length;
           const failed = rows.filter(r => r.testingStatus === 'Failed').length;
           const notesCount = rows.reduce((acc, r) => acc + r.notes.length, 0);
-          const users = new Set(rows.map(r => r.assignedUser).filter(Boolean));
+          const users = new Set(rows.flatMap(r => r.assignedUsers || []).filter(Boolean));
 
           return (
             <div key={month} className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 overflow-hidden">

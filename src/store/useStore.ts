@@ -47,7 +47,7 @@ export interface TestRow {
   testingStatus: TestingStatus;
   priority: Priority;
   assignedRole?: string; // e.g. 'Developer' or 'QA Engineer'
-  assignedUser?: string; // User Name
+  assignedUsers?: string[]; // Array of User Emails or Names
   notes: Note[];
   customFields: Record<string, string | number>;
   lastUpdated: string;
@@ -164,7 +164,7 @@ interface DashboardState {
 
   // Users management
   users: User[];
-  addUser: (user: Omit<User, 'id' | 'completedTests' | 'isInvited' | 'inviteId'>) => void;
+  addUser: (user: Omit<User, 'completedTests' | 'isInvited' | 'inviteId'> & { id?: string }) => void;
   deleteUser: (id: string) => void;
   deleteUserCascade: (id: string) => void;
   loadInvitedUsers: () => Promise<void>;
@@ -201,12 +201,7 @@ interface DashboardState {
 }
 
 // Initial Mock Users
-const defaultUsers: User[] = [
-  { id: 'user-1', name: 'Affan Ahmad', email: 'affan@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80', role: 'QA Lead', completedTests: 5, isInvited: false },
-  { id: 'user-2', name: 'Sarah Connor', email: 'sarah@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80', role: 'QA Engineer', completedTests: 3, isInvited: false },
-  { id: 'user-3', name: 'John Doe', email: 'john@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80', role: 'Developer', completedTests: 2, isInvited: false },
-  { id: 'user-4', name: 'Alice Smith', email: 'alice@teamofgenus.com', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80', role: 'Project Manager', completedTests: 1, isInvited: false }
-];
+const defaultUsers: User[] = [];
 
 // Initial Mock Rows
 const defaultRows: TestRow[] = [
@@ -220,7 +215,7 @@ const defaultRows: TestRow[] = [
     functionalityStatus: 'Partially Working',
     testingStatus: 'Failed',
     priority: 'Critical',
-    assignedUser: 'Affan Ahmad',
+    assignedUsers: ['Affan Ahmad'],
     notes: [
       { id: 'note-1-1', text: 'Auth flow works, but security header review flagged cookie config.', timestamp: '2026-06-08 14:30' }
     ],
@@ -239,7 +234,7 @@ const defaultRows: TestRow[] = [
     functionalityStatus: 'Not Working',
     testingStatus: 'Failed',
     priority: 'High',
-    assignedUser: 'Sarah Connor',
+    assignedUsers: ['Sarah Connor'],
     notes: [
       { id: 'note-2-1', text: 'Discussed with backend dev, JWT authentication scopes are missing in WebSocket handshake.', timestamp: '2026-06-08 11:20' }
     ],
@@ -259,7 +254,7 @@ const defaultRows: TestRow[] = [
     testingStatus: 'Passed',
     priority: 'Medium',
     assignedRole: 'Developer',
-    assignedUser: 'John Doe',
+    assignedUsers: ['John Doe'],
     notes: [],
     customFields: {},
     lastUpdated: '2026-06-08 09:00',
@@ -276,7 +271,7 @@ const defaultRows: TestRow[] = [
     functionalityStatus: 'Pending',
     testingStatus: 'Pending',
     priority: 'Medium',
-    assignedUser: 'Alice Smith',
+    assignedUsers: ['Alice Smith'],
     notes: [],
     customFields: {},
     lastUpdated: '2026-06-08 08:30',
@@ -318,6 +313,12 @@ const loadLocalStorageState = () => {
         parsed.activeProjectId = defaultProjectId;
         parsed.activeModuleId = parsed.modules.length > 0 ? parsed.modules[0].id : null;
       }
+      
+      // MIGRATION SCRIPT 2: Remove hardcoded dummy users if they exist
+      if (parsed.users && Array.isArray(parsed.users)) {
+        parsed.users = parsed.users.filter((u: any) => !['user-1', 'user-2', 'user-3', 'user-4'].includes(u.id));
+      }
+
       return parsed;
     }
   } catch (e) {
@@ -522,10 +523,10 @@ export const useStore = create<DashboardState>((set, get) => {
         const activityLogs = [{ id: `log-${Date.now()}`, action: 'Created Task', details: `Added new test point: ${newRow.testPoint}`, timestamp: nowStr }, ...state.activityLogs];
 
         const notifications = [...state.notifications];
-        if (newRow.assignedUser) {
+        if (newRow.assignedUsers && newRow.assignedUsers.length > 0) {
           notifications.unshift({
             id: `notif-${Date.now()}`,
-            message: `New Test Point assigned to ${newRow.assignedUser}`,
+            message: `New Test Point assigned to ${newRow.assignedUsers.join(', ')}`,
             timestamp: nowStr,
             read: false,
             type: 'assignment'
@@ -556,8 +557,8 @@ export const useStore = create<DashboardState>((set, get) => {
             if (updates.testingStatus && updates.testingStatus !== row.testingStatus) {
               statusChangedMessage = `Test Point "${row.testPoint}" changed testing status to "${updates.testingStatus}"`;
             }
-            if (updates.assignedUser && updates.assignedUser !== row.assignedUser) {
-              assignmentChangedMessage = `Test Point "${row.testPoint}" assigned to ${updates.assignedUser}`;
+            if (updates.assignedUsers && JSON.stringify(updates.assignedUsers) !== JSON.stringify(row.assignedUsers)) {
+              assignmentChangedMessage = `Test Point "${row.testPoint}" assigned to ${updates.assignedUsers.join(', ')}`;
             }
             return { ...row, ...updates, lastUpdated: nowStr };
           }
@@ -745,7 +746,7 @@ export const useStore = create<DashboardState>((set, get) => {
       set((state) => {
         const user: User = {
           ...newUser,
-          id: `user-${Date.now()}`,
+          id: newUser.id || `user-${Date.now()}`,
           completedTests: 0,
           isInvited: true,
           inviteId: undefined
@@ -763,7 +764,7 @@ export const useStore = create<DashboardState>((set, get) => {
       if (removedUser && removedUser.email) {
         // Remove from database
         try {
-          await supabase.from('invited_users').delete().eq('email', removedUser.email);
+          await supabase.from('users').delete().eq('email', removedUser.email);
         } catch (err) {
           console.error("Failed to delete from database", err);
         }
@@ -772,7 +773,7 @@ export const useStore = create<DashboardState>((set, get) => {
       set((state) => {
         const users = state.users.filter((u) => u.id !== id);
         const userName = removedUser?.name;
-        const rows = userName ? state.rows.filter((r) => r.assignedUser !== userName) : state.rows;
+        const rows = userName ? state.rows.map((r) => r.assignedUsers?.includes(userName) ? { ...r, assignedUsers: r.assignedUsers.filter(u => u !== userName) } : r) : state.rows;
         const notifications = state.notifications.filter((n) => !userName || !n.message.includes(userName));
         const nextState = { ...state, users, rows, notifications };
         saveToLocal(nextState);
@@ -786,7 +787,7 @@ export const useStore = create<DashboardState>((set, get) => {
       if (removedUser && removedUser.email) {
         // Remove from database
         try {
-          await supabase.from('invited_users').delete().eq('email', removedUser.email);
+          await supabase.from('users').delete().eq('email', removedUser.email);
         } catch (err) {
           console.error("Failed to delete from database", err);
         }
@@ -795,7 +796,7 @@ export const useStore = create<DashboardState>((set, get) => {
       set((state) => {
         const users = state.users.filter((u) => u.id !== id);
         const userName = removedUser?.name;
-        const rows = userName ? state.rows.filter((r) => r.assignedUser !== userName) : state.rows;
+        const rows = userName ? state.rows.map((r) => r.assignedUsers?.includes(userName) ? { ...r, assignedUsers: r.assignedUsers.filter(u => u !== userName) } : r) : state.rows;
         const notifications = state.notifications.filter((n) => !userName || !n.message.includes(userName));
         const nextState = { ...state, users, rows, notifications };
         saveToLocal(nextState);

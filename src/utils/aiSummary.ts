@@ -38,7 +38,7 @@ export const generateTestingSummary = async (
           functionality: r.functionalityStatus,
           testing: r.testingStatus,
           priority: r.priority,
-          user: r.assignedUser || 'Unassigned',
+          users: r.assignedUsers?.join(', ') || 'Unassigned',
           bugDetails: r.actualResult,
           notes: r.notes.map((n) => n.text)
         })),

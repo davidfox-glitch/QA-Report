@@ -18,12 +18,12 @@ export const ChatbotWidget: React.FC = () => {
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-xl shadow-fuchsia-500/30 hover:scale-110 hover:shadow-2xl transition-all duration-300 z-50 ${
+        className={`fixed bottom-6 right-6 p-3 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-xl shadow-fuchsia-500/30 hover:scale-110 hover:shadow-2xl transition-all duration-300 z-50 ${
           isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
         }`}
         aria-label="Open chat"
       >
-        <Rocket className="h-7 w-7" />
+        <Rocket className="h-5 w-5" />
       </button>
 
       {/* Chat Modal */}
