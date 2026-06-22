@@ -29,6 +29,7 @@ import { DocumentationDashboard } from './components/dashboard/DocumentationDash
 import { ArchiveView } from './components/dashboard/ArchiveView';
 import { TrashView } from './components/dashboard/TrashView';
 import { DetailsModal } from './components/table/DetailsModal';
+import { CreateWorkspaceModal } from './components/dashboard/CreateWorkspaceModal';
 import { ChatbotWidget } from './components/chat/ChatbotWidget';
 
 // Icons
@@ -48,13 +49,22 @@ import {
   Plus,
   Upload,
   Bell,
-  LogOut
+  LogOut,
+  ChevronDown,
+  Briefcase
 } from 'lucide-react';
 
 export default function App() {
   const {
     rows,
     settings,
+    projects,
+    clients,
+    modules,
+    activeProjectId,
+    setActiveClient,
+    setActiveProject,
+    setActiveModule,
     currentView,
     darkMode,
     selectedRowIds,
@@ -85,6 +95,8 @@ export default function App() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isAddFieldOpen, setIsAddFieldOpen] = useState(false);
   const [isManageFieldsOpen, setIsManageFieldsOpen] = useState(false);
+  const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
+  const [isCreateWorkspaceOpen, setIsCreateWorkspaceOpen] = useState(false);
 
   const setCustomFilter = (cfId: string, val: string) => {
     setCustomFilters((prev) => ({ ...prev, [cfId]: val }));
@@ -301,6 +313,9 @@ export default function App() {
     return <LoginView />;
   }
 
+  const activeProject = projects.find((p) => p.id === activeProjectId);
+  const activeClient = clients.find((c) => c.id === activeProject?.clientId);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
       
@@ -310,26 +325,78 @@ export default function App() {
           
           {/* Brand Logo & Name (Left) */}
           <div className="flex-1 flex justify-start min-w-fit">
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setCurrentView('dashboard')}>
-            {settings.clientLogo ? (
-              <img src={settings.clientLogo} alt="Client Logo" className="h-9 w-9 rounded-xl object-cover border border-slate-200 dark:border-slate-800" />
-            ) : (
-              <img src="/logo.jpeg" alt="QAFlow Pro" className="h-9 w-9 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-lg shadow-indigo-500/20" />
-            )}
-            <div>
-              <div className="flex items-center space-x-2">
-                <h1 className="text-sm font-extrabold font-display tracking-tight text-slate-900 dark:text-white">
-                  {settings.projectName}
-                </h1>
-                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30">
-                  Pro
-                </span>
+            <div className="flex items-center space-x-3">
+              <div className="cursor-pointer" onClick={() => setCurrentView('dashboard')}>
+                {settings.clientLogo ? (
+                  <img src={settings.clientLogo} alt="Client Logo" className="h-9 w-9 rounded-xl object-cover border border-slate-200 dark:border-slate-800" />
+                ) : (
+                  <img src="/logo.jpeg" alt="QAFlow Pro" className="h-9 w-9 rounded-xl object-cover border border-slate-200 dark:border-slate-800 shadow-lg shadow-indigo-500/20" />
+                )}
               </div>
-              <p className="text-[10px] text-slate-500 dark:text-slate-400">
-                Company: <span className="font-semibold text-slate-700 dark:text-slate-350">{settings.clientName}</span>
-              </p>
+              
+              <div className="relative">
+                <div 
+                  className="flex items-center space-x-2 cursor-pointer group"
+                  onClick={() => setIsWorkspaceDropdownOpen(!isWorkspaceDropdownOpen)}
+                >
+                  <h1 className="text-sm font-extrabold font-display tracking-tight text-slate-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+                    {activeProject?.name || settings.projectName || 'QAFlow'}
+                  </h1>
+                  <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-indigo-500" />
+                  
+                  {isAdmin && (
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setIsCreateWorkspaceOpen(true); }}
+                      className="flex items-center justify-center h-5 w-5 rounded bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 border border-indigo-100/30 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-colors ml-1"
+                      title="Create New Workspace"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Company: <span className="font-semibold text-slate-700 dark:text-slate-350">{activeClient?.name || settings.clientName}</span>
+                </p>
+
+                {/* Workspace Dropdown */}
+                {isWorkspaceDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-3 w-72 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-black/50 z-50 overflow-hidden">
+                    <div className="flex flex-col max-h-[60vh] overflow-y-auto p-2 space-y-1">
+                      <div className="px-2 py-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800/60 mb-1">
+                        Your Workspaces
+                      </div>
+                      {projects.filter(p => isAdmin || rows.some(r => r.assignedUsers?.includes('admin@qaflow.com') && modules.find(m => m.id === r.moduleId)?.projectId === p.id)).map(project => {
+                        const client = clients.find(c => c.id === project.clientId);
+                        const isActive = activeProjectId === project.id;
+                        return (
+                          <button
+                            key={project.id}
+                            onClick={() => {
+                              setActiveClient(project.clientId);
+                              setActiveProject(project.id);
+                              setActiveModule(null);
+                              setIsWorkspaceDropdownOpen(false);
+                              setCurrentView('dashboard');
+                            }}
+                            className={`w-full flex items-center justify-between p-2.5 rounded-xl transition-all ${isActive ? 'bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20' : 'hover:bg-slate-50 dark:hover:bg-slate-800'}`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`h-8 w-8 rounded-lg flex items-center justify-center border ${isActive ? 'bg-indigo-100 dark:bg-indigo-900/50 border-indigo-200 dark:border-indigo-800' : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
+                                <Briefcase className={`w-4 h-4 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}`} />
+                              </div>
+                              <div className="text-left">
+                                <div className={`text-xs font-bold ${isActive ? 'text-indigo-700 dark:text-indigo-300' : 'text-slate-700 dark:text-slate-200'}`}>{project.name}</div>
+                                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-medium">{client?.name}</div>
+                              </div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
           </div>
 
           {/* Core View Switcher tabs (Center) */}
@@ -727,6 +794,16 @@ export default function App() {
         size="md"
       >
         <ProjectSettingsModal onClose={() => setIsSettingsOpen(false)} />
+      </Dialog>
+
+      {/* Create Workspace Modal */}
+      <Dialog
+        isOpen={isCreateWorkspaceOpen}
+        onClose={() => setIsCreateWorkspaceOpen(false)}
+        title="Create Workspace"
+        size="md"
+      >
+        <CreateWorkspaceModal onClose={() => setIsCreateWorkspaceOpen(false)} />
       </Dialog>
 
       {/* 5. Custom Column Add Dialog */}
