@@ -402,7 +402,7 @@ export default function App() {
           </div>
 
           {/* Core View Switcher tabs (Center) */}
-          <div className="order-last lg:order-none w-full lg:w-auto overflow-x-auto whitespace-nowrap scrollbar-hide flex justify-start lg:justify-center mt-2 lg:mt-0 pb-1 lg:pb-0">
+          <div className="order-last lg:order-none w-full lg:w-auto overflow-x-auto whitespace-nowrap scroll-hide flex justify-start lg:justify-center mt-2 lg:mt-0 pb-1 lg:pb-0">
             <nav className="flex items-center space-x-0.5 bg-slate-150/80 dark:bg-slate-900/80 border border-slate-200/40 dark:border-slate-850 p-0.5 rounded-xl w-max">
             <button
               onClick={() => setCurrentView('dashboard')}

@@ -76,7 +76,7 @@ Provide a professional testing summary. You MUST return a JSON object containing
       let responseText = '';
 
       if (settings.aiProvider === 'gemini') {
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${settings.apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${settings.apiKey}`;
         const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
