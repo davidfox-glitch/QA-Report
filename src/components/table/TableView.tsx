@@ -359,6 +359,6 @@ export const TableView: React.FC<TableViewProps> = ({
       {activeFilesRowId && (
         <FilesModal rowId={activeFilesRowId} onClose={() => setActiveFilesRowId(null)} />
       )}
-    </div>
+    </section>
   );
 };
