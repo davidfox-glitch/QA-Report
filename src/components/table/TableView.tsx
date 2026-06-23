@@ -362,50 +362,7 @@ export const TableView: React.FC<TableViewProps> = ({
       )}
     </section>
 
-    {/* Summary & Metrics Grid */}
-    <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Regression Coverage */}
-      <div className="glass-card premium-stroke p-6 rounded-xl flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-body-lg font-bold text-on-surface">Regression Coverage</h3>
-          <span className="material-symbols-outlined text-primary" style={{ fontVariationSettings: "'FILL' 0" }}>data_usage</span>
-        </div>
-        <div className="flex items-end gap-3">
-          <span className="text-4xl font-bold text-on-background">{coveragePercent}%</span>
-          <span className="text-green-400 text-body-sm pb-1">+2.4% vs last build</span>
-        </div>
-        <div className="w-full bg-surface-container rounded-full h-2 mt-2">
-          <div className="bg-primary h-full rounded-full violet-glow" style={{ width: `${coveragePercent}%` }}></div>
-        </div>
-        <p className="text-body-sm text-on-surface-variant mt-2">
-          {passedRows} cases passed, {totalRows - passedRows} manual checks remaining for release sign-off.
-        </p>
-      </div>
 
-      {/* Ready for Deployment Card */}
-      <div className="glass-card p-6 rounded-xl col-span-1 lg:col-span-2 flex items-center relative overflow-hidden">
-        <div className="flex-1 z-10 relative">
-          <div className="inline-flex items-center gap-2 bg-primary/20 text-primary px-3 py-1 rounded-full mb-4">
-            <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-            <span className="text-label-caps font-bold">READY FOR DEPLOYMENT</span>
-          </div>
-          <h3 className="font-headline-md text-headline-md text-white">Stability Index: 9.8/10</h3>
-          <p className="text-body-lg text-on-surface-variant mt-2 max-w-md">The current build satisfies all P0 and P1 criteria. Regression suite is healthy with no new critical blockers identified.</p>
-          <div className="flex gap-4 mt-6">
-            <button className="bg-primary text-on-primary font-bold px-6 py-2 rounded-lg text-body-sm shadow-[0_0_15px_rgba(208,188,255,0.3)] hover:scale-[1.02] transition-all">Sign Off & Deploy</button>
-            <button className="bg-surface-variant text-on-surface font-bold px-6 py-2 rounded-lg text-body-sm border border-white/10 hover:bg-surface-bright transition-all">View Audit Log</button>
-          </div>
-        </div>
-        <div className="hidden md:block w-48 h-48 relative z-0">
-          <div className="absolute inset-0 bg-primary/10 blur-[60px] rounded-full"></div>
-          <div className="w-full h-full rounded-2xl border border-white/20 bg-gradient-to-br from-primary/20 to-secondary/10 flex items-center justify-center backdrop-blur-sm overflow-hidden">
-             <div className="w-32 h-32 rounded-full border border-primary/30 animate-[spin_10s_linear_infinite] absolute"></div>
-             <div className="w-24 h-24 rounded-full border border-secondary/30 animate-[spin_15s_linear_infinite_reverse] absolute"></div>
-             <span className="material-symbols-outlined text-6xl text-primary drop-shadow-[0_0_10px_rgba(208,188,255,0.8)]" style={{ fontVariationSettings: "'FILL' 1" }}>dataset</span>
-          </div>
-        </div>
-      </div>
-    </section>
     </div>
   );
 };

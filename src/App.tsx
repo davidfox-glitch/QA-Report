@@ -331,10 +331,10 @@ export default function App() {
   }
 
   if (!session) {
-    if (window.location.pathname === '/' || window.location.pathname === '/landing') {
-      return <LandingView />;
+    if (window.location.pathname.startsWith('/login')) {
+      return <LoginView />;
     }
-    return <LoginView />;
+    return <LandingView />;
   }
 
   const activeProject = projects.find((p) => p.id === activeProjectId);

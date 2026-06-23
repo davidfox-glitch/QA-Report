@@ -1,4 +1,5 @@
 import React from 'react';
+import { Calendar, Download, Info } from 'lucide-react';
 import {
   PieChart,
   Pie,
@@ -117,11 +118,11 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
         </div>
         <div className="flex gap-4">
           <button className="px-6 py-2.5 rounded-lg border border-white/10 bg-surface-container hover:bg-surface-container-high transition-colors font-body-sm font-medium flex items-center gap-2 text-on-surface">
-            <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+            <Calendar className="h-4 w-4" />
             Last 30 Days
           </button>
           <button className="px-6 py-2.5 rounded-lg bg-primary text-on-primary-container hover:opacity-90 transition-opacity font-body-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/10">
-            <span className="material-symbols-outlined text-[18px]">download</span>
+            <Download className="h-4 w-4" />
             Create Report
           </button>
         </div>
@@ -135,7 +136,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
           <div className="absolute inset-0 rounded-xl p-[1px] bg-gradient-to-br from-primary/20 to-transparent [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [-webkit-mask-composite:xor] pointer-events-none"></div>
           <div className="flex justify-between items-start mb-4">
             <h3 className="font-headline-md text-body-lg font-bold text-on-surface">Test Outcomes</h3>
-            <span className="material-symbols-outlined text-on-surface-variant">info</span>
+            <Info className="h-4 w-4 text-on-surface-variant" />
           </div>
           <div className="relative h-48 flex items-center justify-center">
             {passedVsFailedData.length === 0 ? (
