@@ -240,7 +240,7 @@ export default function App() {
       setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
       setAuthInitialized(true);
       if (session && window.location.pathname === '/login') {
-        window.history.replaceState(null, '', '/');
+        window.location.replace('/');
       }
     });
 
@@ -248,7 +248,7 @@ export default function App() {
       setSession(session);
       setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
       if (session && window.location.pathname === '/login') {
-        window.history.replaceState(null, '', '/');
+        window.location.replace('/');
       }
     });
 
