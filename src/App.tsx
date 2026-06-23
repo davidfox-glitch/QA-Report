@@ -13,6 +13,7 @@ import { Session } from '@supabase/supabase-js';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { TableView } from './components/table/TableView';
 import { KanbanView } from './components/kanban/KanbanView';
+import { ImageAssignmentsView } from './components/image-assignments/ImageAssignmentsView';
 import { TimelineView } from './components/timeline/TimelineView';
 import { AnalyticsView } from './components/analytics/AnalyticsView';
 import { UserManagementView } from './components/users/UserManagementView';
@@ -51,7 +52,8 @@ import {
   Bell,
   LogOut,
   ChevronDown,
-  Briefcase
+  Briefcase,
+  Image as ImageIcon
 } from 'lucide-react';
 
 export default function App() {
@@ -494,6 +496,17 @@ export default function App() {
                   <span>Team</span>
                 </button>
                 <button
+                  onClick={() => setCurrentView('image-assignments')}
+                  className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
+                    currentView === 'image-assignments'
+                      ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                  }`}
+                >
+                  <ImageIcon className="h-3 w-3" />
+                  <span>Images</span>
+                </button>
+                <button
                   onClick={() => setCurrentView('docs')}
                   className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
                     currentView === 'docs'
@@ -717,6 +730,7 @@ export default function App() {
           )}
 
           {currentView === 'users' && <UserManagementView />}
+          {currentView === 'image-assignments' && <ImageAssignmentsView />}
           {currentView === 'docs' && <DocumentationDashboard />}
           {currentView === 'archive' && <ArchiveView />}
           {currentView === 'trash' && <TrashView />}

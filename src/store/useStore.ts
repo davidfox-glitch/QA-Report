@@ -76,7 +76,7 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
-  role: 'QA Lead' | 'QA Engineer' | 'Developer' | 'Client' | 'Project Manager';
+  role: 'QA Lead' | 'QA Engineer' | 'Developer' | 'Client' | 'Project Manager' | 'Boss';
   completedTests: number;
   inviteId?: string;
   isInvited: boolean;
@@ -90,7 +90,15 @@ export interface Notification {
   type: 'status_change' | 'assignment' | 'general';
 }
 
-export type ActiveView = 'dashboard' | 'table' | 'kanban' | 'timeline' | 'analytics' | 'users' | 'settings' | 'archive' | 'trash' | 'docs';
+export interface ImageAssignment {
+  id: string;
+  imageUrl: string;
+  description: string;
+  assignedUserId: string;
+  createdAt: string;
+}
+
+export type ActiveView = 'dashboard' | 'table' | 'kanban' | 'timeline' | 'analytics' | 'users' | 'settings' | 'archive' | 'trash' | 'docs' | 'image-assignments';
 
 interface DashboardState {
   // Project settings
@@ -169,6 +177,11 @@ interface DashboardState {
   deleteUser: (id: string) => void;
   deleteUserCascade: (id: string) => void;
   loadInvitedUsers: () => Promise<void>;
+
+  // Image Assignments
+  imageAssignments: ImageAssignment[];
+  addImageAssignment: (assignment: Omit<ImageAssignment, 'id' | 'createdAt'>) => void;
+  deleteImageAssignment: (id: string) => void;
 
   // Notifications management
   notifications: Notification[];
@@ -349,6 +362,7 @@ export const useStore = create<DashboardState>((set, get) => {
         trashRows: updatedState.trashRows || currentState.trashRows,
         activityLogs: updatedState.activityLogs || currentState.activityLogs,
         users: updatedState.users || currentState.users,
+        imageAssignments: updatedState.imageAssignments || currentState.imageAssignments,
         notifications: updatedState.notifications || currentState.notifications
       };
       // Save to localStorage for offline cache
@@ -404,6 +418,7 @@ export const useStore = create<DashboardState>((set, get) => {
       { id: 'module-3', projectId: 'project-1', name: 'Published Posts Feed' },
       { id: 'module-4', projectId: 'project-1', name: 'Custom Field System' }
     ],
+    imageAssignments: [],
     activeClientId: savedState?.activeClientId || 'client-1',
     activeProjectId: savedState?.activeProjectId || 'project-1',
     activeModuleId: savedState?.activeModuleId || null,
@@ -434,6 +449,20 @@ export const useStore = create<DashboardState>((set, get) => {
     })),
     deleteModule: (id) => setAndPersist((state) => ({
       modules: state.modules.filter(m => m.id !== id)
+    })),
+
+    addImageAssignment: (assignment) => setAndPersist((state) => ({
+      imageAssignments: [
+        {
+          ...assignment,
+          id: `img-task-${Date.now()}`,
+          createdAt: new Date().toISOString()
+        },
+        ...state.imageAssignments
+      ]
+    })),
+    deleteImageAssignment: (id) => setAndPersist((state) => ({
+      imageAssignments: state.imageAssignments.filter(a => a.id !== id)
     })),
     darkMode: savedState?.darkMode ?? true,
     selectedRowIds: [],
