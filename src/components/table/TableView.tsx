@@ -147,16 +147,8 @@ export const TableView: React.FC<TableViewProps> = ({
                     >
                       <div className="flex flex-col space-y-1 text-body-sm">
                         {row.howToTest && (
-                          <p className="text-on-surface-variant line-clamp-1 truncate">
+                          <p className="text-on-surface-variant line-clamp-2">
                             <span className="font-medium text-on-surface">Test:</span> {row.howToTest}
-                          </p>
-                        )}
-                        <p className="text-on-surface-variant truncate">
-                          <span className="font-medium text-on-surface">Exp:</span> {row.expectedResult}
-                        </p>
-                        {row.actualResult && (
-                          <p className="text-error truncate">
-                            <span className="font-bold">Act:</span> {row.actualResult}
                           </p>
                         )}
                       </div>
@@ -220,7 +212,7 @@ export const TableView: React.FC<TableViewProps> = ({
                         }}
                         className="bg-transparent border-none text-body-sm p-0 focus:ring-0 cursor-pointer text-on-surface-variant outline-none hover:text-primary transition-colors appearance-none"
                       >
-                        <option value="" className="bg-surface text-on-surface">🏢 Any Role</option>
+                        <option value="" className="bg-surface text-on-surface">Any Role</option>
                         {uniqueRoles.map(role => (
                           <option key={role} value={role} className="bg-surface text-on-surface">
                             {role}
@@ -287,7 +279,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => onOpenNotes(row.id)}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
+                        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
                           row.notes.length > 0
                             ? 'bg-primary/20 text-primary hover:bg-primary/30 border border-primary/20 shadow-sm shadow-primary/10'
                             : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface border border-transparent'

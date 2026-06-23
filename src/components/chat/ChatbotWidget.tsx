@@ -38,9 +38,9 @@ export const ChatbotWidget: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const apiKey = process.env.NEXT_PUBLIC_AIPARTNER_API_KEY;
+      const apiKey = import.meta.env.VITE_AIPARTNER_API_KEY;
       if (!apiKey) {
-        setMessages(prev => [...prev, { role: 'model', text: '⚠️ **Configuration Error**: `NEXT_PUBLIC_AIPARTNER_API_KEY` is not set in your Vercel or local environment variables.' }]);
+        setMessages(prev => [...prev, { role: 'model', text: '⚠️ **Configuration Error**: `VITE_AIPARTNER_API_KEY` is not set. Please rename your variable from `AIpartner` to `VITE_AIPARTNER_API_KEY` in Vercel environment variables.' }]);
         setIsLoading(false);
         return;
       }
@@ -199,12 +199,12 @@ You can answer questions about the site. You also have tools to perform actions 
       {/* Floating Action Button */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 p-3 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-xl shadow-fuchsia-500/30 hover:scale-110 hover:shadow-2xl transition-all duration-300 z-50 ${
+        className={`fixed bottom-6 right-6 p-2 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white shadow-xl shadow-fuchsia-500/30 hover:scale-110 hover:shadow-2xl transition-all duration-300 z-50 ${
           isOpen ? 'scale-0 opacity-0' : 'scale-100 opacity-100'
         }`}
         aria-label="Open chat"
       >
-        <Rocket className="h-5 w-5" />
+        <Rocket className="h-4 w-4" />
       </button>
 
       {/* Chat Modal */}
