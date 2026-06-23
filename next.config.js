@@ -6,6 +6,9 @@ const nextConfig = {
   
   // Allow dev host IP
   allowedDevOrigins: ['192.168.18.23'],
+  env: {
+    NEXT_PUBLIC_AIPARTNER_API_KEY: process.env.AIpartner || process.env.NEXT_PUBLIC_AIPARTNER_API_KEY || process.env.GEMINI_API_KEY,
+  },
 };
 
 export default nextConfig;
