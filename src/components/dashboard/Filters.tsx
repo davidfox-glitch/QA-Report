@@ -139,7 +139,7 @@ export const Filters: React.FC<FiltersProps> = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center justify-center flex-wrap gap-2 shrink-0 w-full md:w-auto">
           <button
             onClick={onAddTestPoint}
             className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all"

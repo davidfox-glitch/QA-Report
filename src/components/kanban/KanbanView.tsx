@@ -154,7 +154,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       </div>
 
       {/* Kanban Board */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 items-start pb-6 custom-scrollbar">
         {getColumns().map((col) => {
           const colRows = rows.filter((r) => getRowColId(r) === col.id);
           const isOver = overColId === col.id;
@@ -165,7 +165,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
               onDragOver={(e) => handleDragOver(e, col.id)}
               onDrop={(e) => handleDrop(e, col.id)}
               onDragLeave={() => setOverColId(null)}
-              className={`space-y-4 rounded-xl transition-all duration-200 min-h-[500px] ${
+              className={`space-y-4 rounded-xl transition-all duration-200 min-h-[500px] min-w-[280px] sm:min-w-[320px] w-full flex-none snap-start ${
                 isOver ? 'bg-primary/5 ring-1 ring-primary/30' : ''
               }`}
             >

@@ -19,11 +19,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ rows }) => {
       {/* Hero Header Section */}
       <header className="mb-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
+          <div className="text-center md:text-left">
             <span className="text-primary font-label-caps text-label-caps tracking-widest uppercase mb-2 block">System Performance</span>
             <h1 className="font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">Project Health Dashboard</h1>
           </div>
-          <div className="flex gap-3">
+          <div className="flex justify-center md:justify-end gap-3">
             <div className="flex items-center gap-2 bg-surface-container-high px-4 py-2 rounded-xl border border-white/5">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
               <span className="text-body-sm text-on-surface font-medium">Live Monitoring Active</span>
