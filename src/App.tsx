@@ -235,12 +235,21 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // Unregister any poisoned service workers immediately on load to break the PWA cache loop
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for (let registration of registrations) {
+          registration.unregister();
+        }
+      });
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
       setAuthInitialized(true);
       if (session && window.location.pathname === '/login') {
-        window.location.replace('/');
+        window.history.replaceState(null, '', '/');
       }
     });
 
@@ -248,7 +257,7 @@ export default function App() {
       setSession(session);
       setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
       if (session && window.location.pathname === '/login') {
-        window.location.replace('/');
+        window.history.replaceState(null, '', '/');
       }
     });
 
