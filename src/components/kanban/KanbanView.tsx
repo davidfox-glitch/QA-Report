@@ -24,15 +24,15 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   const [overColId, setOverColId] = useState<string | null>(null);
 
   const testingColumns = [
-    { id: 'Pending', title: 'Pending Review', dot: 'bg-outline', textClass: 'text-on-surface', badgeClass: 'bg-surface-container-highest text-on-surface-variant' },
-    { id: 'In Progress', title: 'In Progress', dot: 'bg-primary shadow-[0_0_8px_rgba(208,188,255,0.6)]', textClass: 'text-on-surface', badgeClass: 'bg-primary/10 text-primary border border-primary/20' },
-    { id: 'Passed', title: 'Passed', dot: 'bg-secondary-fixed-dim', textClass: 'text-on-surface', badgeClass: 'bg-secondary-container text-secondary' },
+    { id: 'Pending', title: 'Pending Review', dot: 'bg-outline', textClass: 'text-slate-800 dark:text-slate-100', badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' },
+    { id: 'In Progress', title: 'In Progress', dot: 'bg-primary shadow-[0_0_8px_rgba(208,188,255,0.6)]', textClass: 'text-slate-800 dark:text-slate-100', badgeClass: 'bg-primary/10 text-primary border border-primary/20' },
+    { id: 'Passed', title: 'Passed', dot: 'bg-secondary-fixed-dim', textClass: 'text-slate-800 dark:text-slate-100', badgeClass: 'bg-secondary-container text-secondary' },
     { id: 'Failed', title: 'Failed (Bugs)', dot: 'bg-error animate-pulse shadow-[0_0_8px_rgba(255,180,171,0.6)]', textClass: 'text-error', badgeClass: 'bg-error-container text-error' }
   ];
 
   const functionalityColumns = [
-    { id: 'Pending', title: 'Backlog / Pending', dot: 'bg-outline', textClass: 'text-on-surface', badgeClass: 'bg-surface-container-highest text-on-surface-variant' },
-    { id: 'Working', title: 'Operational', dot: 'bg-secondary-fixed-dim', textClass: 'text-on-surface', badgeClass: 'bg-secondary-container text-secondary' },
+    { id: 'Pending', title: 'Backlog / Pending', dot: 'bg-outline', textClass: 'text-slate-800 dark:text-slate-100', badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' },
+    { id: 'Working', title: 'Operational', dot: 'bg-secondary-fixed-dim', textClass: 'text-slate-800 dark:text-slate-100', badgeClass: 'bg-secondary-container text-secondary' },
     { id: 'Partially Working', title: 'Partially Working', dot: 'bg-yellow-500', textClass: 'text-yellow-400', badgeClass: 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20' },
     { id: 'Not Working', title: 'Broken', dot: 'bg-error animate-pulse', textClass: 'text-error', badgeClass: 'bg-error-container text-error' }
   ];
@@ -43,8 +43,8 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   };
 
   const userColumns = [
-    ...users.map((u, i) => ({ id: u.name, title: u.name, dot: getColDot(i), textClass: 'text-on-surface', badgeClass: 'bg-surface-container-highest text-on-surface-variant' })),
-    { id: 'unassigned', title: 'Unassigned', dot: 'bg-outline', textClass: 'text-on-surface', badgeClass: 'bg-surface-container-highest text-on-surface-variant' }
+    ...users.map((u, i) => ({ id: u.name, title: u.name, dot: getColDot(i), textClass: 'text-slate-800 dark:text-slate-100', badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' })),
+    { id: 'unassigned', title: 'Unassigned', dot: 'bg-outline', textClass: 'text-slate-800 dark:text-slate-100', badgeClass: 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400' }
   ];
 
   const getColumns = () => {
@@ -96,7 +96,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       case 'In Progress': return 'border-l-4 border-l-primary/60';
       case 'Failed': return 'border border-error/20 bg-error-container/10';
       case 'Passed': return 'opacity-80 hover:opacity-100';
-      default: return 'border border-white/5';
+      default: return 'border border-slate-200 dark:border-slate-700/50';
     }
   };
 
@@ -104,8 +104,8 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
     switch (status) {
       case 'In Progress': return 'bg-primary/10 text-primary border border-primary/20';
       case 'Failed': return 'bg-error-container text-error border border-error/30';
-      case 'Passed': return 'bg-secondary-container text-on-secondary-container border border-white/5';
-      default: return 'bg-surface-container text-on-surface-variant border border-white/10';
+      case 'Passed': return 'bg-secondary-container text-on-secondary-container border border-slate-200 dark:border-slate-700/50';
+      default: return 'bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700';
     }
   };
 
@@ -125,7 +125,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       case 'High': return 'text-primary';
       case 'Medium': return 'text-secondary';
       case 'Low': return 'text-error/60';
-      default: return 'text-on-surface-variant';
+      default: return 'text-slate-500 dark:text-slate-400';
     }
   };
 
@@ -137,11 +137,11 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
       <section>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="font-headline-md text-headline-md text-primary">Quality Board</h2>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">Live execution and bug tracking</p>
+            <h2 className="text-xl font-bold text-primary">Quality Board</h2>
+            <p className="font-body-sm text-body-sm text-slate-500 dark:text-slate-400">Live execution and bug tracking</p>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center space-x-1 bg-surface-container-highest/50 border border-white/5 p-1 rounded-xl backdrop-blur-sm">
+            <div className="flex items-center space-x-1 bg-slate-100 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50 p-1 rounded-xl backdrop-blur-sm">
               {(['testing', 'functionality', 'user'] as GroupByOption[]).map((opt) => (
                 <button
                   key={opt}
@@ -149,7 +149,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                   className={`px-3 py-1.5 text-[10px] sm:text-xs font-semibold rounded-full transition-all ${
                     groupBy === opt
                       ? 'bg-primary text-on-primary shadow-md shadow-primary/20'
-                      : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-100 hover:bg-white/5'
                   }`}
                 >
                   {opt === 'testing' ? 'Group by QA Status' : opt === 'functionality' ? 'Group by Functionality' : 'Group by User'}
@@ -186,16 +186,16 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                     {colRows.length}
                   </span>
                 </div>
-                {/* <button className="material-symbols-outlined text-on-surface-variant text-lg hover:text-primary transition-colors">add</button> */}
+                {/* <button className="material-symbols-outlined text-slate-500 dark:text-slate-400 text-lg hover:text-primary transition-colors">add</button> */}
               </div>
 
               {/* Cards */}
               <div className="flex-1 space-y-4">
                 {colRows.length === 0 ? (
                   <div className={`text-center py-10 border-2 border-dashed rounded-xl transition-colors ${
-                    isOver ? 'border-primary/40 bg-primary/5' : 'border-white/5 bg-surface-container/20'
+                    isOver ? 'border-primary/40 bg-primary/5' : 'border-slate-200 dark:border-slate-700/50 bg-white dark:bg-slate-800/20'
                   }`}>
-                    <p className="text-body-sm text-on-surface-variant">
+                    <p className="text-body-sm text-slate-500 dark:text-slate-400">
                       {isOver ? 'Drop here' : 'Empty Column'}
                     </p>
                   </div>
@@ -215,31 +215,31 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
                         <span className={`status-pill ${getCardRefPillStyle(card.testingStatus)}`}>
                           Ref: #{card.id.split('-')[0]}-{card.id.split('-')[4]?.substring(0,3) || '001'}
                         </span>
-                        <MoreVertical className="text-on-surface-variant h-4 w-4" />
+                        <MoreVertical className="text-slate-500 dark:text-slate-400 h-4 w-4" />
                       </div>
                       
-                      <h4 className={`font-body-lg text-body-lg font-medium leading-tight ${card.testingStatus === 'Passed' ? 'text-on-surface-variant line-through' : 'text-on-surface'}`}>
+                      <h4 className={`font-body-lg text-body-lg font-medium leading-tight ${card.testingStatus === 'Passed' ? 'text-slate-500 dark:text-slate-400 line-through' : 'text-slate-800 dark:text-slate-100'}`}>
                         {card.testPoint}
                       </h4>
                       
                       {card.howToTest && card.testingStatus !== 'Passed' && (
-                        <p className="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                        <p className="font-body-sm text-body-sm text-slate-500 dark:text-slate-400 line-clamp-2">
                           {card.howToTest}
                         </p>
                       )}
 
-                      <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                      <div className="flex items-center justify-between pt-2 border-t border-slate-200 dark:border-slate-700/50">
                         <div className="flex items-center gap-2">
                           {card.assignedUsers && card.assignedUsers.length > 0 ? (
                             <div className="w-5 h-5 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[9px] font-bold text-slate-600 dark:text-slate-300 ring-2 ring-white dark:ring-slate-900 shadow-sm" title={card.assignedUsers.join(', ')}>
                               {card.assignedUsers[0].substring(0, 2).toUpperCase()}
                             </div>
                           ) : (
-                            <div className="w-6 h-6 rounded-full bg-surface-container border border-white/5 flex items-center justify-center text-[10px] text-on-surface-variant font-bold">
+                            <div className="w-6 h-6 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/50 flex items-center justify-center text-[10px] text-slate-500 dark:text-slate-400 font-bold">
                               --
                             </div>
                           )}
-                          <span className="text-[10px] text-on-surface-variant">
+                          <span className="text-[10px] text-slate-500 dark:text-slate-400">
                             {card.lastUpdated.split(' ')[0] || 'Unknown'}
                           </span>
                         </div>

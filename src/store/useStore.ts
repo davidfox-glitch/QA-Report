@@ -76,7 +76,7 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
-  role: 'QA Lead' | 'QA Engineer' | 'Developer' | 'Client' | 'Project Manager' | 'Boss';
+  role: 'QA Superior' | 'Manager' | 'Boss' | 'QA' | 'Developer' | 'Client';
   completedTests: number;
   inviteId?: string;
   isInvited: boolean;
@@ -177,6 +177,7 @@ interface DashboardState {
   deleteUser: (id: string) => void;
   deleteUserCascade: (id: string) => void;
   loadInvitedUsers: () => Promise<void>;
+  fetchUsers: () => Promise<void>;
 
   // Image Assignments
   imageAssignments: ImageAssignment[];
@@ -833,24 +834,24 @@ export const useStore = create<DashboardState>((set, get) => {
         return { users, rows, notifications };
       });
     },
-    // Load invited users from Supabase
-    loadInvitedUsers: async () => {
-      // @ts-ignore
-      const { data, error } = await supabase.from('invited_users').select('id, email, name');
-      if (error) { console.error('Failed to load invited users', error); return; }
-      set((state) => {
-        const invitedMap = new Map(data.map((u: any) => [u.email, { inviteId: u.id, isInvited: true, name: u.name }]));
-        const users = state.users.map((u) => {
-          if (invitedMap.has(u.email)) {
-            const inv = invitedMap.get(u.email)!;
-            return { ...u, ...inv };
-          }
-          return { ...u, isInvited: false };
+    // Fetch users directly from the 'users' table
+    fetchUsers: async () => {
+      const { data, error } = await supabase.from('users').select('*');
+      if (error) {
+        console.error('Failed to fetch users', error);
+        return;
+      }
+      if (data) {
+        set((state) => {
+          const nextState = { ...state, users: data as unknown as User[] };
+          saveToLocal(nextState);
+          return { users: data as unknown as User[] };
         });
-        const nextState = { ...state, users };
-        saveToLocal(nextState);
-        return { users };
-      });
+      }
+    },
+    // Keep for backwards compatibility if needed, but it should also fetch from users
+    loadInvitedUsers: async () => {
+      await get().fetchUsers();
     },
     addNotification: (message, type) => {
       set((state) => {

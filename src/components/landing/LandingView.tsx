@@ -38,7 +38,7 @@ export const LandingView: React.FC = () => {
     <div className="min-h-screen bg-[#010f1f] text-[#d4e4fa] font-sans selection:bg-[#d0bcff]/30">
       
       {/* Navigation */}
-      <nav className="fixed w-full z-50 bg-[#010f1f]/80 backdrop-blur-md border-b border-white/5">
+      <nav className="fixed w-full z-50 bg-[#010f1f]/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-700/50">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src="/logo.jpeg" alt="QAFlow Pro Logo" className="w-10 h-10 rounded-xl shadow-lg shadow-[#d0bcff]/20" />
@@ -96,7 +96,7 @@ export const LandingView: React.FC = () => {
               </button>
               <button 
                 onClick={handleInstallClick}
-                className="px-8 py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-colors flex items-center gap-2"
+                className="px-8 py-4 bg-white/5 border border-slate-200 dark:border-slate-700 text-white font-bold rounded-2xl hover:bg-white/10 transition-colors flex items-center gap-2"
               >
                 <Download className="w-5 h-5" /> Install PWA
               </button>
@@ -105,9 +105,9 @@ export const LandingView: React.FC = () => {
           
           <div className="relative hidden lg:block">
             {/* Abstract visual representation of the app dashboard */}
-            <div className="relative rounded-2xl border border-white/10 bg-[#0f172a]/80 backdrop-blur-xl p-4 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500">
+            <div className="relative rounded-2xl border border-slate-200 dark:border-slate-700 bg-[#0f172a]/80 backdrop-blur-xl p-4 shadow-2xl rotate-2 hover:rotate-0 transition-transform duration-500">
               <div className="absolute inset-0 bg-gradient-to-br from-[#d0bcff]/5 to-transparent rounded-2xl pointer-events-none"></div>
-              <div className="h-6 w-full flex items-center gap-2 mb-4 border-b border-white/5 pb-4">
+              <div className="h-6 w-full flex items-center gap-2 mb-4 border-b border-slate-200 dark:border-slate-700/50 pb-4">
                 <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
                 <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
                 <div className="w-3 h-3 rounded-full bg-green-500/50"></div>
@@ -118,10 +118,10 @@ export const LandingView: React.FC = () => {
                    <div className="w-24 h-4 bg-white/20 rounded"></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="h-24 rounded-xl border border-white/5 bg-white/5 p-4 flex items-end">
+                  <div className="h-24 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white/5 p-4 flex items-end">
                     <div className="w-16 h-3 bg-white/10 rounded"></div>
                   </div>
-                  <div className="h-24 rounded-xl border border-white/5 bg-white/5 p-4 flex items-end">
+                  <div className="h-24 rounded-xl border border-slate-200 dark:border-slate-700/50 bg-white/5 p-4 flex items-end">
                     <div className="w-20 h-3 bg-white/10 rounded"></div>
                   </div>
                 </div>
@@ -132,7 +132,7 @@ export const LandingView: React.FC = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="py-24 px-6 border-t border-white/5 bg-[#010f1f]/50 relative z-10">
+      <section id="how-it-works" className="py-24 px-6 border-t border-slate-200 dark:border-slate-700/50 bg-[#010f1f]/50 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="text-center space-y-4 mb-16">
             <h2 className="text-3xl md:text-5xl font-bold text-white">How It Works</h2>
@@ -147,7 +147,7 @@ export const LandingView: React.FC = () => {
               { step: '02', title: 'Execute & Track', desc: 'QA engineers use the visual Kanban board and Table view to pass, fail, or mark tasks as in-progress.', icon: <ShieldCheck className="w-6 h-6 text-[#d0bcff]" /> },
               { step: '03', title: 'Analyze Results', desc: 'Live data is funneled into the Analytics view, offering a real-time overview of cycle efficiency.', icon: <LineChart className="w-6 h-6 text-[#d0bcff]" /> }
             ].map((item, i) => (
-              <div key={i} className="relative z-10 bg-[#051424] border border-white/10 p-8 rounded-2xl shadow-xl hover:-translate-y-2 transition-transform">
+              <div key={i} className="relative z-10 bg-[#051424] border border-slate-200 dark:border-slate-700 p-8 rounded-2xl shadow-xl hover:-translate-y-2 transition-transform">
                 <div className="w-14 h-14 rounded-xl bg-[#d0bcff]/10 border border-[#d0bcff]/20 flex items-center justify-center mb-6">
                   {item.icon}
                 </div>
@@ -161,7 +161,7 @@ export const LandingView: React.FC = () => {
       </section>
 
       {/* Tech Stack Section */}
-      <section id="tech-stack" className="py-24 px-6 border-t border-white/5 relative z-10">
+      <section id="tech-stack" className="py-24 px-6 border-t border-slate-200 dark:border-slate-700/50 relative z-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-16 items-center">
             <div className="md:w-1/3 space-y-6">
@@ -179,7 +179,7 @@ export const LandingView: React.FC = () => {
                 { name: 'Zustand', icon: <Database className="w-5 h-5 text-[#F6C06B]" />, color: 'from-orange-900/40 to-slate-900' },
                 { name: 'Recharts', icon: <LineChart className="w-5 h-5 text-[#d0bcff]" />, color: 'from-[#d0bcff]/20 to-slate-900' },
               ].map((tech, i) => (
-                <div key={i} className={`bg-gradient-to-br ${tech.color} border border-white/10 p-6 rounded-2xl flex flex-col items-center justify-center gap-3 hover:scale-105 transition-transform cursor-default`}>
+                <div key={i} className={`bg-gradient-to-br ${tech.color} border border-slate-200 dark:border-slate-700 p-6 rounded-2xl flex flex-col items-center justify-center gap-3 hover:scale-105 transition-transform cursor-default`}>
                   {tech.icon}
                   <span className="font-bold text-sm text-white">{tech.name}</span>
                 </div>
@@ -190,7 +190,7 @@ export const LandingView: React.FC = () => {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-24 px-6 border-t border-white/5 bg-[#010f1f]/50 relative z-10">
+      <section id="about" className="py-24 px-6 border-t border-slate-200 dark:border-slate-700/50 bg-[#010f1f]/50 relative z-10">
         <div className="max-w-4xl mx-auto text-center space-y-8">
           <h2 className="text-3xl md:text-5xl font-bold text-white">About Our Site</h2>
           <p className="text-lg text-[#cbc3d7] leading-relaxed">
@@ -208,7 +208,7 @@ export const LandingView: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-8 border-t border-white/10 text-center text-[#cbc3d7] text-sm">
+      <footer className="py-8 border-t border-slate-200 dark:border-slate-700 text-center text-[#cbc3d7] text-sm">
         <p>&copy; {new Date().getFullYear()} QAFlow Pro. Built for Enterprise Quality Assurance.</p>
       </footer>
     </div>

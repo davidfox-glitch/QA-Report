@@ -20,7 +20,7 @@ export const UserManagementView: React.FC = () => {
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
-  const [newUserRole, setNewUserRole] = useState<'QA Lead' | 'QA Engineer' | 'Developer' | 'Client' | 'Project Manager' | 'Boss'>('QA Engineer');
+  const [newUserRole, setNewUserRole] = useState<'QA Superior' | 'Manager' | 'Boss' | 'QA' | 'Developer' | 'Client'>('QA');
   const [newUserAvatar, setNewUserAvatar] = useState('https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80');
 
   // Filter rows assigned to selected user
@@ -355,10 +355,10 @@ export const UserManagementView: React.FC = () => {
                 className="w-full px-3 py-2 text-xs bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100"
               >
                 <option value="Boss">Boss</option>
-                <option value="QA Lead">QA Lead</option>
-                <option value="QA Engineer">QA Engineer</option>
+                <option value="Manager">Manager</option>
+                <option value="QA Superior">QA Superior</option>
+                <option value="QA">QA</option>
                 <option value="Developer">Developer</option>
-                <option value="Project Manager">Project Manager</option>
                 <option value="Client">Client</option>
               </select>
             </div>

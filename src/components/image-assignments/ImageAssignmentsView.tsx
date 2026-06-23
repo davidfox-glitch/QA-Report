@@ -19,7 +19,7 @@ export const ImageAssignmentsView: React.FC = () => {
     });
   }, []);
 
-  const canUpload = ['QA Lead', 'QA Engineer', 'QA'].includes(currentUserRole);
+  const canUpload = ['QA Superior', 'QA'].includes(currentUserRole);
 
   useEffect(() => {
     if (!canUpload) return;

@@ -68,39 +68,39 @@ export const TableView: React.FC<TableViewProps> = ({
 
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-    <section className="glass-panel rounded-xl overflow-hidden mb-8 shadow-2xl border border-white/5">
+    <section className="glass-panel rounded-xl overflow-hidden mb-8 shadow-2xl border border-slate-200 dark:border-slate-700/50">
       <div className="overflow-x-auto custom-scrollbar w-full min-h-[400px] pb-40">
         <table className="w-full text-left border-collapse">
           {/* Table Headers */}
           <thead>
-            <tr className="bg-surface-container-lowest/80 border-b border-white/10 backdrop-blur-md">
+            <tr className="bg-white dark:bg-slate-900/50/80 border-b border-slate-200 dark:border-slate-700 backdrop-blur-md">
               <th className="px-4 py-3 w-10 text-center">
                 <input
                   type="checkbox"
                   checked={allSelected}
                   onChange={() => toggleSelectAllRows(rowIdsInView)}
-                  className="rounded border-white/20 bg-surface-container text-primary focus:ring-primary/50 h-3.5 w-3.5 cursor-pointer"
+                  className="rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-primary focus:ring-primary/50 h-3.5 w-3.5 cursor-pointer"
                 />
               </th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider min-w-[180px]">Test Point / Module</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider min-w-[130px]">Expected vs Actual</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Functionality</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">QA Status</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Priority</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Role</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Assignee</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider min-w-[180px]">Test Point / Module</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider min-w-[130px]">Expected vs Actual</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Functionality</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">QA Status</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Priority</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Role</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Assignee</th>
               
               {/* Custom Field Columns */}
               {customFieldsDef.map((field) => (
-                <th key={field.id} className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider truncate max-w-[120px]">
+                <th key={field.id} className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate max-w-[120px]">
                   {field.name}
                 </th>
               ))}
               
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider text-center">Notes</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider text-center">Files</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">Updated</th>
-              <th className="px-4 py-3 text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider text-center w-20">Actions</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Notes</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center">Files</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Updated</th>
+              <th className="px-4 py-3 text-[10px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-center w-20">Actions</th>
             </tr>
           </thead>
 
@@ -110,7 +110,7 @@ export const TableView: React.FC<TableViewProps> = ({
               <tr>
                 <td
                   colSpan={11 + customFieldsDef.length}
-                  className="text-center py-16 text-on-surface-variant text-body-sm"
+                  className="text-center py-16 text-slate-500 dark:text-slate-400 text-body-sm"
                 >
                   No QA records found. Try clearing filters or importing a sheet.
                 </td>
@@ -131,7 +131,7 @@ export const TableView: React.FC<TableViewProps> = ({
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => toggleSelectRow(row.id)}
-                        className="rounded border-white/20 bg-surface-container text-primary focus:ring-primary/50 h-4 w-4 cursor-pointer opacity-30 group-hover:opacity-100 transition-opacity"
+                        className="rounded border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-primary focus:ring-primary/50 h-4 w-4 cursor-pointer opacity-30 group-hover:opacity-100 transition-opacity"
                         style={{ opacity: isSelected ? 1 : undefined }}
                       />
                     </td>
@@ -142,7 +142,7 @@ export const TableView: React.FC<TableViewProps> = ({
                         <span className="text-body-sm font-medium text-primary block truncate" title={row.testPoint}>
                           {row.testPoint}
                         </span>
-                        <span className="text-[11px] text-on-surface-variant block">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400 block">
                           {modules.find(m => m.id === row.moduleId)?.name || 'General Module'}
                         </span>
                       </div>
@@ -156,8 +156,8 @@ export const TableView: React.FC<TableViewProps> = ({
                     >
                       <div className="flex flex-col space-y-1 text-body-sm">
                         {row.howToTest && (
-                          <p className="text-on-surface-variant line-clamp-2">
-                            <span className="font-medium text-on-surface">Test:</span> {row.howToTest}
+                          <p className="text-slate-500 dark:text-slate-400 line-clamp-2">
+                            <span className="font-medium text-slate-800 dark:text-slate-100">Test:</span> {row.howToTest}
                           </p>
                         )}
                       </div>
@@ -210,7 +210,7 @@ export const TableView: React.FC<TableViewProps> = ({
                             { value: 'Medium', label: 'P2 - Medium' },
                             { value: 'Low', label: 'P3 - Low' }
                           ]}
-                          triggerClassName="text-body-sm text-on-surface hover:text-primary transition-colors py-1"
+                          triggerClassName="text-body-sm text-slate-800 dark:text-slate-100 hover:text-primary transition-colors py-1"
                         />
                       </div>
                     </td>
@@ -226,7 +226,7 @@ export const TableView: React.FC<TableViewProps> = ({
                             { value: '', label: 'Any Role' },
                             ...uniqueRoles.map(role => ({ value: role, label: role }))
                           ]}
-                          triggerClassName="text-body-sm text-on-surface-variant hover:text-primary transition-colors py-1"
+                          triggerClassName="text-body-sm text-slate-500 dark:text-slate-400 hover:text-primary transition-colors py-1"
                         />
                       </div>
                     </td>
@@ -272,7 +272,7 @@ export const TableView: React.FC<TableViewProps> = ({
                                   label: `${u.name} (${u.role})`
                                 }))
                             ]}
-                            triggerClassName={`text-body-sm py-1 ${!row.assignedUsers?.length ? 'text-on-surface-variant' : 'text-primary'}`}
+                            triggerClassName={`text-body-sm py-1 ${!row.assignedUsers?.length ? 'text-slate-500 dark:text-slate-400' : 'text-primary'}`}
                           />
                         </div>
                       </div>
@@ -282,7 +282,7 @@ export const TableView: React.FC<TableViewProps> = ({
                     {customFieldsDef.map((field) => {
                       const val = row.customFields[field.id];
                       return (
-                        <td key={field.id} className="px-4 py-3 text-body-sm text-on-surface-variant truncate max-w-[120px]">
+                        <td key={field.id} className="px-4 py-3 text-body-sm text-slate-500 dark:text-slate-400 truncate max-w-[120px]">
                           {val !== undefined && val !== null ? String(val) : '-'}
                         </td>
                       );
@@ -295,7 +295,7 @@ export const TableView: React.FC<TableViewProps> = ({
                         className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
                           row.notes.length > 0
                             ? 'bg-primary/20 text-primary hover:bg-primary/30 border border-primary/20 shadow-sm shadow-primary/10'
-                            : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface border border-transparent'
+                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800/80 hover:text-slate-800 dark:text-slate-100 border border-transparent'
                         }`}
                         title="Manage Notes"
                       >
@@ -311,7 +311,7 @@ export const TableView: React.FC<TableViewProps> = ({
                         className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[10px] font-bold transition-all ${
                           (row.files?.length || 0) > 0
                             ? 'bg-indigo-500/20 text-indigo-500 hover:bg-indigo-500/30 border border-indigo-500/20 shadow-sm shadow-indigo-500/10'
-                            : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface border border-transparent'
+                            : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:bg-slate-800/80 hover:text-slate-800 dark:text-slate-100 border border-transparent'
                         }`}
                         title="Manage Files"
                       >
@@ -322,7 +322,7 @@ export const TableView: React.FC<TableViewProps> = ({
 
                     {/* Last Updated */}
                     <td className="px-4 py-3">
-                      <span className="text-[11px] text-on-surface-variant whitespace-nowrap block">
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400 whitespace-nowrap block">
                         {row.lastUpdated}
                       </span>
                     </td>
@@ -332,7 +332,7 @@ export const TableView: React.FC<TableViewProps> = ({
                       <div className="flex items-center justify-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => onEditRow(row.id)}
-                          className="p-1.5 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-primary transition-colors border border-white/5"
+                          className="p-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors border border-slate-200 dark:border-slate-700/50"
                           title="Edit Row"
                         >
                           <Edit className="h-4 w-4" />
@@ -343,7 +343,7 @@ export const TableView: React.FC<TableViewProps> = ({
                               onDeleteRow(row.id);
                             }
                           }}
-                          className="p-1.5 rounded-lg bg-surface-container hover:bg-surface-bright text-on-surface-variant hover:text-error transition-colors border border-white/5"
+                          className="p-1.5 rounded-lg bg-white dark:bg-slate-800 hover:bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-error transition-colors border border-slate-200 dark:border-slate-700/50"
                           title="Delete Row"
                         >
                           <Trash2 className="h-4 w-4" />

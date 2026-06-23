@@ -234,7 +234,7 @@ export const NotesSidebar: React.FC<NotesSidebarProps> = ({ rowId, onClose }) =>
                     : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-bl-none shadow-sm'
                 }`}>
                   {msg.img && (
-                    <img src={msg.img} alt="Uploaded screenshot" className="w-full max-h-48 object-contain rounded-lg mb-2 border border-white/20" />
+                    <img src={msg.img} alt="Uploaded screenshot" className="w-full max-h-48 object-contain rounded-lg mb-2 border border-slate-300 dark:border-slate-600" />
                   )}
                   <div className="whitespace-pre-wrap">{msg.text}</div>
                 </div>

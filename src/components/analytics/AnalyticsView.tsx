@@ -113,11 +113,11 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
       {/* Header Section */}
       <section className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
         <div className="space-y-1">
-          <h1 className="font-headline-lg text-headline-lg text-on-surface tracking-tight">Performance Analytics</h1>
-          <p className="font-body-lg text-on-surface-variant max-w-2xl">Visualizing real-time testing metrics, velocity, and team throughput across all active QA cycles.</p>
+          <h1 className="text-2xl font-bold text-slate-800 dark:text-slate-100 tracking-tight">Performance Analytics</h1>
+          <p className="font-body-lg text-slate-500 dark:text-slate-400 max-w-2xl">Visualizing real-time testing metrics, velocity, and team throughput across all active QA cycles.</p>
         </div>
         <div className="flex gap-4">
-          <button className="px-6 py-2.5 rounded-lg border border-white/10 bg-surface-container hover:bg-surface-container-high transition-colors font-body-sm font-medium flex items-center gap-2 text-on-surface">
+          <button className="px-6 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:bg-slate-800/80 transition-colors font-body-sm font-medium flex items-center gap-2 text-slate-800 dark:text-slate-100">
             <Calendar className="h-4 w-4" />
             Last 30 Days
           </button>
@@ -135,12 +135,12 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
         <div className="lg:col-span-4 glass-card p-6 rounded-xl flex flex-col justify-between relative overflow-hidden">
           <div className="absolute inset-0 rounded-xl p-[1px] bg-gradient-to-br from-primary/20 to-transparent [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [-webkit-mask-composite:xor] pointer-events-none"></div>
           <div className="flex justify-between items-start mb-4">
-            <h3 className="font-headline-md text-body-lg font-bold text-on-surface">Test Outcomes</h3>
-            <Info className="h-4 w-4 text-on-surface-variant" />
+            <h3 className="font-headline-md text-body-lg font-bold text-slate-800 dark:text-slate-100">Test Outcomes</h3>
+            <Info className="h-4 w-4 text-slate-500 dark:text-slate-400" />
           </div>
           <div className="relative h-48 flex items-center justify-center">
             {passedVsFailedData.length === 0 ? (
-              <p className="text-body-sm text-on-surface-variant">No test cases found.</p>
+              <p className="text-body-sm text-slate-500 dark:text-slate-400">No test cases found.</p>
             ) : (
               <>
                 <ResponsiveContainer width="100%" height="100%">
@@ -163,8 +163,8 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
                   </PieChart>
                 </ResponsiveContainer>
                 <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                  <span className="text-headline-md font-bold text-on-surface">{successRate}%</span>
-                  <span className="text-[10px] font-bold text-on-surface-variant tracking-widest">SUCCESS</span>
+                  <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{successRate}%</span>
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 tracking-widest">SUCCESS</span>
                 </div>
               </>
             )}
@@ -173,22 +173,22 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-primary"></div>
               <div className="flex flex-col">
-                <span className="text-[10px] text-on-surface-variant font-bold uppercase">Passed</span>
-                <span className="text-body-sm font-bold text-on-surface">{passed}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">Passed</span>
+                <span className="text-body-sm font-bold text-slate-800 dark:text-slate-100">{passed}</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-error"></div>
               <div className="flex flex-col">
-                <span className="text-[10px] text-on-surface-variant font-bold uppercase">Failed</span>
-                <span className="text-body-sm font-bold text-on-surface">{failed}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">Failed</span>
+                <span className="text-body-sm font-bold text-slate-800 dark:text-slate-100">{failed}</span>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="w-3 h-3 rounded-full bg-secondary-container"></div>
               <div className="flex flex-col">
-                <span className="text-[10px] text-on-surface-variant font-bold uppercase">Pending</span>
-                <span className="text-body-sm font-bold text-on-surface">{pending}</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase">Pending</span>
+                <span className="text-body-sm font-bold text-slate-800 dark:text-slate-100">{pending}</span>
               </div>
             </div>
           </div>
@@ -199,8 +199,8 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
           <div className="absolute inset-0 rounded-xl p-[1px] bg-gradient-to-br from-primary/20 to-transparent [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [-webkit-mask-composite:xor] pointer-events-none"></div>
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h3 className="font-headline-md text-body-lg font-bold text-on-surface">Audit Velocity</h3>
-              <p className="text-body-sm text-on-surface-variant">Daily velocity of QA audits across projects</p>
+              <h3 className="font-headline-md text-body-lg font-bold text-slate-800 dark:text-slate-100">Audit Velocity</h3>
+              <p className="text-body-sm text-slate-500 dark:text-slate-400">Daily velocity of QA audits across projects</p>
             </div>
             <div className="flex gap-2">
               <span className="px-3 py-1 rounded bg-primary/10 text-primary text-[12px] font-bold tracking-widest uppercase">+14% Growth</span>
@@ -232,18 +232,18 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
         {/* Module Testing Completion Rate */}
         <div className="glass-card p-6 rounded-xl relative overflow-hidden flex flex-col">
           <div className="absolute inset-0 rounded-xl p-[1px] bg-gradient-to-br from-primary/20 to-transparent [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [-webkit-mask-composite:xor] pointer-events-none"></div>
-          <h3 className="font-headline-md text-body-lg font-bold text-on-surface mb-6">Module Completion</h3>
+          <h3 className="font-headline-md text-body-lg font-bold text-slate-800 dark:text-slate-100 mb-6">Module Completion</h3>
           <div className="space-y-6 flex-1">
             {moduleCompletionData.length === 0 ? (
-              <p className="text-body-sm text-on-surface-variant">No modules mapped.</p>
+              <p className="text-body-sm text-slate-500 dark:text-slate-400">No modules mapped.</p>
             ) : (
               moduleCompletionData.slice(0, 5).map((mod, i) => (
                 <div key={mod.name} className="space-y-2">
-                  <div className="flex justify-between text-body-sm font-medium text-on-surface">
+                  <div className="flex justify-between text-body-sm font-medium text-slate-800 dark:text-slate-100">
                     <span>{mod.name}</span>
                     <span className="text-primary">{mod.percent}%</span>
                   </div>
-                  <div className="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+                  <div className="h-2 w-full bg-white dark:bg-slate-800 rounded-full overflow-hidden">
                     <div 
                       className={`h-full bg-primary rounded-full ${i === 0 ? 'shadow-[0_0_10px_rgba(208,188,255,0.4)]' : ''}`} 
                       style={{ width: `${mod.percent}%`, opacity: 1 - (i * 0.15) }}
@@ -258,7 +258,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
         {/* Priority Testing Distribution (Radar Chart) */}
         <div className="glass-card p-6 rounded-xl relative overflow-hidden flex flex-col items-center">
           <div className="absolute inset-0 rounded-xl p-[1px] bg-gradient-to-br from-primary/20 to-transparent [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [-webkit-mask-composite:xor] pointer-events-none"></div>
-          <h3 className="w-full font-headline-md text-body-lg font-bold text-on-surface mb-4">Testing Priorities</h3>
+          <h3 className="w-full font-headline-md text-body-lg font-bold text-slate-800 dark:text-slate-100 mb-4">Testing Priorities</h3>
           <div className="relative w-full flex-1 min-h-[200px]">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="70%" data={priorityStats}>
@@ -276,20 +276,20 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
         {/* Team Activity and Task Allocation */}
         <div className="glass-card p-6 rounded-xl relative overflow-hidden flex flex-col">
           <div className="absolute inset-0 rounded-xl p-[1px] bg-gradient-to-br from-primary/20 to-transparent [mask-image:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)] [-webkit-mask-composite:xor] pointer-events-none"></div>
-          <h3 className="font-headline-md text-body-lg font-bold text-on-surface mb-6">Team Allocation</h3>
+          <h3 className="font-headline-md text-body-lg font-bold text-slate-800 dark:text-slate-100 mb-6">Team Allocation</h3>
           <div className="space-y-4 overflow-y-auto custom-scrollbar flex-1 pr-2">
             {teamActivityData.map((user, index) => {
               const maxTasks = Math.max(...teamActivityData.map(u => u.Total)) || 1;
               const width = Math.max(5, (user.Total / maxTasks) * 100);
               return (
                 <div key={user.name} className="flex items-center gap-4 group">
-                  <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover border border-white/10 group-hover:border-primary/50 transition-colors" />
+                  <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover border border-slate-200 dark:border-slate-700 group-hover:border-primary/50 transition-colors" />
                   <div className="flex-1 space-y-1">
-                    <div className="flex justify-between text-body-sm text-on-surface">
+                    <div className="flex justify-between text-body-sm text-slate-800 dark:text-slate-100">
                       <span className="font-bold">{user.name}</span>
-                      <span className="text-on-surface-variant">{user.Total} Tasks</span>
+                      <span className="text-slate-500 dark:text-slate-400">{user.Total} Tasks</span>
                     </div>
-                    <div className="h-1.5 w-full bg-surface-container rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-white dark:bg-slate-800 rounded-full overflow-hidden">
                       <div 
                         className={`h-full bg-primary rounded-full ${index === 0 ? 'shadow-[0_0_10px_rgba(208,188,255,0.4)]' : ''}`} 
                         style={{ width: `${width}%`, opacity: 1 - (index * 0.1) }}
@@ -300,7 +300,7 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
               );
             })}
             {teamActivityData.length === 0 && (
-               <p className="text-body-sm text-on-surface-variant">No team activity recorded.</p>
+               <p className="text-body-sm text-slate-500 dark:text-slate-400">No team activity recorded.</p>
             )}
           </div>
         </div>
@@ -314,11 +314,11 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
           <div className="p-3 bg-primary/10 rounded-lg mb-4">
             <span className="material-symbols-outlined text-primary text-[32px]">speed</span>
           </div>
-          <h4 className="text-headline-md font-bold mb-2 text-on-surface">Cycle Efficiency</h4>
-          <p className="text-body-sm text-on-surface-variant mb-6">Your team is completing test cases 24% faster than last month. Automation coverage has increased to 68% total codebase.</p>
+          <h4 className="text-xl font-bold mb-2 text-slate-800 dark:text-slate-100">Cycle Efficiency</h4>
+          <p className="text-body-sm text-slate-500 dark:text-slate-400 mb-6">Your team is completing test cases 24% faster than last month. Automation coverage has increased to 68% total codebase.</p>
           <div className="flex items-baseline gap-2">
             <span className="text-4xl font-bold text-primary">1.4s</span>
-            <span className="text-label-caps font-bold text-on-surface-variant tracking-widest">AVERAGE EXECUTION</span>
+            <span className="text-label-caps font-bold text-slate-500 dark:text-slate-400 tracking-widest">AVERAGE EXECUTION</span>
           </div>
         </div>
 
@@ -330,8 +330,8 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
                 <span className="material-symbols-outlined text-error">bug_report</span>
                 <span className="text-error font-bold text-label-caps tracking-widest">High Risk</span>
               </div>
-              <h4 className="text-body-lg font-bold mb-1 text-on-surface">Critical Faults</h4>
-              <p className="text-body-sm text-on-surface-variant">3 undetected memory leaks found in Payment Module.</p>
+              <h4 className="text-body-lg font-bold mb-1 text-slate-800 dark:text-slate-100">Critical Faults</h4>
+              <p className="text-body-sm text-slate-500 dark:text-slate-400">3 undetected memory leaks found in Payment Module.</p>
             </div>
             <div className="mt-4 flex items-center text-primary font-bold text-body-sm group-hover:translate-x-2 transition-transform">
               Investigate <span className="material-symbols-outlined ml-1">chevron_right</span>
@@ -347,8 +347,8 @@ export const AnalyticsView: React.FC<AnalyticsViewProps> = ({ rows }) => {
                 <span className="material-symbols-outlined text-surface-tint">verified</span>
                 <span className="text-surface-tint font-bold text-label-caps tracking-widest">Certified</span>
               </div>
-              <h4 className="text-body-lg font-bold mb-1 text-on-surface">Compliance Rate</h4>
-              <p className="text-body-sm text-on-surface-variant">SOC2 and ISO27001 test suites passing at 100%.</p>
+              <h4 className="text-body-lg font-bold mb-1 text-slate-800 dark:text-slate-100">Compliance Rate</h4>
+              <p className="text-body-sm text-slate-500 dark:text-slate-400">SOC2 and ISO27001 test suites passing at 100%.</p>
             </div>
             <div className="mt-4 flex items-center text-primary font-bold text-body-sm group-hover:translate-x-2 transition-transform">
               View Audit <span className="material-symbols-outlined ml-1">chevron_right</span>

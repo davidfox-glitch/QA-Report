@@ -182,7 +182,7 @@ You can answer questions about the site. You also have tools to perform actions 
       }
     } catch (e: any) {
       console.error(e);
-      setMessages(prev => [...prev, { role: 'model', text: `Error: ${e.message}` }]);
+      setMessages(prev => [...prev, { role: 'model', text: "Oops! I am sleeping right now." }]);
     } finally {
       setIsLoading(false);
     }

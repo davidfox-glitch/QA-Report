@@ -49,7 +49,7 @@ export const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="w-72 flex-shrink-0 h-[calc(100vh-4rem)] overflow-y-auto bg-slate-900/40 backdrop-blur-xl border-r border-white/5 shadow-2xl sticky top-16 scrollbar-hide">
+    <div className="w-72 flex-shrink-0 h-[calc(100vh-4rem)] overflow-y-auto bg-slate-900/40 backdrop-blur-xl border-r border-slate-200 dark:border-slate-700/50 shadow-2xl sticky top-16 scrollbar-hide">
       <div className="p-4">
         <h2 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 pl-2">Navigation</h2>
         

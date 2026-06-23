@@ -102,45 +102,9 @@ export const DocumentationDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column: Features & Status */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm">
-            <div className="bg-slate-50 dark:bg-slate-800/50 px-5 py-4 border-b border-slate-200 dark:border-slate-800">
-              <h3 className="font-bold text-slate-800 dark:text-white">Feature Status Matrix</h3>
-            </div>
-            <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
-              <div>
-                <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">Completed</h4>
-                <ul className="space-y-2">
-                  {status['Completed Features'].map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-500" /> {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div>
-                <h4 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3">In Progress & Planned</h4>
-                <ul className="space-y-2">
-                  {status['In Progress Features'].map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
-                      <Clock className="w-3.5 h-3.5 text-amber-500" /> {f}
-                    </li>
-                  ))}
-                  {status['Pending Features'].map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-                      <div className="w-3.5 h-3.5 rounded-full border-2 border-slate-300 dark:border-slate-600" /> {f}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Right Column: Documentation Links */}
-        <div className="space-y-6">
+        <div className="space-y-6 md:col-span-2">
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="bg-slate-50 dark:bg-slate-800/50 px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h3 className="font-bold text-slate-800 dark:text-white">Project Bible</h3>

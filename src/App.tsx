@@ -264,20 +264,30 @@ export default function App() {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Fetch invited emails dynamically
+  // Fetch and Sync Users in Real-Time
   useEffect(() => {
-    const fetchInvites = async () => {
-      const { data, error } = await supabase.from('users').select('email');
-      if (data && !error) {
-        setInvitedEmails(prev => {
-          const emails = data.map(row => row.email);
-          return Array.from(new Set([...prev, ...emails]));
-        });
-      }
-      setIsCheckingInvite(false);
+    const store = useStore.getState();
+    store.fetchUsers();
+
+    const channel = supabase
+      .channel('public:users')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'users' }, () => {
+        useStore.getState().fetchUsers();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
     };
-    fetchInvites();
   }, []);
+
+  const users = useStore(state => state.users);
+  useEffect(() => {
+    if (users && users.length > 0) {
+      setInvitedEmails(users.map(u => u.email));
+      setIsCheckingInvite(false);
+    }
+  }, [users]);
 
   // Block users who are not on the invited list
   useEffect(() => {
@@ -294,15 +304,16 @@ export default function App() {
       }
     }
   }, [session, invitedEmails, isCheckingInvite]);
-  const isQA = ['QA Lead', 'QA Engineer', 'QA'].includes(currentUserRole);
-  const isManagerOrBoss = ['Manager', 'Boss', 'Project Manager', 'Admin'].includes(currentUserRole);
-  const isDeveloper = ['Developer'].includes(currentUserRole);
-  const isAdmin = isManagerOrBoss || isQA;
+  const isQASuperior = currentUserRole === 'QA Superior';
+  const isManagerOrBoss = ['Manager', 'Boss'].includes(currentUserRole);
+  const isQA = currentUserRole === 'QA';
+  
+  const isAdmin = isManagerOrBoss || isQASuperior;
 
-  const canSeeTimeline = isManagerOrBoss || isQA;
-  const canSeeTeam = isManagerOrBoss || isQA;
-  const canSeeImages = isDeveloper || isQA || isManagerOrBoss;
-  const canSeeDocs = isQA;
+  const canSeeTimeline = true;
+  const canSeeTeam = true;
+  const canSeeImages = true;
+  const canSeeDocs = true;
 
   // Role-Based Route Protection Logic
   React.useEffect(() => {

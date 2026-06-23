@@ -63,7 +63,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
       </div>
 
       {isOpen && (
-        <div className="absolute left-0 mt-1 w-max min-w-[140px] max-w-[250px] bg-surface dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-[100] py-1.5 animate-in fade-in zoom-in-95 duration-100">
+        <div className="absolute left-0 mt-1 w-max min-w-[140px] max-w-[250px] bg-white dark:bg-slate-900 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-2xl z-[100] py-1.5 animate-in fade-in zoom-in-95 duration-100">
           <div className="max-h-[250px] overflow-y-auto custom-scrollbar">
             {options.map((option) => {
               const isSelected = value === option.value;
@@ -78,7 +78,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
                   className={`px-3 py-2 text-sm cursor-pointer transition-colors flex items-center ${
                     isSelected 
                       ? 'bg-primary/10 text-primary font-semibold' 
-                      : 'text-on-surface hover:bg-surface-container-high dark:hover:bg-slate-800'
+                      : 'text-slate-800 dark:text-slate-100 hover:bg-slate-50 dark:bg-slate-800/80 dark:hover:bg-slate-800'
                   }`}
                 >
                   {option.label}

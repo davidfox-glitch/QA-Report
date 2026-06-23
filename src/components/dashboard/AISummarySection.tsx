@@ -47,10 +47,10 @@ export const AISummarySection: React.FC<AISummarySectionProps> = ({ rows, settin
             <Sparkles className="h-5 w-5 text-primary animate-pulse" />
           </div>
           <div>
-            <h4 className="text-body-lg font-bold text-on-surface">
+            <h4 className="text-body-lg font-bold text-slate-800 dark:text-slate-100">
               AI-Powered Report Analyst
             </h4>
-            <p className="text-[11px] text-on-surface-variant mt-0.5">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
               Provider: <span className="font-bold text-primary uppercase">{settings.apiKey ? settings.aiProvider : 'Local Rule Engine'}</span> • Real-time audit metrics & launch readiness feedback
             </p>
           </div>
@@ -60,7 +60,7 @@ export const AISummarySection: React.FC<AISummarySectionProps> = ({ rows, settin
           {lastAiSummary && (
             <button
               onClick={copyAll}
-              className="flex items-center gap-1.5 px-4 py-2 text-body-sm font-semibold text-on-surface hover:bg-white/5 border border-white/10 rounded-lg transition-all"
+              className="flex items-center gap-1.5 px-4 py-2 text-body-sm font-semibold text-slate-800 dark:text-slate-100 hover:bg-white/5 border border-slate-200 dark:border-slate-700 rounded-lg transition-all"
             >
               {copiedSection === 'all' ? (
                 <>
@@ -69,7 +69,7 @@ export const AISummarySection: React.FC<AISummarySectionProps> = ({ rows, settin
                 </>
               ) : (
                 <>
-                  <Clipboard className="h-4 w-4 text-on-surface-variant" />
+                  <Clipboard className="h-4 w-4 text-slate-500 dark:text-slate-400" />
                   <span>Copy Full Report</span>
                 </>
               )}
@@ -102,71 +102,71 @@ export const AISummarySection: React.FC<AISummarySectionProps> = ({ rows, settin
             <div className="absolute inset-0 bg-primary/20 blur-[20px] rounded-full"></div>
             <RefreshCw className="h-10 w-10 text-primary animate-spin relative" />
           </div>
-          <p className="text-body-sm text-on-surface-variant animate-pulse font-medium">
+          <p className="text-body-sm text-slate-500 dark:text-slate-400 animate-pulse font-medium">
             Reviewing test points, compiling criteria, and generating executive brief...
           </p>
         </div>
       ) : lastAiSummary ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 animate-fade-in">
           {/* Box 1: Testing Summary */}
-          <div className="relative border border-white/10 bg-surface-container/30 hover:bg-surface-container/50 transition-colors p-5 rounded-xl">
+          <div className="relative border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/30 hover:bg-white dark:bg-slate-800/50 transition-colors p-5 rounded-xl">
             <button
               onClick={() => copyToClipboard(lastAiSummary.testingSummary, 'test')}
-              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors"
+              className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
               title="Copy Section"
             >
               {copiedSection === 'test' ? <Check className="h-4 w-4 text-secondary" /> : <Clipboard className="h-4 w-4" />}
             </button>
-            <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed">
+            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-500 dark:text-slate-400 leading-relaxed">
               <div dangerouslySetInnerHTML={{ __html: formatMarkdown(lastAiSummary.testingSummary) }} />
             </div>
           </div>
 
           {/* Box 2: Progress Summary */}
-          <div className="relative border border-white/10 bg-surface-container/30 hover:bg-surface-container/50 transition-colors p-5 rounded-xl">
+          <div className="relative border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/30 hover:bg-white dark:bg-slate-800/50 transition-colors p-5 rounded-xl">
             <button
               onClick={() => copyToClipboard(lastAiSummary.progressSummary, 'prog')}
-              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors"
+              className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
               title="Copy Section"
             >
               {copiedSection === 'prog' ? <Check className="h-4 w-4 text-secondary" /> : <Clipboard className="h-4 w-4" />}
             </button>
-            <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed">
+            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-500 dark:text-slate-400 leading-relaxed">
               <div dangerouslySetInnerHTML={{ __html: formatMarkdown(lastAiSummary.progressSummary) }} />
             </div>
           </div>
 
           {/* Box 3: Risk Assessment */}
-          <div className="relative border border-white/10 bg-surface-container/30 hover:bg-surface-container/50 transition-colors p-5 rounded-xl">
+          <div className="relative border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/30 hover:bg-white dark:bg-slate-800/50 transition-colors p-5 rounded-xl">
             <button
               onClick={() => copyToClipboard(lastAiSummary.riskAssessment, 'risk')}
-              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors"
+              className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
               title="Copy Section"
             >
               {copiedSection === 'risk' ? <Check className="h-4 w-4 text-error" /> : <Clipboard className="h-4 w-4" />}
             </button>
-            <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed">
+            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-500 dark:text-slate-400 leading-relaxed">
               <div dangerouslySetInnerHTML={{ __html: formatMarkdown(lastAiSummary.riskAssessment) }} />
             </div>
           </div>
 
           {/* Box 4: Action Queue */}
-          <div className="relative border border-white/10 bg-surface-container/30 hover:bg-surface-container/50 transition-colors p-5 rounded-xl">
+          <div className="relative border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/30 hover:bg-white dark:bg-slate-800/50 transition-colors p-5 rounded-xl">
             <button
               onClick={() => copyToClipboard(lastAiSummary.pendingTasksSummary, 'tasks')}
-              className="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors"
+              className="absolute top-4 right-4 text-slate-500 dark:text-slate-400 hover:text-primary transition-colors"
               title="Copy Section"
             >
               {copiedSection === 'tasks' ? <Check className="h-4 w-4 text-secondary" /> : <Clipboard className="h-4 w-4" />}
             </button>
-            <div className="prose prose-sm dark:prose-invert max-w-none text-on-surface-variant leading-relaxed">
+            <div className="prose prose-sm dark:prose-invert max-w-none text-slate-500 dark:text-slate-400 leading-relaxed">
               <div dangerouslySetInnerHTML={{ __html: formatMarkdown(lastAiSummary.pendingTasksSummary) }} />
             </div>
           </div>
         </div>
       ) : (
-        <div className="py-10 border-2 border-dashed border-white/10 rounded-xl text-center bg-surface-container/10">
-          <p className="text-body-sm text-on-surface-variant">
+        <div className="py-10 border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl text-center bg-white dark:bg-slate-800/10">
+          <p className="text-body-sm text-slate-500 dark:text-slate-400">
             Click "Generate Summary" above to let AI analyze development pipelines and project readiness.
           </p>
         </div>
@@ -178,11 +178,11 @@ export const AISummarySection: React.FC<AISummarySectionProps> = ({ rows, settin
 // Simple helper to convert markdown lists & headers to HTML inline for visualization
 const formatMarkdown = (md: string): string => {
   return md
-    .replace(/### (.*)/g, '<h5 class="font-bold text-on-surface mb-3 text-label-caps uppercase tracking-wider flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>$1</h5>')
-    .replace(/#### (.*)/g, '<h6 class="font-semibold text-on-surface mb-2 text-body-sm">$1</h6>')
-    .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-on-surface">$1</strong>')
-    .replace(/`([^`]+)`/g, '<code class="bg-surface-container px-1.5 py-0.5 rounded text-[11px] font-mono text-primary border border-white/5">$1</code>')
-    .replace(/\* (.*)/g, '<li class="ml-4 list-disc text-on-surface-variant py-0.5">$1</li>')
-    .replace(/- (.*)/g, '<div class="text-on-surface-variant py-0.5 pl-2 border-l-2 border-white/10 ml-1 my-1">$1</div>')
+    .replace(/### (.*)/g, '<h5 class="font-bold text-slate-800 dark:text-slate-100 mb-3 text-label-caps uppercase tracking-wider flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span>$1</h5>')
+    .replace(/#### (.*)/g, '<h6 class="font-semibold text-slate-800 dark:text-slate-100 mb-2 text-body-sm">$1</h6>')
+    .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-bold text-slate-800 dark:text-slate-100">$1</strong>')
+    .replace(/`([^`]+)`/g, '<code class="bg-white dark:bg-slate-800 px-1.5 py-0.5 rounded text-[11px] font-mono text-primary border border-slate-200 dark:border-slate-700/50">$1</code>')
+    .replace(/\* (.*)/g, '<li class="ml-4 list-disc text-slate-500 dark:text-slate-400 py-0.5">$1</li>')
+    .replace(/- (.*)/g, '<div class="text-slate-500 dark:text-slate-400 py-0.5 pl-2 border-l-2 border-slate-200 dark:border-slate-700 ml-1 my-1">$1</div>')
     .replace(/\n/g, '<br />');
 };
