@@ -69,11 +69,10 @@
 }
 
 body {
-  background-color: var(--color-background, #051424);
   font-family: 'Geist', sans-serif;
-  color: var(--color-on-background, #d4e4fa);
   margin: 0;
   overflow-x: hidden;
+  /* Next.js/Tailwind bg classes applied via App.tsx root element */
 }
 
 /* Custom Scrollbars */

@@ -278,16 +278,22 @@ export default function App() {
       }
     }
   }, [session, invitedEmails, isCheckingInvite]);
-  const ADMIN_ROLES = ['Admin', 'Manager', 'Boss', 'QA Lead', 'QA Engineer', 'QA', 'Project Manager'];
-  const isAdmin = ADMIN_ROLES.includes(currentUserRole);
+  const isQA = ['QA Lead', 'QA Engineer', 'QA'].includes(currentUserRole);
+  const isManagerOrBoss = ['Manager', 'Boss', 'Project Manager', 'Admin'].includes(currentUserRole);
+  const isDeveloper = ['Developer'].includes(currentUserRole);
+
+  const canSeeTimeline = isManagerOrBoss || isQA;
+  const canSeeTeam = isManagerOrBoss || isQA;
+  const canSeeImages = isDeveloper || isQA;
+  const canSeeDocs = isQA;
 
   // Role-Based Route Protection Logic
   React.useEffect(() => {
-    // If a standard User tries to access protected views, redirect to dashboard
-    if (!isAdmin && (currentView === 'timeline' || currentView === 'users')) {
-      setCurrentView('dashboard');
-    }
-  }, [currentView, isAdmin, setCurrentView]);
+    if (currentView === 'timeline' && !canSeeTimeline) setCurrentView('dashboard');
+    if (currentView === 'users' && !canSeeTeam) setCurrentView('dashboard');
+    if (currentView === 'image-assignments' && !canSeeImages) setCurrentView('dashboard');
+    if (currentView === 'docs' && !canSeeDocs) setCurrentView('dashboard');
+  }, [currentView, canSeeTimeline, canSeeTeam, canSeeImages, canSeeDocs]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
@@ -470,54 +476,58 @@ export default function App() {
               <Trash2 className="h-3 w-3" />
               <span>Trash</span>
             </button>
-            {/* Admin-Only Navigation Links */}
-            {isAdmin && (
-              <>
-                <button
-                  onClick={() => setCurrentView('timeline')}
-                  className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                    currentView === 'timeline'
-                      ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-                  }`}
-                >
-                  <CalendarRange className="h-3 w-3" />
-                  <span>Timeline</span>
-                </button>
-                <button
-                  onClick={() => setCurrentView('users')}
-                  className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                    currentView === 'users'
-                      ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-                  }`}
-                >
-                  <Users className="h-3 w-3" />
-                  <span>Team</span>
-                </button>
-                <button
-                  onClick={() => setCurrentView('image-assignments')}
-                  className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                    currentView === 'image-assignments'
-                      ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-                  }`}
-                >
-                  <ImageIcon className="h-3 w-3" />
-                  <span>Images</span>
-                </button>
-                <button
-                  onClick={() => setCurrentView('docs')}
-                  className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                    currentView === 'docs'
-                      ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                      : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-                  }`}
-                >
-                  <BookOpen className="h-3 w-3" />
-                  <span>Docs</span>
-                </button>
-              </>
+            {/* Role-Specific Navigation Links */}
+            {canSeeTimeline && (
+              <button
+                onClick={() => setCurrentView('timeline')}
+                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
+                  currentView === 'timeline'
+                    ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                }`}
+              >
+                <CalendarRange className="h-3 w-3" />
+                <span>Timeline</span>
+              </button>
+            )}
+            {canSeeTeam && (
+              <button
+                onClick={() => setCurrentView('users')}
+                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
+                  currentView === 'users'
+                    ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                }`}
+              >
+                <Users className="h-3 w-3" />
+                <span>Team</span>
+              </button>
+            )}
+            {canSeeImages && (
+              <button
+                onClick={() => setCurrentView('image-assignments')}
+                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
+                  currentView === 'image-assignments'
+                    ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                }`}
+              >
+                <ImageIcon className="h-3 w-3" />
+                <span>Images</span>
+              </button>
+            )}
+            {canSeeDocs && (
+              <button
+                onClick={() => setCurrentView('docs')}
+                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
+                  currentView === 'docs'
+                    ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                }`}
+              >
+                <BookOpen className="h-3 w-3" />
+                <span>Docs</span>
+              </button>
             )}
             </nav>
           </div>
