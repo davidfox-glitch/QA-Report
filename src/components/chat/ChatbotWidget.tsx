@@ -9,7 +9,7 @@ export const ChatbotWidget: React.FC = () => {
   const renderMessage = (msg: string) => (
     <div
       className="text-sm text-slate-700 dark:text-slate-200 chat-markdown"
-      dangerouslySetInnerHTML={{ __html: marked.parse(msg) }}
+      dangerouslySetInnerHTML={{ __html: marked.parse(msg) as string }}
     />
   );
 

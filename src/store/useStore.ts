@@ -49,6 +49,7 @@ export interface TestRow {
   assignedRole?: string; // e.g. 'Developer' or 'QA Engineer'
   assignedUsers?: string[]; // Array of User Emails or Names
   notes: Note[];
+  files?: string[];
   customFields: Record<string, string | number>;
   lastUpdated: string;
   startDate?: string;
