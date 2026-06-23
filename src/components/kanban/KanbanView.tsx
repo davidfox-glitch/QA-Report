@@ -130,28 +130,101 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
   };
 
   return (
-    <div className="space-y-6">
-      {/* Group By Toggle & Header Info */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-1 bg-surface-container-highest/50 border border-white/5 p-1 rounded-xl backdrop-blur-sm">
-          {(['testing', 'functionality', 'user'] as GroupByOption[]).map((opt) => (
-            <button
-              key={opt}
-              onClick={() => setGroupBy(opt)}
-              className={`px-3 py-1.5 text-[10px] sm:text-xs font-semibold rounded-full transition-all ${
-                groupBy === opt
-                  ? 'bg-primary text-on-primary shadow-md shadow-primary/20'
-                  : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
-              }`}
-            >
-              {opt === 'testing' ? 'Group by QA Status' : opt === 'functionality' ? 'Group by Functionality' : 'Group by User'}
-            </button>
-          ))}
+    <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* SECTION: Project Timeline (4-Week Grid) */}
+      <section>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="font-headline-md text-headline-md text-primary">Project Timeline</h2>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">4-Week active test cycle oversight</p>
+          </div>
+          <div className="flex gap-2">
+            <button className="glass-card px-4 py-2 rounded-lg text-label-caps font-label-caps text-on-surface-variant hover:text-primary transition-colors">Oct 2023</button>
+            <button className="bg-surface-variant/40 px-4 py-2 rounded-lg text-label-caps font-label-caps text-primary border border-primary/20">Nov 2023</button>
+          </div>
         </div>
-        <p className="text-xs text-on-surface-variant flex items-center gap-1.5">
-          Drag cards between columns to update
-        </p>
-      </div>
+        <div className="glass-card rounded-xl overflow-hidden">
+          <div className="grid grid-cols-4 border-b border-white/10 bg-surface-container-low/50">
+            <div className="p-4 text-center font-label-caps text-label-caps text-on-surface-variant border-r border-white/5 uppercase tracking-widest">Week 01</div>
+            <div className="p-4 text-center font-label-caps text-label-caps text-on-surface-variant border-r border-white/5 uppercase tracking-widest">Week 02</div>
+            <div className="p-4 text-center font-label-caps text-label-caps text-on-surface-variant border-r border-white/5 uppercase tracking-widest">Week 03</div>
+            <div className="p-4 text-center font-label-caps text-label-caps text-on-surface-variant uppercase tracking-widest">Week 04</div>
+          </div>
+          <div className="relative min-h-[320px] p-6" style={{ backgroundImage: 'linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px)', backgroundSize: 'calc(100% / 4) 100%' }}>
+            {/* Dynamic Progress Bars */}
+            <div className="space-y-6">
+              {/* Bar 1 */}
+              <div className="flex items-center group hover:scale-[1.01] transition-transform">
+                <div className="w-32 flex-shrink-0 text-body-sm font-medium text-on-surface-variant truncate pr-4">Auth Security Scan</div>
+                <div className="flex-grow relative h-8 bg-surface-container-highest/20 rounded-full overflow-hidden">
+                  <div className="absolute left-[5%] w-[45%] h-full bg-gradient-to-r from-primary/60 to-primary flex items-center px-4 rounded-full shadow-[0_0_15px_rgba(208,188,255,0.3)]">
+                    <span className="text-[10px] font-bold text-on-primary-container whitespace-nowrap">ST-402 • 72% Complete</span>
+                  </div>
+                </div>
+              </div>
+              {/* Bar 2 */}
+              <div className="flex items-center group hover:scale-[1.01] transition-transform">
+                <div className="w-32 flex-shrink-0 text-body-sm font-medium text-on-surface-variant truncate pr-4">API Load Testing</div>
+                <div className="flex-grow relative h-8 bg-surface-container-highest/20 rounded-full overflow-hidden">
+                  <div className="absolute left-[40%] w-[35%] h-full bg-gradient-to-r from-tertiary/60 to-tertiary flex items-center px-4 rounded-full shadow-[0_0_15px_rgba(196,193,251,0.3)]">
+                    <span className="text-[10px] font-bold text-on-tertiary-container whitespace-nowrap">ST-405 • In Progress</span>
+                  </div>
+                </div>
+              </div>
+              {/* Bar 3 */}
+              <div className="flex items-center group hover:scale-[1.01] transition-transform">
+                <div className="w-32 flex-shrink-0 text-body-sm font-medium text-on-surface-variant truncate pr-4">UI Regression</div>
+                <div className="flex-grow relative h-8 bg-surface-container-highest/20 rounded-full overflow-hidden">
+                  <div className="absolute left-[15%] w-[80%] h-full bg-gradient-to-r from-secondary-container to-secondary-fixed-dim flex items-center px-4 rounded-full">
+                    <span className="text-[10px] font-bold text-on-secondary-container whitespace-nowrap">ST-409 • Multi-stage Cycle</span>
+                  </div>
+                </div>
+              </div>
+              {/* Bar 4 */}
+              <div className="flex items-center group hover:scale-[1.01] transition-transform">
+                <div className="w-32 flex-shrink-0 text-body-sm font-medium text-on-surface-variant truncate pr-4">Data Migration</div>
+                <div className="flex-grow relative h-8 bg-surface-container-highest/20 rounded-full overflow-hidden">
+                  <div className="absolute left-[65%] w-[25%] h-full bg-gradient-to-r from-error/40 to-error flex items-center px-4 rounded-full shadow-[0_0_15px_rgba(255,180,171,0.3)] border border-error/50">
+                    <span className="text-[10px] font-bold text-on-error flex items-center gap-1"><span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>warning</span> Critical Block</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Current Time Indicator */}
+            <div className="absolute top-0 bottom-0 left-[55%] w-px bg-primary/40 shadow-[0_0_8px_rgba(208,188,255,0.8)] z-10 pointer-events-none">
+              <div className="absolute -top-3 -left-1.5 w-3 h-3 bg-primary rounded-full ring-4 ring-primary/20"></div>
+              <div className="absolute -top-8 -left-8 bg-primary text-on-primary-container px-2 py-1 rounded text-[10px] font-bold">TODAY</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION: Kanban Board */}
+      <section>
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="font-headline-md text-headline-md text-primary">Quality Board</h2>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">Live execution and bug tracking</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-1 bg-surface-container-highest/50 border border-white/5 p-1 rounded-xl backdrop-blur-sm">
+              {(['testing', 'functionality', 'user'] as GroupByOption[]).map((opt) => (
+                <button
+                  key={opt}
+                  onClick={() => setGroupBy(opt)}
+                  className={`px-3 py-1.5 text-[10px] sm:text-xs font-semibold rounded-full transition-all ${
+                    groupBy === opt
+                      ? 'bg-primary text-on-primary shadow-md shadow-primary/20'
+                      : 'text-on-surface-variant hover:text-on-surface hover:bg-white/5'
+                  }`}
+                >
+                  {opt === 'testing' ? 'Group by QA Status' : opt === 'functionality' ? 'Group by Functionality' : 'Group by User'}
+                </button>
+              ))}
+            </div>
+            <button className="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">filter_list</button>
+          </div>
+        </div>
 
       {/* Kanban Board */}
       <div className="flex overflow-x-auto snap-x snap-mandatory gap-6 items-start pb-6 custom-scrollbar">
@@ -252,6 +325,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
           );
         })}
       </div>
+      </section>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Search, RefreshCw, PlusCircle, Settings, Plus } from 'lucide-react';
-import { CustomFieldDef } from '../../store/useStore';
+import { useStore, CustomFieldDef } from '../../store/useStore';
+import { Search, RefreshCw, Plus, Download, Settings } from 'lucide-react';
 
 interface FiltersProps {
   search: string;
@@ -19,8 +19,7 @@ interface FiltersProps {
   onAddTestPoint: () => void;
 }
 
-const selectClass =
-  'w-full appearance-none px-3 py-2 pr-8 text-xs font-medium bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-slate-700 dark:text-slate-200 transition-all cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 shadow-sm [background-image:url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%236366f1\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpolyline points=\'6 9 12 15 18 9\'%3E%3C/polyline%3E%3C/svg%3E")] [background-repeat:no-repeat] [background-position:right_0.75rem_center]';
+const selectClass = "bg-transparent border-none text-body-sm focus:ring-0 cursor-pointer outline-none w-full text-on-surface-variant focus:text-primary transition-colors";
 
 export const Filters: React.FC<FiltersProps> = ({
   search,
@@ -38,6 +37,9 @@ export const Filters: React.FC<FiltersProps> = ({
   onManageFields,
   onAddTestPoint
 }) => {
+  const { settings, projects, activeProjectId } = useStore();
+  const activeProjectName = projects.find(p => p.id === activeProjectId)?.name || settings.projectName;
+
   const resetFilters = () => {
     setSearch('');
     setFuncFilter('');
@@ -49,120 +51,110 @@ export const Filters: React.FC<FiltersProps> = ({
   const isFiltered = search || funcFilter || testFilter || priorityFilter || Object.values(customFilters).some(Boolean);
 
   return (
-    <div className="glass-panel rounded-2xl p-4 border border-slate-200/60 dark:border-slate-800/60 mb-6 space-y-3">
-      {/* Top row: search & buttons */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-        {/* Search */}
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 dark:text-slate-500 pointer-events-none" />
-          <input
-            type="text"
-            placeholder="Search pages, URLs, assigned devs, notes..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 text-sm bg-slate-50/50 dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 dark:text-slate-100 transition-all"
-          />
-        </div>
+    <section className="mb-6 flex flex-col xl:flex-row xl:items-end justify-between gap-6 animate-in fade-in slide-in-from-top-2 duration-500">
+      <div>
+        <h1 className="font-headline-lg text-headline-lg text-on-surface">Test Report: {activeProjectName}</h1>
+        <p className="text-on-surface-variant font-body-lg text-body-lg mt-2">Detailed validation summary for the current module.</p>
+      </div>
 
-        {/* Dropdowns row */}
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap gap-3">
+          {/* Search */}
+          <div className="flex items-center gap-2 bg-surface-container-high px-3 py-2 rounded-lg border border-white/5 flex-grow">
+            <Search className="h-4 w-4 text-primary" />
+            <input
+              type="text"
+              placeholder="Search points..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="bg-transparent border-none text-body-sm focus:ring-0 outline-none w-full text-on-surface"
+            />
+          </div>
+
           {/* Functionality */}
-          <div className="relative min-w-[140px]">
+          <div className="flex items-center gap-2 bg-surface-container-high px-3 py-2 rounded-lg border border-white/5">
+            <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 0" }}>filter_list</span>
             <select
               value={funcFilter}
               onChange={(e) => setFuncFilter(e.target.value)}
               className={selectClass}
             >
-              <option value="">All Statuses</option>
-              <option value="Done">Done</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Pending">Pending</option>
-              <option value="Blocked">Blocked</option>
+              <option value="" className="bg-surface-container">All Functionalities</option>
+              <option value="Working" className="bg-surface-container">Working</option>
+              <option value="Partially Working" className="bg-surface-container">Partially Working</option>
+              <option value="Not Working" className="bg-surface-container">Not Working</option>
+              <option value="Pending" className="bg-surface-container">Pending</option>
             </select>
           </div>
 
-          {/* Testing Status */}
-          <div className="relative min-w-[150px]">
+          {/* QA Status */}
+          <div className="flex items-center gap-2 bg-surface-container-high px-3 py-2 rounded-lg border border-white/5">
+            <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 0" }}>bolt</span>
             <select
               value={testFilter}
               onChange={(e) => setTestFilter(e.target.value)}
               className={selectClass}
             >
-              <option value="">All QA Statuses</option>
-              <option value="Passed">Passed</option>
-              <option value="Failed">Failed</option>
-              <option value="Testing Pending">Testing Pending</option>
-              <option value="Testing In Progress">Testing In Progress</option>
+              <option value="" className="bg-surface-container">All QA Statuses</option>
+              <option value="Passed" className="bg-surface-container">Passed</option>
+              <option value="Failed" className="bg-surface-container">Failed</option>
+              <option value="Pending" className="bg-surface-container">Pending</option>
+              <option value="In Progress" className="bg-surface-container">In Progress</option>
             </select>
           </div>
 
           {/* Priority */}
-          <div className="relative min-w-[130px]">
+          <div className="flex items-center gap-2 bg-surface-container-high px-3 py-2 rounded-lg border border-white/5">
+            <span className="material-symbols-outlined text-primary text-lg" style={{ fontVariationSettings: "'FILL' 0" }}>priority</span>
             <select
               value={priorityFilter}
               onChange={(e) => setPriorityFilter(e.target.value)}
               className={selectClass}
             >
-              <option value="">All Priorities</option>
-              <option value="Critical">Critical</option>
-              <option value="High">High</option>
-              <option value="Medium">Medium</option>
-              <option value="Low">Low</option>
+              <option value="" className="bg-surface-container">All Priorities</option>
+              <option value="Critical" className="bg-surface-container">Critical</option>
+              <option value="High" className="bg-surface-container">High</option>
+              <option value="Medium" className="bg-surface-container">Medium</option>
+              <option value="Low" className="bg-surface-container">Low</option>
             </select>
           </div>
-
-          {/* Custom field filters */}
-          {customFieldsDef
-            .filter((cf) => cf.id !== 'cf-bug-id')
-            .slice(0, 2)
-            .map((cf) => (
-              <div key={cf.id} className="relative min-w-[120px]">
-                <input
-                  type={cf.type === 'number' ? 'number' : cf.type === 'date' ? 'date' : 'text'}
-                  placeholder={cf.name}
-                  value={customFilters[cf.id] || ''}
-                  onChange={(e) => setCustomFilter(cf.id, e.target.value)}
-                  className="w-full px-3 py-2 text-xs bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500 text-slate-700 dark:text-slate-200 transition-all shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                />
-              </div>
-            ))}
 
           {isFiltered && (
             <button
               onClick={resetFilters}
-              className="flex items-center gap-1 px-3 py-2 text-xs font-semibold text-rose-600 hover:text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/30 rounded-xl transition-all"
+              className="flex items-center gap-1.5 bg-error-container/20 border border-error/30 text-error px-4 py-2 rounded-lg hover:bg-error-container/40 transition-colors"
             >
-              <RefreshCw className="h-3 w-3" />
-              Reset
+              <RefreshCw className="h-4 w-4" />
+              <span className="text-body-sm font-medium">Reset</span>
             </button>
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center justify-center flex-wrap gap-2 shrink-0 w-full md:w-auto">
-          <button
-            onClick={onAddTestPoint}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-sm hover:shadow transition-all"
-          >
-            <Plus className="h-3.5 w-3.5" />
-            Add Test Point
-          </button>
+        <div className="flex flex-wrap items-center justify-end gap-3">
           <button
             onClick={onAddField}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold bg-slate-100 hover:bg-slate-200 dark:bg-slate-900 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 rounded-xl shadow-sm hover:shadow transition-all"
+            className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-body-sm"
           >
-            <PlusCircle className="h-3.5 w-3.5" />
-            Add Custom Column
+            <Plus className="h-4 w-4" /> Add Field
           </button>
           <button
             onClick={onManageFields}
-            title="Manage Custom Columns"
-            className="flex items-center justify-center p-2 text-slate-500 dark:text-slate-400 bg-slate-100/80 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl transition-all"
+            className="flex items-center gap-1.5 text-on-surface-variant hover:text-primary transition-colors text-body-sm"
           >
-            <Settings className="h-4 w-4" />
+            <Settings className="h-4 w-4" /> Manage Fields
+          </button>
+          <button
+            onClick={onAddTestPoint}
+            className="bg-primary text-on-primary-container px-4 py-2 rounded-lg font-bold text-body-sm hover:opacity-90 transition-all flex items-center gap-2"
+          >
+            <Plus className="h-4 w-4" /> Add Test Point
+          </button>
+          <button className="bg-surface-container-highest border border-white/10 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-surface-bright transition-colors text-on-surface">
+            <Download className="h-4 w-4 text-primary" />
+            <span className="text-body-sm font-medium">Export CSV</span>
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 };

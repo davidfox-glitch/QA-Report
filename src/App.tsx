@@ -8,6 +8,7 @@ import { BulkActions } from './components/dashboard/BulkActions';
 import { PrintReportView } from './components/dashboard/PrintReportView';
 
 import { LoginView } from './components/auth/LoginView';
+import { LandingView } from './components/landing/LandingView';
 import { supabase, syncChannel } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { DashboardView } from './components/dashboard/DashboardView';
@@ -238,11 +239,17 @@ export default function App() {
       setSession(session);
       setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
       setAuthInitialized(true);
+      if (session && window.location.pathname === '/login') {
+        window.history.replaceState(null, '', '/');
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
+      if (session && window.location.pathname === '/login') {
+        window.history.replaceState(null, '', '/');
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -285,7 +292,7 @@ export default function App() {
 
   const canSeeTimeline = isManagerOrBoss || isQA;
   const canSeeTeam = isManagerOrBoss || isQA;
-  const canSeeImages = isDeveloper || isQA;
+  const canSeeImages = isDeveloper || isQA || isManagerOrBoss;
   const canSeeDocs = isQA;
 
   // Role-Based Route Protection Logic
@@ -297,10 +304,6 @@ export default function App() {
   }, [currentView, canSeeTimeline, canSeeTeam, canSeeImages, canSeeDocs]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
-
-  if (window.location.pathname === '/login' && !session) {
-    return <LoginView />;
-  }
 
   if (!authInitialized) {
     return <div className="min-h-screen bg-slate-950 flex items-center justify-center"><div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div></div>;
@@ -319,6 +322,9 @@ export default function App() {
   }
 
   if (!session) {
+    if (window.location.pathname === '/' || window.location.pathname === '/landing') {
+      return <LandingView />;
+    }
     return <LoginView />;
   }
 
@@ -444,70 +450,10 @@ export default function App() {
               <Kanban className="h-3 w-3" />
               <span>Kanban</span>
             </button>
-            <button
-              onClick={() => setCurrentView('analytics')}
-              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                currentView === 'analytics'
-                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-              }`}
-            >
-              <BarChart3 className="h-3 w-3" />
-              <span>Analytics</span>
-            </button>
-            <button
-              onClick={() => setCurrentView('archive')}
-              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                currentView === 'archive'
-                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-              }`}
-            >
-              <Archive className="h-3 w-3" />
-              <span>Archive</span>
-            </button>
-            <button
-              onClick={() => setCurrentView('trash')}
-              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                currentView === 'trash'
-                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-              }`}
-            >
-              <Trash2 className="h-3 w-3" />
-              <span>Trash</span>
-            </button>
-            {/* Role-Specific Navigation Links */}
-            {canSeeTimeline && (
-              <button
-                onClick={() => setCurrentView('timeline')}
-                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                  currentView === 'timeline'
-                    ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-                }`}
-              >
-                <CalendarRange className="h-3 w-3" />
-                <span>Timeline</span>
-              </button>
-            )}
-            {canSeeTeam && (
-              <button
-                onClick={() => setCurrentView('users')}
-                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
-                  currentView === 'users'
-                    ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
-                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
-                }`}
-              >
-                <Users className="h-3 w-3" />
-                <span>Team</span>
-              </button>
-            )}
             {canSeeImages && (
               <button
                 onClick={() => setCurrentView('image-assignments')}
-                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
+                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
                   currentView === 'image-assignments'
                     ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
@@ -520,7 +466,7 @@ export default function App() {
             {canSeeDocs && (
               <button
                 onClick={() => setCurrentView('docs')}
-                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all ${
+                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
                   currentView === 'docs'
                     ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
                     : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
@@ -530,6 +476,65 @@ export default function App() {
                 <span>Docs</span>
               </button>
             )}
+            <button
+              onClick={() => setCurrentView('analytics')}
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+                currentView === 'analytics'
+                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+              }`}
+            >
+              <BarChart3 className="h-3 w-3" />
+              <span>Analytics</span>
+            </button>
+            {canSeeTimeline && (
+              <button
+                onClick={() => setCurrentView('timeline')}
+                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+                  currentView === 'timeline'
+                    ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                }`}
+              >
+                <CalendarRange className="h-3 w-3" />
+                <span>Timeline</span>
+              </button>
+            )}
+            {canSeeTeam && (
+              <button
+                onClick={() => setCurrentView('users')}
+                className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+                  currentView === 'users'
+                    ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                    : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+                }`}
+              >
+                <Users className="h-3 w-3" />
+                <span>Team</span>
+              </button>
+            )}
+            <button
+              onClick={() => setCurrentView('archive')}
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+                currentView === 'archive'
+                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+              }`}
+            >
+              <Archive className="h-3 w-3" />
+              <span>Archive</span>
+            </button>
+            <button
+              onClick={() => setCurrentView('trash')}
+              className={`flex items-center gap-1 px-2 py-1 text-[11px] font-semibold rounded-lg transition-all whitespace-nowrap shrink-0 ${
+                currentView === 'trash'
+                  ? 'bg-white dark:bg-slate-800 shadow-sm text-indigo-600 dark:text-indigo-400'
+                  : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-355'
+              }`}
+            >
+              <Trash2 className="h-3 w-3" />
+              <span>Trash</span>
+            </button>
             </nav>
           </div>
 
