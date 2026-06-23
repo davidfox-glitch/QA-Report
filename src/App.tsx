@@ -281,6 +281,7 @@ export default function App() {
   const isQA = ['QA Lead', 'QA Engineer', 'QA'].includes(currentUserRole);
   const isManagerOrBoss = ['Manager', 'Boss', 'Project Manager', 'Admin'].includes(currentUserRole);
   const isDeveloper = ['Developer'].includes(currentUserRole);
+  const isAdmin = isManagerOrBoss || isQA;
 
   const canSeeTimeline = isManagerOrBoss || isQA;
   const canSeeTeam = isManagerOrBoss || isQA;
