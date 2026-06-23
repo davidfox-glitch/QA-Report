@@ -38,9 +38,9 @@ export const ChatbotWidget: React.FC = () => {
     setIsLoading(true);
 
     try {
-      const apiKey = import.meta.env.VITE_AIPARTNER_API_KEY;
+      const apiKey = import.meta.env.AIpartner;
       if (!apiKey) {
-        setMessages(prev => [...prev, { role: 'model', text: '⚠️ **Configuration Error**: `VITE_AIPARTNER_API_KEY` is not set. Please rename your variable from `AIpartner` to `VITE_AIPARTNER_API_KEY` in Vercel environment variables.' }]);
+        setMessages(prev => [...prev, { role: 'model', text: '⚠️ **Configuration Error**: The `AIpartner` API key is not set or accessible in your environment variables.' }]);
         setIsLoading(false);
         return;
       }
