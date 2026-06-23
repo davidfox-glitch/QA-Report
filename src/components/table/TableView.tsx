@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useStore, TestRow, CustomFieldDef, FunctionalityStatus, TestingStatus, Priority } from '../../store/useStore';
 import { Edit, Trash2, StickyNote, Paperclip, ChevronDown } from 'lucide-react';
 import { FilesModal } from './FilesModal';
+import { Dropdown } from '../ui/Dropdown';
 
 interface TableViewProps {
   rows: TestRow[];
@@ -63,7 +64,7 @@ export const TableView: React.FC<TableViewProps> = ({
 
   return (
     <section className="glass-panel rounded-xl overflow-hidden mb-8 shadow-2xl animate-fade-in border border-white/5">
-      <div className="overflow-x-auto custom-scrollbar w-full">
+      <div className="overflow-x-auto custom-scrollbar w-full min-h-[400px] pb-40">
         <table className="w-full text-left border-collapse">
           {/* Table Headers */}
           <thead>
@@ -159,74 +160,69 @@ export const TableView: React.FC<TableViewProps> = ({
 
                     {/* Functionality Status (Dropdown inline editable) */}
                     <td className="px-4 py-3">
-                      <div className={`inline-flex items-center relative rounded-md ${getStatusColorClass(row.functionalityStatus)}`}>
-                        <select
+                      <div className={`inline-flex items-center rounded-md ${getStatusColorClass(row.functionalityStatus)}`}>
+                        <Dropdown
                           value={row.functionalityStatus}
-                          onChange={(e) => onQuickUpdate(row.id, { functionalityStatus: e.target.value as FunctionalityStatus })}
-                          className="bg-transparent border-none focus:ring-0 cursor-pointer outline-none appearance-none hover:brightness-110 text-[11px] font-bold tracking-wider uppercase pl-2 pr-6 py-1"
-                        >
-                          <option value="Working" className="bg-surface text-on-surface normal-case">Working</option>
-                          <option value="Partially Working" className="bg-surface text-on-surface normal-case">Partially Working</option>
-                          <option value="Not Working" className="bg-surface text-on-surface normal-case">Not Working</option>
-                          <option value="Pending" className="bg-surface text-on-surface normal-case">Pending</option>
-                        </select>
-                        <ChevronDown className="absolute right-1.5 w-3 h-3 pointer-events-none opacity-60" />
+                          onChange={(val) => onQuickUpdate(row.id, { functionalityStatus: val as FunctionalityStatus })}
+                          options={[
+                            { value: 'Working', label: 'Working' },
+                            { value: 'Partially Working', label: 'Partially Working' },
+                            { value: 'Not Working', label: 'Not Working' },
+                            { value: 'Pending', label: 'Pending' }
+                          ]}
+                          triggerClassName="text-[11px] font-bold tracking-wider uppercase pl-2 pr-1 py-1 hover:brightness-110"
+                        />
                       </div>
                     </td>
 
                     {/* Testing Status (Dropdown inline editable) */}
                     <td className="px-4 py-3">
-                      <div className={`inline-flex items-center relative rounded-md ${getStatusColorClass(row.testingStatus)}`}>
-                        <select
+                      <div className={`inline-flex items-center rounded-md ${getStatusColorClass(row.testingStatus)}`}>
+                        <Dropdown
                           value={row.testingStatus}
-                          onChange={(e) => onQuickUpdate(row.id, { testingStatus: e.target.value as TestingStatus })}
-                          className="bg-transparent border-none focus:ring-0 cursor-pointer outline-none appearance-none hover:brightness-110 text-[11px] font-bold tracking-wider uppercase pl-2 pr-6 py-1"
-                        >
-                          <option value="Passed" className="bg-surface text-on-surface normal-case">Passed</option>
-                          <option value="Failed" className="bg-surface text-on-surface normal-case">Failed</option>
-                          <option value="Pending" className="bg-surface text-on-surface normal-case">Pending</option>
-                          <option value="In Progress" className="bg-surface text-on-surface normal-case">In Progress</option>
-                        </select>
-                        <ChevronDown className="absolute right-1.5 w-3 h-3 pointer-events-none opacity-60" />
+                          onChange={(val) => onQuickUpdate(row.id, { testingStatus: val as TestingStatus })}
+                          options={[
+                            { value: 'Passed', label: 'Passed' },
+                            { value: 'Failed', label: 'Failed' },
+                            { value: 'Pending', label: 'Pending' },
+                            { value: 'In Progress', label: 'In Progress' }
+                          ]}
+                          triggerClassName="text-[11px] font-bold tracking-wider uppercase pl-2 pr-1 py-1 hover:brightness-110"
+                        />
                       </div>
                     </td>
 
                     {/* Priority (Dropdown inline editable) */}
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2 relative group/priority pr-4">
+                      <div className="flex items-center gap-2 group/priority">
                         <span className={`w-2 h-2 rounded-full flex-shrink-0 ${getPriorityDotColor(row.priority)}`}></span>
-                        <select
+                        <Dropdown
                           value={row.priority}
-                          onChange={(e) => onQuickUpdate(row.id, { priority: e.target.value as Priority })}
-                          className="bg-transparent border-none text-body-sm p-0 focus:ring-0 cursor-pointer text-on-surface outline-none appearance-none hover:text-primary transition-colors flex-grow"
-                        >
-                          <option value="Critical" className="bg-surface text-on-surface">P0 - Critical</option>
-                          <option value="High" className="bg-surface text-on-surface">P1 - High</option>
-                          <option value="Medium" className="bg-surface text-on-surface">P2 - Medium</option>
-                          <option value="Low" className="bg-surface text-on-surface">P3 - Low</option>
-                        </select>
-                        <ChevronDown className="absolute right-0 w-3 h-3 pointer-events-none opacity-50 text-on-surface-variant group-hover/priority:text-primary transition-colors" />
+                          onChange={(val) => onQuickUpdate(row.id, { priority: val as Priority })}
+                          options={[
+                            { value: 'Critical', label: 'P0 - Critical' },
+                            { value: 'High', label: 'P1 - High' },
+                            { value: 'Medium', label: 'P2 - Medium' },
+                            { value: 'Low', label: 'P3 - Low' }
+                          ]}
+                          triggerClassName="text-body-sm text-on-surface hover:text-primary transition-colors py-1"
+                        />
                       </div>
                     </td>
 
                     {/* Assigned Role selection */}
                     <td className="px-4 py-3">
-                      <div className="relative inline-flex items-center w-full">
-                        <select
+                      <div className="w-full max-w-[130px]">
+                        <Dropdown
                           value={row.assignedRole || ''}
-                          onChange={(e) => {
-                            onQuickUpdate(row.id, { assignedRole: e.target.value, assignedUsers: [] });
-                          }}
-                          className="bg-transparent border-none text-body-sm p-0 pr-6 focus:ring-0 cursor-pointer text-on-surface-variant outline-none hover:text-primary transition-colors appearance-none w-full"
-                        >
-                          <option value="" className="bg-surface text-on-surface">Any Role</option>
-                          {uniqueRoles.map(role => (
-                            <option key={role} value={role} className="bg-surface text-on-surface">
-                              {role}
-                            </option>
-                          ))}
-                        </select>
-                        <ChevronDown className="absolute right-1 w-3 h-3 pointer-events-none opacity-50 text-on-surface-variant" />
+                          placeholder="Any Role"
+                          onChange={(val) => onQuickUpdate(row.id, { assignedRole: val, assignedUsers: [] })}
+                          options={[
+                            { value: '', label: 'Any Role' },
+                            ...uniqueRoles.map(role => ({ value: role, label: role }))
+                          ]}
+                          triggerClassName="text-body-sm text-on-surface-variant hover:text-primary transition-colors py-1"
+                        />
                       </div>
                     </td>
 
@@ -252,27 +248,27 @@ export const TableView: React.FC<TableViewProps> = ({
                             ))}
                           </div>
                         )}
-                        <div className="relative inline-flex items-center w-full max-w-[150px]">
-                          <select
+                        <div className="w-full max-w-[150px]">
+                          <Dropdown
                             value=""
-                            onChange={(e) => {
-                              if (e.target.value) {
-                                const newUsers = [...(row.assignedUsers || []), e.target.value];
+                            placeholder={row.assignedUsers?.length ? "Add another..." : "Add Assignee..."}
+                            onChange={(val) => {
+                              if (val) {
+                                const newUsers = [...(row.assignedUsers || []), val];
                                 onQuickUpdate(row.id, { assignedUsers: Array.from(new Set(newUsers)) });
                               }
                             }}
-                            className={`bg-transparent border-none text-body-sm p-0 pr-6 focus:ring-0 cursor-pointer outline-none hover:text-primary transition-colors appearance-none w-full ${!row.assignedUsers?.length ? 'text-on-surface-variant' : 'text-on-surface'}`}
-                          >
-                            <option value="" className="bg-surface text-on-surface">Add Assignee...</option>
-                            {(row.assignedRole ? users.filter(u => u.role === row.assignedRole) : users)
-                              .filter(u => !(row.assignedUsers || []).includes(u.name))
-                              .map(u => (
-                              <option key={u.id} value={u.name} className="bg-surface text-on-surface">
-                                {u.name} ({u.email}) - {u.role}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="absolute right-1 w-3 h-3 pointer-events-none opacity-50 text-on-surface-variant" />
+                            options={[
+                              { value: '', label: 'Add Assignee...' },
+                              ...(row.assignedRole ? users.filter(u => u.role === row.assignedRole) : users)
+                                .filter(u => !(row.assignedUsers || []).includes(u.name))
+                                .map(u => ({
+                                  value: u.name,
+                                  label: `${u.name} (${u.role})`
+                                }))
+                            ]}
+                            triggerClassName={`text-body-sm py-1 ${!row.assignedUsers?.length ? 'text-on-surface-variant' : 'text-primary'}`}
+                          />
                         </div>
                       </div>
                     </td>
