@@ -124,7 +124,9 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) =
                 <div
                   key={idx}
                   style={{ left: `${leftPercent}%` }}
-                  className="absolute transform -translate-x-1/2 flex items-center gap-0.5 text-[9px] dark:text-slate-400 whitespace-nowrap"
+                  className={`absolute flex items-center gap-0.5 text-[9px] dark:text-slate-400 whitespace-nowrap transform ${
+                    idx === 0 ? '' : idx === timeLabels.length - 1 ? '-translate-x-full' : '-translate-x-1/2'
+                  }`}
                 >
                   <Clock className="h-2.5 w-2.5 text-slate-400" />
                   {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
@@ -177,6 +179,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({ rows, onEditRow }) =
                   <div className="w-2/3 relative min-h-[56px] flex items-center px-4 bg-slate-50/5 dark:bg-slate-900/5">
                     {/* Day background Grid separators */}
                     {timeLabels.map((_, idx) => {
+                      if (idx === 0) return null; // Skip first border to avoid overlap
                       const leftPercent = (days.findIndex((d, dIdx) => dIdx === idx * labelInterval) / days.length) * 100;
                       return (
                         <div

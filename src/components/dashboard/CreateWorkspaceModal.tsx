@@ -141,10 +141,11 @@ export const CreateWorkspaceModal: React.FC<CreateWorkspaceModalProps> = ({ onCl
               <div className="h-16 w-16 bg-slate-800 rounded-xl border border-dashed border-slate-600 flex items-center justify-center text-slate-500">
                 Image
               </div>
-              <button className="px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl text-sm font-semibold text-white transition-all flex items-center gap-2">
+              <label className="cursor-pointer px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-xl text-sm font-semibold text-white transition-all flex items-center gap-2">
                 <Upload className="w-4 h-4" />
                 Upload Image
-              </button>
+                <input type="file" className="hidden" accept="image/png, image/jpeg, image/svg+xml, image/webp" />
+              </label>
             </div>
             <p className="text-[10px] text-slate-500">Supports PNG, JPEG, SVG or WebP.</p>
           </div>

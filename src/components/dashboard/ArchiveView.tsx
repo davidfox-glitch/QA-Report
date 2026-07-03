@@ -31,8 +31,8 @@ export const ArchiveView: React.FC = () => {
           >
             <ArrowLeft className="w-5 h-5 text-gray-500" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Archive className="w-6 h-6 text-indigo-500" />
+          <h1 className="text-2xl font-bold text-primary flex items-center gap-2">
+            <Archive className="w-6 h-6 text-primary" />
             Archived Tasks
           </h1>
         </div>
@@ -74,7 +74,7 @@ export const ArchiveView: React.FC = () => {
                        <button className="px-3 py-1.5 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg flex items-center gap-1">
                          <FileDown className="w-4 h-4" /> Export
                        </button>
-                       <button onClick={() => restoreRow(row.id)} className="px-3 py-1.5 text-sm bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-lg flex items-center gap-1">
+                       <button onClick={() => restoreRow(row.id)} className="px-3 py-1.5 text-sm bg-primary/10 hover:bg-primary/20 text-primary rounded-lg flex items-center gap-1">
                          <RefreshCw className="w-4 h-4" /> Restore
                        </button>
                        <button onClick={() => trashRow(row.id)} className="px-3 py-1.5 text-sm bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 rounded-lg flex items-center gap-1">

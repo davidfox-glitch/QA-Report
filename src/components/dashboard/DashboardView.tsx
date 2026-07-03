@@ -37,7 +37,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ rows }) => {
         {/* Main Content Area */}
         <div className="space-y-6">
           {/* AI-Powered Report Analyst */}
-          <div className="glass-card premium-stroke rounded-2xl overflow-hidden min-h-[400px] flex flex-col">
+          <div className="glass-card premium-stroke rounded-2xl overflow-hidden flex flex-col">
             <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="bg-primary/20 p-2 rounded-lg">

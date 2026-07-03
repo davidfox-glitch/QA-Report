@@ -69,7 +69,7 @@ export const TableView: React.FC<TableViewProps> = ({
   return (
     <div className="w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
     <section className="glass-panel rounded-xl overflow-hidden mb-8 shadow-2xl border border-slate-200 dark:border-slate-700/50">
-      <div className="overflow-x-auto custom-scrollbar w-full min-h-[400px] pb-40">
+      <div className="overflow-x-auto custom-scrollbar w-full min-h-[250px] pb-4">
         <table className="w-full text-left border-collapse">
           {/* Table Headers */}
           <thead>

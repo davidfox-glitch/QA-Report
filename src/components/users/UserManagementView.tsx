@@ -169,12 +169,12 @@ export const UserManagementView: React.FC = () => {
       {/* Header section */}
       <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 pb-4">
         <div>
-          <h2 className="text-xl font-bold font-display text-slate-900 dark:text-white">Team Directory</h2>
+          <h2 className="text-xl font-bold font-display text-primary">Team Directory</h2>
           <p className="text-xs text-slate-500 dark:text-slate-400">Manage platform users, roles, and review task allocations.</p>
         </div>
         <button
           onClick={() => setIsAddUserOpen(true)}
-          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-md hover:shadow transition-all"
+          className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold bg-primary hover:bg-primary-hover text-on-primary rounded-xl shadow-md hover:shadow transition-all"
         >
           <Plus className="h-3.5 w-3.5" /> Invite User
         </button>
@@ -194,7 +194,7 @@ export const UserManagementView: React.FC = () => {
                 key={user.id}
                 onClick={() => setSelectedUser(user)}
                 className={`p-4 flex items-center justify-between hover:bg-slate-50/40 dark:hover:bg-slate-900/10 cursor-pointer transition-all ${
-                  isSelected ? 'bg-indigo-500/5 dark:bg-indigo-500/10 border-l-4 border-indigo-500 pl-3' : ''
+                  isSelected ? 'bg-primary/5 dark:bg-primary/10 border-l-4 border-primary pl-3' : ''
                 }`}
               >
                 <div className="flex items-center space-x-3.5">
@@ -252,11 +252,11 @@ export const UserManagementView: React.FC = () => {
                 <img
                   src={selectedUser.avatar}
                   alt={selectedUser.name}
-                  className="h-20 w-20 rounded-full object-cover mx-auto border-4 border-indigo-500/10 shadow-md"
+                  className="h-20 w-20 rounded-full object-cover mx-auto border-4 border-primary/10 shadow-md"
                 />
                 <div>
                   <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200">{selectedUser.name}</h3>
-                  <span className="text-[10px] font-bold text-indigo-500 uppercase tracking-wider block mt-1">{selectedUser.role}</span>
+                  <span className="text-[10px] font-bold text-primary uppercase tracking-wider block mt-1">{selectedUser.role}</span>
                   <span className="text-[10px] text-slate-400 flex items-center justify-center gap-1 mt-1">
                     <Mail className="h-3 w-3" /> {selectedUser.email}
                   </span>
@@ -403,8 +403,8 @@ export const UserManagementView: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`px-4 py-2 text-xs font-semibold text-white rounded-xl shadow-sm transition-all ${
-                loading ? 'bg-indigo-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 hover:shadow'
+              className={`px-4 py-2 text-xs font-semibold rounded-xl shadow-sm transition-all ${
+                loading ? 'bg-primary/50 text-on-primary cursor-not-allowed' : 'bg-primary hover:bg-primary-hover text-on-primary hover:shadow'
               }`}
             >
               {loading ? 'Sending Invite...' : 'Create Invite'}
