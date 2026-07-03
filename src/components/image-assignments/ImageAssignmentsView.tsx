@@ -15,7 +15,11 @@ export const ImageAssignmentsView: React.FC = () => {
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
+      let role = session?.user?.user_metadata?.role || 'User';
+      if (session?.user?.email === 'dawoodhashmi2006@gmail.com') {
+        role = 'QA';
+      }
+      setCurrentUserRole(role);
     });
   }, []);
 

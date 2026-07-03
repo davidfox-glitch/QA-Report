@@ -73,7 +73,7 @@ export const TableView: React.FC<TableViewProps> = ({
         <table className="w-full text-left border-collapse">
           {/* Table Headers */}
           <thead>
-            <tr className="bg-white dark:bg-slate-900/50/80 border-b border-slate-200 dark:border-slate-700 backdrop-blur-md">
+            <tr className="bg-white dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-700 backdrop-blur-md">
               <th className="px-4 py-3 w-10 text-center">
                 <input
                   type="checkbox"

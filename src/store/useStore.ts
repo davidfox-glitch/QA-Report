@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { supabase } from '../lib/supabase';
+import { supabase, syncChannel } from '../lib/supabase';
 
 export type FunctionalityStatus = 'Working' | 'Partially Working' | 'Not Working' | 'Pending';
 export type TestingStatus = 'Passed' | 'Failed' | 'Pending' | 'In Progress';
@@ -371,8 +371,7 @@ export const useStore = create<DashboardState>((set, get) => {
       
       // Sync state across users using Supabase Broadcast
       try {
-        const channel = supabase.channel('app-state-sync');
-        await channel.send({
+        await syncChannel.send({
           type: 'broadcast',
           event: 'state-update',
           payload: newState

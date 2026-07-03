@@ -171,7 +171,7 @@ export const KanbanView: React.FC<KanbanViewProps> = ({
               onDragOver={(e) => handleDragOver(e, col.id)}
               onDrop={(e) => handleDrop(e, col.id)}
               onDragLeave={() => setOverColId(null)}
-              className={`space-y-4 rounded-xl transition-all duration-200 min-h-[500px] w-[320px] flex-none snap-start ${
+              className={`space-y-4 rounded-xl transition-all duration-200 min-h-[500px] min-w-[320px] w-[320px] max-w-[320px] flex-shrink-0 snap-start ${
                 isOver ? 'bg-primary/5 ring-1 ring-primary/30' : ''
               }`}
             >

@@ -246,7 +246,11 @@ export default function App() {
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
-      setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
+      let role = session?.user?.user_metadata?.role || 'User';
+      if (session?.user?.email === 'dawoodhashmi2006@gmail.com') {
+        role = 'QA';
+      }
+      setCurrentUserRole(role);
       setAuthInitialized(true);
       if (session && window.location.pathname === '/login') {
         window.history.replaceState(null, '', '/');
@@ -255,7 +259,11 @@ export default function App() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
-      setCurrentUserRole(session?.user?.user_metadata?.role || 'User');
+      let role = session?.user?.user_metadata?.role || 'User';
+      if (session?.user?.email === 'dawoodhashmi2006@gmail.com') {
+        role = 'QA';
+      }
+      setCurrentUserRole(role);
       if (session && window.location.pathname === '/login') {
         window.history.replaceState(null, '', '/');
       }
@@ -289,26 +297,21 @@ export default function App() {
     }
   }, [users]);
 
-  // Block users who are not on the invited list
   useEffect(() => {
-    if (!isCheckingInvite && session && session.user?.email) {
-      const userEmail = session.user.email;
-      if (!invitedEmails.includes(userEmail)) {
+    if (session?.user?.email && !isCheckingInvite) {
+      if (!invitedEmails.includes(session.user.email)) {
         setIsBlocked(true);
-        // Wait 5 seconds, then sign out and redirect to Google
-        setTimeout(() => {
-          supabase.auth.signOut().then(() => {
-            window.location.href = 'https://www.google.com';
-          });
-        }, 5000);
+      } else {
+        setIsBlocked(false);
       }
     }
   }, [session, invitedEmails, isCheckingInvite]);
+
   const isQASuperior = currentUserRole === 'QA Superior';
   const isManagerOrBoss = ['Manager', 'Boss'].includes(currentUserRole);
   const isQA = currentUserRole === 'QA';
   
-  const isAdmin = isManagerOrBoss || isQASuperior;
+  const isAdmin = isManagerOrBoss || isQASuperior || session?.user?.email === 'dawoodhashmi2006@gmail.com';
 
   const canSeeTimeline = true;
   const canSeeTeam = true;

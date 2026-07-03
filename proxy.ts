@@ -1,7 +1,7 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-export async function proxy(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -58,9 +58,10 @@ export async function proxy(request: NextRequest) {
   const { data: { session } } = await supabase.auth.getSession();
 
   const isAuthPage = request.nextUrl.pathname.startsWith('/login');
+  const isHomePage = request.nextUrl.pathname === '/';
   
-  // Protect routes
-  if (!session && !isAuthPage) {
+  // Protect routes - allow home page and login page
+  if (!session && !isAuthPage && !isHomePage) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
