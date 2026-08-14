@@ -1129,7 +1129,7 @@ export const useStore = create<DashboardState>((set, get) => {
     },
 
     deleteDemoWorkspace: (projectId: string) => {
-      set((state: AppState) => {
+      set((state: DashboardState) => {
         const projectToDelete = state.projects.find((p: Project) => p.id === projectId);
         if (!projectToDelete) return state;
         const clientId = projectToDelete.clientId;
