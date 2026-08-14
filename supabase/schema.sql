@@ -18,6 +18,7 @@ CREATE TABLE public.users (
   role TEXT DEFAULT 'QA Engineer',
   avatar TEXT,
   invited_by UUID REFERENCES auth.users(id),
+  is_approved BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -182,3 +183,25 @@ ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Allow All Admins" ON public.test_points FOR ALL USING (true);
 CREATE POLICY "Allow All Admins" ON public.archived_tasks FOR ALL USING (true);
 CREATE POLICY "Allow All Admins" ON public.trash_tasks FOR ALL USING (true);
+
+-- 15. Create Demo Workspaces Table (Ephemeral 20-minute sandbox manager)
+CREATE TABLE public.demo_workspaces (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  project_id TEXT UNIQUE NOT NULL,
+  user_email TEXT NOT NULL,
+  user_name TEXT NOT NULL,
+  expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.demo_workspaces ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow All Demo Access" ON public.demo_workspaces FOR ALL USING (true);
+
+-- Automated Function to clean expired demo workspaces
+CREATE OR REPLACE FUNCTION public.clean_expired_demo_workspaces()
+RETURNS void AS $$
+BEGIN
+  DELETE FROM public.demo_workspaces WHERE expires_at <= NOW();
+END;
+$$ LANGUAGE plpgsql;
+

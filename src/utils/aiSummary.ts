@@ -75,7 +75,30 @@ Provide a professional testing summary. You MUST return a JSON object containing
 
       let responseText = '';
 
-      if (settings.aiProvider === 'gemini') {
+      if (settings.apiKey.trim().startsWith('gsk_')) {
+        // Groq API fallback
+        const url = `https://api.groq.com/openai/v1/chat/completions`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${settings.apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: [{ role: 'user', content: prompt }],
+            response_format: { type: 'json_object' }
+          })
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => ({}));
+          throw new Error(errorData.error?.message || `Groq API error (${res.status})`);
+        }
+
+        const data = await res.json();
+        responseText = data.choices?.[0]?.message?.content || '';
+      } else if (settings.aiProvider === 'gemini') {
         const url = `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${settings.apiKey}`;
         const res = await fetch(url, {
           method: 'POST',

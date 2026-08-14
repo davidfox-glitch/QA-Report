@@ -1,8 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
-
-// Initialize Gemini client using the API key from environment variables
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+import { generateAIContent } from '../aiHelper';
 
 /**
  * POST /api/analyze
@@ -28,12 +25,8 @@ Format the response using markdown headings and bullet points.
 - Recommendations for the testing team.
 Raw Data:\n${JSON.stringify(excelData)}`;
 
-    // Generate content using the correct v2.8.0 API
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-    });
-    const summary = response.text;
+    // Generate content using dynamic AI helper (Gemini or Groq fallback)
+    const summary = await generateAIContent([prompt]);
 
     return NextResponse.json({ summary });
   } catch (error: unknown) {

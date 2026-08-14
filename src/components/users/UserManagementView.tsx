@@ -15,8 +15,13 @@ import { Dialog } from '../ui/Dialog';
 export const UserManagementView: React.FC = () => {
   const { users, rows, addUser, deleteUser, updateRow, modules } = useStore();
   
+  const [activeTab, setActiveTab] = useState<'active' | 'pending'>('active');
+  const approvedUsers = users.filter(u => u.is_approved !== false);
+  const pendingUsers = users.filter(u => u.is_approved === false);
+  const displayedUsers = activeTab === 'active' ? approvedUsers : pendingUsers;
+
   // Selection/editing states
-  const [selectedUser, setSelectedUser] = useState<User | null>(users[0] || null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(displayedUsers[0] || null);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
@@ -27,6 +32,40 @@ export const UserManagementView: React.FC = () => {
   const assignedRows = rows.filter(r => r.assignedUsers?.includes(selectedUser?.name || ''));
 
   const [loading, setLoading] = useState(false);
+
+  // Sync selected user when tab or users list changes
+  React.useEffect(() => {
+    if (displayedUsers.length > 0) {
+      const exists = displayedUsers.some(u => u.id === selectedUser?.id);
+      if (!exists) {
+        setSelectedUser(displayedUsers[0]);
+      }
+    } else {
+      setSelectedUser(null);
+    }
+  }, [activeTab, users]);
+
+  const handleApprove = async (user: User) => {
+    setLoading(true);
+    const { error } = await supabase
+      .from('users')
+      .update({ is_approved: true })
+      .eq('email', user.email);
+
+    if (error) {
+      console.error('Error approving user:', error.message);
+      toast.error('Failed to approve user: ' + error.message);
+    } else {
+      toast.success(`${user.name} approved successfully!`);
+      // Update local store state immediately
+      useStore.setState((state) => ({
+        users: state.users.map((u) => u.email === user.email ? { ...u, is_approved: true } : u)
+      }));
+      // Re-fetch users to keep in sync
+      await useStore.getState().fetchUsers();
+    }
+    setLoading(false);
+  };
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,7 +200,6 @@ export const UserManagementView: React.FC = () => {
       }
     }
   };
-
   return (
     <React.Fragment>
       <Toaster position="top-right" />
@@ -180,66 +218,123 @@ export const UserManagementView: React.FC = () => {
         </button>
       </div>
 
+      {/* Tabs */}
+      <div className="flex border-b border-slate-200 dark:border-slate-800 gap-6">
+        <button
+          onClick={() => setActiveTab('active')}
+          className={`pb-3 text-sm font-semibold border-b-2 transition-all ${
+            activeTab === 'active' 
+              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' 
+              : 'border-transparent text-slate-500 dark:text-slate-450 hover:text-slate-700 dark:hover:text-slate-300'
+          }`}
+        >
+          Active Members ({approvedUsers.length})
+        </button>
+        <button
+          onClick={() => setActiveTab('pending')}
+          className={`pb-3 text-sm font-semibold border-b-2 transition-all relative ${
+            activeTab === 'pending' 
+              ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' 
+              : 'border-transparent text-slate-500 dark:text-slate-450 hover:text-slate-700 dark:hover:text-slate-300'
+          }`}
+        >
+          Pending Approvals ({pendingUsers.length})
+          {pendingUsers.length > 0 && (
+            <span className="absolute -top-1 -right-2 flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* Main split grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         
         {/* Left Side: Users Directory list */}
         <div className="lg:col-span-2 glass-panel border border-slate-200/60 dark:border-slate-800/60 rounded-2xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-850">
-          {users.map((user) => {
-            const userTasksCount = rows.filter(r => r.assignedUsers?.includes(user.name)).length;
-            const isSelected = selectedUser?.id === user.id;
+          {displayedUsers.length === 0 ? (
+            <div className="p-8 text-center text-slate-450 text-xs">
+              No users found in this view.
+            </div>
+          ) : (
+            displayedUsers.map((user) => {
+              const userTasksCount = rows.filter(r => r.assignedUsers?.includes(user.name)).length;
+              const isSelected = selectedUser?.id === user.id;
 
-            return (
-              <div
-                key={user.id}
-                onClick={() => setSelectedUser(user)}
-                className={`p-4 flex items-center justify-between hover:bg-slate-50/40 dark:hover:bg-slate-900/10 cursor-pointer transition-all ${
-                  isSelected ? 'bg-primary/5 dark:bg-primary/10 border-l-4 border-primary pl-3' : ''
-                }`}
-              >
-                <div className="flex items-center space-x-3.5">
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="h-10 w-10 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm"
-                  />
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
-                      {user.name}
-                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/30">
-                        {user.role}
+              return (
+                <div
+                  key={user.id}
+                  onClick={() => setSelectedUser(user)}
+                  className={`p-4 flex items-center justify-between hover:bg-slate-50/40 dark:hover:bg-slate-900/10 cursor-pointer transition-all ${
+                    isSelected ? 'bg-primary/5 dark:bg-primary/10 border-l-4 border-primary pl-3' : ''
+                  }`}
+                >
+                  <div className="flex items-center space-x-3.5">
+                    <img
+                      src={user.avatar}
+                      alt={user.name}
+                      className="h-10 w-10 rounded-full object-cover border-2 border-white dark:border-slate-800 shadow-sm"
+                    />
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                        {user.name}
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-200/30">
+                          {user.role}
+                        </span>
+                      </h4>
+                      <p className="text-[10px] text-slate-400 dark:text-slate-550 mt-0.5 flex items-center gap-1">
+                        <Mail className="h-2.5 w-2.5" /> {user.email}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-4 shrink-0">
+                    {user.is_approved !== false ? (
+                      <div className="text-right">
+                        <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 block">
+                          {userTasksCount} Assigned
+                        </span>
+                        <span className="text-[9px] text-slate-400 dark:text-slate-550 block">
+                          {rows.filter(r => r.assignedUsers?.includes(user.name) && r.testingStatus === 'Passed').length} Passed
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-[10px] font-semibold text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">
+                        Pending
                       </span>
-                    </h4>
-                    <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-0.5 flex items-center gap-1">
-                      <Mail className="h-2.5 w-2.5" /> {user.email}
-                    </p>
+                    )}
+
+                    <div className="flex items-center gap-1">
+                      {user.is_approved === false && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleApprove(user);
+                          }}
+                          disabled={loading}
+                          className="p-1.5 rounded-lg text-emerald-500 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:text-emerald-600 transition-colors"
+                          title="Approve User"
+                        >
+                          <UserCheck className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(user.id, user.name);
+                        }}
+                        className="p-1.5 rounded-lg text-slate-450 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-600 transition-colors"
+                        title="Remove User"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
-
-                <div className="flex items-center space-x-4 shrink-0">
-                  <div className="text-right">
-                    <span className="text-[10px] font-bold text-slate-700 dark:text-slate-300 block">
-                      {userTasksCount} Assigned
-                    </span>
-                    <span className="text-[9px] text-slate-400 dark:text-slate-550 block">
-                      {rows.filter(r => r.assignedUsers?.includes(user.name) && r.testingStatus === 'Passed').length} Passed
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDelete(user.id, user.name);
-                    }}
-                    className="p-1.5 rounded-lg text-slate-400 hover:bg-rose-50 dark:hover:bg-rose-950/20 hover:text-rose-600 transition-colors"
-                    title="Remove User"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })
+          )}
         </div>
 
         {/* Right Side: Selected User Profile & Task Assignments Card */}
@@ -263,49 +358,71 @@ export const UserManagementView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Task Performance statistics */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="border border-slate-200/60 dark:border-slate-800/65 p-3 rounded-xl bg-slate-50/50 dark:bg-slate-900/10 text-center">
-                  <span className="text-[9px] font-bold uppercase text-slate-400">Total Items</span>
-                  <h4 className="text-base font-extrabold text-slate-800 dark:text-slate-250 mt-1">{assignedRows.length}</h4>
+              {selectedUser.is_approved === false ? (
+                <div className="space-y-4 pt-2">
+                  <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+                    <AlertCircle className="h-6 w-6 text-amber-500 mx-auto mb-2" />
+                    <h4 className="text-xs font-bold text-amber-600 dark:text-amber-400">Awaiting Administrative Review</h4>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                      This user has registered for an account. Please review their info and assign a role before approving access.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleApprove(selectedUser)}
+                    disabled={loading}
+                    className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-semibold text-xs transition-colors flex items-center justify-center gap-2 shadow-md hover:shadow"
+                  >
+                    <UserCheck className="h-4 w-4" />
+                    {loading ? 'Approving...' : 'Approve User Request'}
+                  </button>
                 </div>
-                <div className="border border-slate-200/60 dark:border-slate-800/65 p-3 rounded-xl bg-slate-50/50 dark:bg-slate-900/10 text-center">
-                  <span className="text-[9px] font-bold uppercase text-slate-400">QA Pass Rate</span>
-                  <h4 className="text-base font-extrabold text-emerald-500 mt-1">
-                    {assignedRows.length > 0 
-                      ? `${Math.round((assignedRows.filter(r => r.testingStatus === 'Passed').length / assignedRows.length) * 100)}%`
-                      : '0%'}
-                  </h4>
-                </div>
-              </div>
-
-              {/* Active Assigned Tasks list */}
-              <div className="space-y-2.5">
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
-                  <UserCheck className="h-3 w-3" /> Active Assigned Tasks
-                </h4>
-
-                <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
-                  {assignedRows.length === 0 ? (
-                    <div className="text-center py-6 border border-dashed border-slate-200/50 dark:border-slate-800/40 rounded-xl">
-                      <p className="text-[10px] text-slate-400">No active QA tasks assigned.</p>
+              ) : (
+                <>
+                  {/* Task Performance statistics */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="border border-slate-200/60 dark:border-slate-800/65 p-3 rounded-xl bg-slate-50/50 dark:bg-slate-900/10 text-center">
+                      <span className="text-[9px] font-bold uppercase text-slate-400">Total Items</span>
+                      <h4 className="text-base font-extrabold text-slate-800 dark:text-slate-250 mt-1">{assignedRows.length}</h4>
                     </div>
-                  ) : (
-                    assignedRows.map(row => (
-                      <div
-                        key={row.id}
-                        className="p-2.5 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/40 rounded-xl space-y-1.5 flex justify-between items-start"
-                      >
-                        <div className="space-y-0.5 max-w-[75%]">
-                          <h5 className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">{row.testPoint}</h5>
-                          <span className="text-[9px] text-slate-400 block truncate">{modules.find(m => m.id === row.moduleId)?.name || 'General Module'}</span>
+                    <div className="border border-slate-200/60 dark:border-slate-800/65 p-3 rounded-xl bg-slate-50/50 dark:bg-slate-900/10 text-center">
+                      <span className="text-[9px] font-bold uppercase text-slate-400">QA Pass Rate</span>
+                      <h4 className="text-base font-extrabold text-emerald-500 mt-1">
+                        {assignedRows.length > 0 
+                          ? `${Math.round((assignedRows.filter(r => r.testingStatus === 'Passed').length / assignedRows.length) * 100)}%`
+                          : '0%'}
+                      </h4>
+                    </div>
+                  </div>
+
+                  {/* Active Assigned Tasks list */}
+                  <div className="space-y-2.5">
+                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1">
+                      <UserCheck className="h-3 w-3" /> Active Assigned Tasks
+                    </h4>
+
+                    <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
+                      {assignedRows.length === 0 ? (
+                        <div className="text-center py-6 border border-dashed border-slate-200/50 dark:border-slate-800/40 rounded-xl">
+                          <p className="text-[10px] text-slate-400">No active QA tasks assigned.</p>
                         </div>
-                        <Badge type="testing" value={row.testingStatus} />
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+                      ) : (
+                        assignedRows.map(row => (
+                          <div
+                            key={row.id}
+                            className="p-2.5 bg-slate-50/50 dark:bg-slate-900/30 border border-slate-200/50 dark:border-slate-800/40 rounded-xl space-y-1.5 flex justify-between items-start"
+                          >
+                            <div className="space-y-0.5 max-w-[75%]">
+                              <h5 className="text-[10px] font-bold text-slate-800 dark:text-slate-200 truncate">{row.testPoint}</h5>
+                              <span className="text-[9px] text-slate-400 block truncate">{modules.find(m => m.id === row.moduleId)?.name || 'General Module'}</span>
+                            </div>
+                            <Badge type="testing" value={row.testingStatus} />
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
 
             </div>
           ) : (
@@ -318,6 +435,7 @@ export const UserManagementView: React.FC = () => {
 
       </div>
       </div>
+
 
     {/* Add User modal dialog */}
       <Dialog isOpen={isAddUserOpen} onClose={() => setIsAddUserOpen(false)} title="Invite New Team Member" size="sm">

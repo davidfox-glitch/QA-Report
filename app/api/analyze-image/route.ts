@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+import { generateAIContent } from '../aiHelper';
 
 export async function POST(request: Request) {
   try {
@@ -23,11 +21,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: parts,
-    });
-    const text = response.text;
+    const text = await generateAIContent(parts);
 
     return NextResponse.json({ text });
   } catch (error: any) {

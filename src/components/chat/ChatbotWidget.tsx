@@ -96,89 +96,207 @@ You can answer questions about the site. You also have tools to perform actions 
         }
       ];
 
-      const conversationHistory = messages.map(m => ({
-        role: m.role,
-        parts: [{ text: m.text }]
-      }));
-      conversationHistory.push({ role: 'user', parts: [{ text: userMessage }] });
+      if (apiKey.startsWith('gsk_')) {
+        // Groq API Chat Widget Fallback
+        const openaiMessages = [
+          { role: 'system', content: systemPrompt },
+          ...messages.map(m => ({
+            role: m.role === 'model' ? 'assistant' : 'user',
+            content: m.text
+          })),
+          { role: 'user', content: userMessage }
+        ];
 
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: { parts: [{ text: systemPrompt }] },
-          contents: conversationHistory,
-          tools: tools
-        })
-      });
+        const openaiTools = tools[0].functionDeclarations.map(fd => ({
+          type: 'function',
+          function: {
+            name: fd.name,
+            description: fd.description,
+            parameters: {
+              type: fd.parameters.type,
+              properties: fd.parameters.properties,
+              required: fd.parameters.required
+            }
+          }
+        }));
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error?.message || 'API Error');
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: 'llama-3.3-70b-versatile',
+            messages: openaiMessages,
+            tools: openaiTools
+          })
+        });
 
-      const responsePart = data.candidates?.[0]?.content?.parts?.[0];
-      
-      if (responsePart?.functionCall) {
-        const { name, args } = responsePart.functionCall;
-        let functionResultMsg = '';
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error?.message || 'Groq API Error');
+
+        const choiceMessage = data.choices?.[0]?.message;
+        let functionCall: any = null;
+        let toolCall: any = null;
         
-        if (name === 'navigate') {
-          const viewMap: any = { dashboard: 'dashboard', table: 'table', kanban: 'kanban', timeline: 'timeline', analytics: 'analytics', archive: 'archive', users: 'users' };
-          const target = viewMap[args.view?.toLowerCase()] || 'dashboard';
-          setCurrentView(target);
-          functionResultMsg = `I have navigated you to the ${target} view.`;
-        } else if (name === 'add_test_point') {
-          const newRow = {
-            id: `row-${Date.now()}`,
-            moduleId: modules[0]?.id || 'mod-1',
-            testPoint: args.testPoint,
-            howToTest: 'Follow standard testing procedures.',
-            expectedResult: args.expectedResult || 'Function works as expected.',
-            actualResult: '',
-            testingStatus: 'Pending',
-            functionalityStatus: 'Pending',
-            priority: args.priority || 'Medium',
-            assignedUsers: [],
-            notes: []
+        if (choiceMessage?.tool_calls && choiceMessage.tool_calls.length > 0) {
+          toolCall = choiceMessage.tool_calls[0];
+          functionCall = {
+            name: toolCall.function.name,
+            args: JSON.parse(toolCall.function.arguments || '{}')
           };
-          // @ts-ignore
-          addRow(newRow);
-          functionResultMsg = `I have successfully added the test point "${args.testPoint}".`;
-        } else if (name === 'generate_report') {
-          setIsExportOpen(true);
-          functionResultMsg = 'I have opened the Report Generator for you.';
         }
 
-        // Send function result back to Gemini to get a natural response
-        const followupRes = await fetch(url, {
+        if (functionCall) {
+          const { name, args } = functionCall;
+          let functionResultMsg = '';
+          
+          if (name === 'navigate') {
+            const viewMap: any = { dashboard: 'dashboard', table: 'table', kanban: 'kanban', timeline: 'timeline', analytics: 'analytics', archive: 'archive', users: 'users' };
+            const target = viewMap[args.view?.toLowerCase()] || 'dashboard';
+            setCurrentView(target);
+            functionResultMsg = `I have navigated you to the ${target} view.`;
+          } else if (name === 'add_test_point') {
+            const newRow = {
+              id: `row-${Date.now()}`,
+              moduleId: modules[0]?.id || 'mod-1',
+              testPoint: args.testPoint,
+              howToTest: 'Follow standard testing procedures.',
+              expectedResult: args.expectedResult || 'Function works as expected.',
+              actualResult: '',
+              testingStatus: 'Pending',
+              functionalityStatus: 'Pending',
+              priority: args.priority || 'Medium',
+              assignedUsers: [],
+              notes: []
+            };
+            // @ts-ignore
+            addRow(newRow);
+            functionResultMsg = `I have successfully added the test point "${args.testPoint}".`;
+          } else if (name === 'generate_report') {
+            setIsExportOpen(true);
+            functionResultMsg = 'I have opened the Report Generator for you.';
+          }
+
+          // Follow up call
+          const followupMessages = [
+            ...openaiMessages,
+            choiceMessage,
+            {
+              role: 'tool',
+              tool_call_id: toolCall.id,
+              name: name,
+              content: JSON.stringify({ result: functionResultMsg })
+            }
+          ];
+
+          const followupRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`
+            },
+            body: JSON.stringify({
+              model: 'llama-3.3-70b-versatile',
+              messages: followupMessages,
+              tools: openaiTools
+            })
+          });
+
+          const followupData = await followupRes.json();
+          const text = followupData.choices?.[0]?.message?.content || functionResultMsg;
+          setMessages(prev => [...prev, { role: 'model', text }]);
+        } else if (choiceMessage?.content) {
+          setMessages(prev => [...prev, { role: 'model', text: choiceMessage.content }]);
+        } else {
+          setMessages(prev => [...prev, { role: 'model', text: "I'm sorry, I didn't understand that." }]);
+        }
+      } else {
+        const conversationHistory = messages.map(m => ({
+          role: m.role,
+          parts: [{ text: m.text }]
+        }));
+        conversationHistory.push({ role: 'user', parts: [{ text: userMessage }] });
+
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+        const res = await fetch(url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents: [
-              ...conversationHistory,
-              data.candidates[0].content,
-              {
-                role: 'user',
-                parts: [{
-                  functionResponse: {
-                    name: name,
-                    response: { result: functionResultMsg }
-                  }
-                }]
-              }
-            ],
+            contents: conversationHistory,
             tools: tools
           })
         });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error?.message || 'API Error');
+
+        const responsePart = data.candidates?.[0]?.content?.parts?.[0];
         
-        const followupData = await followupRes.json();
-        const text = followupData.candidates?.[0]?.content?.parts?.[0]?.text || functionResultMsg;
-        setMessages(prev => [...prev, { role: 'model', text }]);
-      } else if (responsePart?.text) {
-        setMessages(prev => [...prev, { role: 'model', text: responsePart.text }]);
-      } else {
-        setMessages(prev => [...prev, { role: 'model', text: "I'm sorry, I didn't understand that." }]);
+        if (responsePart?.functionCall) {
+          const { name, args } = responsePart.functionCall;
+          let functionResultMsg = '';
+          
+          if (name === 'navigate') {
+            const viewMap: any = { dashboard: 'dashboard', table: 'table', kanban: 'kanban', timeline: 'timeline', analytics: 'analytics', archive: 'archive', users: 'users' };
+            const target = viewMap[args.view?.toLowerCase()] || 'dashboard';
+            setCurrentView(target);
+            functionResultMsg = `I have navigated you to the ${target} view.`;
+          } else if (name === 'add_test_point') {
+            const newRow = {
+              id: `row-${Date.now()}`,
+              moduleId: modules[0]?.id || 'mod-1',
+              testPoint: args.testPoint,
+              howToTest: 'Follow standard testing procedures.',
+              expectedResult: args.expectedResult || 'Function works as expected.',
+              actualResult: '',
+              testingStatus: 'Pending',
+              functionalityStatus: 'Pending',
+              priority: args.priority || 'Medium',
+              assignedUsers: [],
+              notes: []
+            };
+            // @ts-ignore
+            addRow(newRow);
+            functionResultMsg = `I have successfully added the test point "${args.testPoint}".`;
+          } else if (name === 'generate_report') {
+            setIsExportOpen(true);
+            functionResultMsg = 'I have opened the Report Generator for you.';
+          }
+
+          // Send function result back to Gemini to get a natural response
+          const followupRes = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [
+                ...conversationHistory,
+                data.candidates[0].content,
+                {
+                  role: 'user',
+                  parts: [{
+                    functionResponse: {
+                      name: name,
+                      response: { result: functionResultMsg }
+                    }
+                  }]
+                }
+              ],
+              tools: tools
+            })
+          });
+          
+          const followupData = await followupRes.json();
+          const text = followupData.candidates?.[0]?.content?.parts?.[0]?.text || functionResultMsg;
+          setMessages(prev => [...prev, { role: 'model', text }]);
+        } else if (responsePart?.text) {
+          setMessages(prev => [...prev, { role: 'model', text: responsePart.text }]);
+        } else {
+          setMessages(prev => [...prev, { role: 'model', text: "I'm sorry, I didn't understand that." }]);
+        }
       }
     } catch (e: any) {
       console.error(e);

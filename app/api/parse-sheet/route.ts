@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY! });
+import { generateAIContent } from '../aiHelper';
 
 /**
  * POST /api/parse-sheet
@@ -38,11 +36,7 @@ ${JSON.stringify(rawJson)}
 
 Respond ONLY with valid JSON. The root must be a JSON array of objects. Do not include markdown code blocks around the JSON.`;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [{ text: prompt }],
-    });
-    let text = response.text ?? '';
+    let text = await generateAIContent([{ text: prompt }]);
     
     // Clean up markdown formatting if Gemini included it
     text = text.trim();

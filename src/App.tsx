@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useStore } from './store/useStore';
 import { exportToExcel } from './utils/exporters';
+import toast, { Toaster } from 'react-hot-toast';
 
 // Components
 import { Filters } from './components/dashboard/Filters';
@@ -9,6 +10,7 @@ import { PrintReportView } from './components/dashboard/PrintReportView';
 
 import { LoginView } from './components/auth/LoginView';
 import { LandingView } from './components/landing/LandingView';
+import { RegistrationFlow, AwaitingApprovalView } from './components/auth/RegistrationFlow';
 import { supabase, syncChannel } from './lib/supabase';
 import { Session } from '@supabase/supabase-js';
 import { DashboardView } from './components/dashboard/DashboardView';
@@ -54,6 +56,7 @@ import {
   LogOut,
   ChevronDown,
   Briefcase,
+  Clock,
   Image as ImageIcon
 } from 'lucide-react';
 
@@ -194,6 +197,11 @@ export default function App() {
   const [isBlocked, setIsBlocked] = useState(false);
   const [invitedEmails, setInvitedEmails] = useState<string[]>(['dawoodhashmi2006@gmail.com']);
   const [isCheckingInvite, setIsCheckingInvite] = useState(true);
+  const [usersLoaded, setUsersLoaded] = useState(false);
+  const [registrationRequired, setRegistrationRequired] = useState(false);
+  const [underReview, setUnderReview] = useState(false);
+  const [isDemoActive, setIsDemoActive] = useState(false);
+  const [demoTimeLeft, setDemoTimeLeft] = useState<string>('');
 
   // Sync state across different connected users via Supabase Broadcast
   useEffect(() => {
@@ -275,7 +283,10 @@ export default function App() {
   // Fetch and Sync Users in Real-Time
   useEffect(() => {
     const store = useStore.getState();
-    store.fetchUsers();
+    store.fetchUsers().finally(() => {
+      setUsersLoaded(true);
+      setIsCheckingInvite(false);
+    });
 
     const channel = supabase
       .channel('public:users')
@@ -291,21 +302,106 @@ export default function App() {
 
   const users = useStore(state => state.users);
   useEffect(() => {
-    if (users && users.length > 0) {
+    if (users) {
       setInvitedEmails(users.map(u => u.email));
-      setIsCheckingInvite(false);
     }
   }, [users]);
 
+  // Demo session checking loop
   useEffect(() => {
-    if (session?.user?.email && !isCheckingInvite) {
-      if (!invitedEmails.includes(session.user.email)) {
-        setIsBlocked(true);
+    const checkDemo = () => {
+      const demoSessionStr = localStorage.getItem('qaflow_demo_session');
+      if (demoSessionStr) {
+        const demoSession = JSON.parse(demoSessionStr);
+        if (Date.now() > demoSession.expiry) {
+          // Expired
+          localStorage.removeItem('qaflow_demo_session');
+          useStore.getState().deleteDemoWorkspace(demoSession.projectId);
+          setIsDemoActive(false);
+          setSession(null);
+          toast.error("Demo session expired and workspace self-deleted.");
+          window.location.href = '/';
+        } else {
+          // Active
+          setIsDemoActive(true);
+          const secondsLeft = Math.round((demoSession.expiry - Date.now()) / 1000);
+          if (secondsLeft > 0) {
+            const m = Math.floor(secondsLeft / 60);
+            const s = secondsLeft % 60;
+            setDemoTimeLeft(`${m}m ${s < 10 ? '0' : ''}${s}s`);
+          } else {
+            setDemoTimeLeft("0m 00s");
+          }
+          
+          // Ensure session is set to mock if not present
+          if (!session) {
+            const mockSession = {
+              user: {
+                id: 'demo-user-id',
+                email: demoSession.userEmail,
+                user_metadata: {
+                  full_name: demoSession.userName,
+                  role: 'Manager',
+                  is_demo: true
+                }
+              }
+            };
+            setSession(mockSession as any);
+            setCurrentUserRole('Manager');
+          }
+        }
       } else {
-        setIsBlocked(false);
+        setIsDemoActive(false);
       }
+    };
+
+    checkDemo();
+    const interval = setInterval(checkDemo, 1000);
+    return () => clearInterval(interval);
+  }, [session]);
+
+  // Gating & approval checks
+  useEffect(() => {
+    if (isDemoActive) {
+      setRegistrationRequired(false);
+      setUnderReview(false);
+      setIsBlocked(false);
+      return;
     }
-  }, [session, invitedEmails, isCheckingInvite]);
+
+    if (session?.user?.email && usersLoaded) {
+      const emailLower = session.user.email.toLowerCase();
+
+      // Auto-approve dawood
+      if (emailLower === 'dawoodhashmi2006@gmail.com') {
+        setRegistrationRequired(false);
+        setUnderReview(false);
+        setIsBlocked(false);
+        setCurrentUserRole('QA'); // Dawood defaults to QA
+        return;
+      }
+
+      const match = users.find(u => u.email.toLowerCase() === emailLower);
+      if (!match) {
+        setRegistrationRequired(true);
+        setUnderReview(false);
+        setIsBlocked(false);
+      } else if (match.is_approved === false) {
+        setRegistrationRequired(false);
+        setUnderReview(true);
+        setIsBlocked(false);
+      } else {
+        setRegistrationRequired(false);
+        setUnderReview(false);
+        setIsBlocked(false);
+        setCurrentUserRole(match.role || 'User');
+      }
+    } else {
+      setRegistrationRequired(false);
+      setUnderReview(false);
+      setIsBlocked(false);
+    }
+  }, [session, users, usersLoaded, isDemoActive]);
 
   const isQASuperior = currentUserRole === 'QA Superior';
   const isManagerOrBoss = ['Manager', 'Boss'].includes(currentUserRole);
@@ -351,18 +447,27 @@ export default function App() {
     return <LandingView />;
   }
 
+  // Gated Onboarding Gating views
+  if (registrationRequired) {
+    return <RegistrationFlow session={session} onSignOut={() => supabase.auth.signOut()} />;
+  }
+
+  if (underReview) {
+    return <AwaitingApprovalView session={session} onSignOut={() => supabase.auth.signOut()} />;
+  }
+
   const activeProject = projects.find((p) => p.id === activeProjectId);
   const activeClient = clients.find((c) => c.id === activeProject?.clientId);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
-      
+      <Toaster position="top-right" />
       {/* Top Banner Header */}
       <header className="border-b border-slate-200/60 dark:border-slate-800/60 bg-white/70 dark:bg-slate-900/60 backdrop-blur sticky top-0 z-30">
         <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-wrap xl:flex-nowrap items-center justify-between gap-4">
           
           {/* Brand Logo & Name (Left) */}
-          <div className="flex-1 flex justify-start min-w-fit">
+          <div className="flex-1 flex items-center justify-start min-w-fit gap-3">
             <div className="flex items-center space-x-3">
               <div className="cursor-pointer" onClick={() => setCurrentView('dashboard')}>
                 {settings.clientLogo ? (
@@ -435,6 +540,12 @@ export default function App() {
                 )}
               </div>
             </div>
+            {isDemoActive && (
+              <div className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full text-[10px] font-bold shadow-sm shadow-amber-500/5 animate-pulse shrink-0">
+                <Clock className="w-3.5 h-3.5 animate-spin" style={{ animationDuration: '4s' }} />
+                <span>Demo Mode: {demoTimeLeft}</span>
+              </div>
+            )}
           </div>
 
           {/* Core View Switcher tabs (Center) */}
@@ -693,7 +804,15 @@ export default function App() {
 
             <button
               onClick={async () => {
-                await supabase.auth.signOut();
+                const demoSessionStr = localStorage.getItem('qaflow_demo_session');
+                if (demoSessionStr) {
+                  const demoSession = JSON.parse(demoSessionStr);
+                  useStore.getState().deleteDemoWorkspace(demoSession.projectId);
+                  localStorage.removeItem('qaflow_demo_session');
+                  window.location.href = '/';
+                } else {
+                  await supabase.auth.signOut();
+                }
               }}
               className="flex items-center justify-center p-1.5 text-rose-500 hover:text-rose-600 bg-rose-50/50 hover:bg-rose-100 dark:bg-rose-950/20 dark:hover:bg-rose-900/40 border border-rose-100 dark:border-rose-900/50 rounded-xl transition-all"
               title="Sign Out"

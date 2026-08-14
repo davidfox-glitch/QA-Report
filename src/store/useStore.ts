@@ -80,6 +80,7 @@ export interface User {
   completedTests: number;
   inviteId?: string;
   isInvited: boolean;
+  is_approved?: boolean;
 }
 
 export interface Notification {
@@ -178,6 +179,8 @@ interface DashboardState {
   deleteUserCascade: (id: string) => void;
   loadInvitedUsers: () => Promise<void>;
   fetchUsers: () => Promise<void>;
+  createDemoWorkspace: (userName: string, userEmail: string, orgName: string) => void;
+  deleteDemoWorkspace: (projectId: string) => void;
 
   // Image Assignments
   imageAssignments: ImageAssignment[];
@@ -779,7 +782,8 @@ export const useStore = create<DashboardState>((set, get) => {
           id: newUser.id || `user-${Date.now()}`,
           completedTests: 0,
           isInvited: true,
-          inviteId: undefined
+          inviteId: undefined,
+          is_approved: newUser.is_approved !== undefined ? newUser.is_approved : true
         };
         const users = [...state.users, user];
         const nextState = { ...state, users };
@@ -841,10 +845,20 @@ export const useStore = create<DashboardState>((set, get) => {
         return;
       }
       if (data) {
+        const mappedUsers = data.map((u: any) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          avatar: u.avatar,
+          role: u.role,
+          completedTests: u.completed_tests || 0,
+          isInvited: true,
+          is_approved: u.is_approved !== undefined ? u.is_approved : true
+        }));
         set((state) => {
-          const nextState = { ...state, users: data as unknown as User[] };
+          const nextState = { ...state, users: mappedUsers };
           saveToLocal(nextState);
-          return { users: data as unknown as User[] };
+          return { users: mappedUsers };
         });
       }
     },
@@ -1017,18 +1031,152 @@ export const useStore = create<DashboardState>((set, get) => {
       });
     },
 
+    createDemoWorkspace: (userName: string, userEmail: string, orgName: string) => {
+      set((state) => {
+        const clientId = `client-demo-${Date.now()}`;
+        const projectId = `project-demo-${Date.now()}`;
+        
+        const demoClient = { id: clientId, name: orgName || 'Demo Corp' };
+        const demoProject = { 
+          id: projectId, 
+          clientId: clientId, 
+          name: 'Demo Workspace (20m Self-Destruct)', 
+          description: `Temporary sandbox created for ${userName}` 
+        };
+        
+        const demoModules = [
+          { id: `mod-demo-1-${Date.now()}`, projectId: projectId, name: 'Authentication & Sign-up' },
+          { id: `mod-demo-2-${Date.now()}`, projectId: projectId, name: 'Payment Integration' },
+          { id: `mod-demo-3-${Date.now()}`, projectId: projectId, name: 'SmartImport Wizard' }
+        ];
+
+        const nowStr = new Date().toISOString().replace('T', ' ').substring(0, 16);
+        const demoRows: TestRow[] = [
+          {
+            id: `row-demo-1-${Date.now()}`,
+            testPoint: 'Verify Google OAuth login redirect flow',
+            moduleId: demoModules[0].id,
+            howToTest: 'Click on Continue with Google, inspect URL parameter for redirect_uri.',
+            expectedResult: 'Should redirect to /auth/callback with code.',
+            actualResult: 'Redirects correctly.',
+            functionalityStatus: 'Working',
+            testingStatus: 'Passed',
+            priority: 'Critical',
+            assignedUsers: [userName],
+            notes: [],
+            customFields: {},
+            lastUpdated: nowStr
+          },
+          {
+            id: `row-demo-2-${Date.now()}`,
+            testPoint: 'Verify Stripe checkout session creation',
+            moduleId: demoModules[1].id,
+            howToTest: 'Add product, proceed to payment, verify request payload.',
+            expectedResult: 'API should return checkout url with session ID.',
+            actualResult: 'Failed with 401 Unauthorized due to expired key.',
+            functionalityStatus: 'Not Working',
+            testingStatus: 'Failed',
+            priority: 'High',
+            assignedUsers: [userName],
+            notes: [{ id: `n-demo-1`, text: 'Need to update Stripe secret key in the dashboard settings.', timestamp: nowStr }],
+            customFields: {},
+            lastUpdated: nowStr
+          },
+          {
+            id: `row-demo-3-${Date.now()}`,
+            testPoint: 'Validate SmartImport file parsing',
+            moduleId: demoModules[2].id,
+            howToTest: 'Upload sample QA report spreadsheet, map fields, click process.',
+            expectedResult: 'Spreadsheet rows parsed and imported into current view.',
+            actualResult: 'Parsing works, but waiting for column review.',
+            functionalityStatus: 'Partially Working',
+            testingStatus: 'In Progress',
+            priority: 'Medium',
+            assignedUsers: [userName],
+            notes: [],
+            customFields: {},
+            lastUpdated: nowStr
+          }
+        ];
+
+        const clients = [...state.clients, demoClient];
+        const projects = [...state.projects, demoProject];
+        const modules = [...state.modules, ...demoModules];
+        const rows = [...demoRows, ...state.rows];
+
+        const nextState = {
+          ...state,
+          clients,
+          projects,
+          modules,
+          rows,
+          activeClientId: clientId,
+          activeProjectId: projectId,
+          activeModuleId: null
+        };
+        
+        saveToLocal(nextState);
+        return {
+          clients,
+          projects,
+          modules,
+          rows,
+          activeClientId: clientId,
+          activeProjectId: projectId,
+          activeModuleId: null
+        };
+      });
+    },
+
+    deleteDemoWorkspace: (projectId: string) => {
+      set((state: AppState) => {
+        const projectToDelete = state.projects.find((p: Project) => p.id === projectId);
+        if (!projectToDelete) return state;
+        const clientId = projectToDelete.clientId;
+        
+        const modulesToDelete = state.modules.filter((m: Module) => m.projectId === projectId);
+        const moduleIds = modulesToDelete.map((m: Module) => m.id);
+
+        const clients = state.clients.filter((c: Client) => c.id !== clientId);
+        const projects = state.projects.filter((p: Project) => p.id !== projectId);
+        const modules = state.modules.filter((m: Module) => m.projectId !== projectId);
+        const rows = state.rows.filter((r: TestRow) => !moduleIds.includes(r.moduleId));
+
+        const nextState = {
+          ...state,
+          clients,
+          projects,
+          modules,
+          rows,
+          activeClientId: state.clients[0]?.id || null,
+          activeProjectId: state.projects[0]?.id || null,
+          activeModuleId: null
+        };
+        saveToLocal(nextState);
+        return {
+          clients,
+          projects,
+          modules,
+          rows,
+          activeClientId: state.clients[0]?.id || null,
+          activeProjectId: state.projects[0]?.id || null,
+          activeModuleId: null
+        };
+      });
+    },
+
     // Modal UI states
     isAddRowOpen: false,
-    setIsAddRowOpen: (open) => set({ isAddRowOpen: open }),
+    setIsAddRowOpen: (open: boolean) => set({ isAddRowOpen: open }),
     editingRowId: null,
-    setEditingRowId: (id) => set({ editingRowId: id }),
+    setEditingRowId: (id: string | null) => set({ editingRowId: id }),
     notesRowId: null,
-    setNotesRowId: (id) => set({ notesRowId: id }),
+    setNotesRowId: (id: string | null) => set({ notesRowId: id }),
     isSettingsOpen: false,
-    setIsSettingsOpen: (open) => set({ isSettingsOpen: open }),
+    setIsSettingsOpen: (open: boolean) => set({ isSettingsOpen: open }),
     isExportOpen: false,
-    setIsExportOpen: (open) => set({ isExportOpen: open }),
+    setIsExportOpen: (open: boolean) => set({ isExportOpen: open }),
     isImportWizardOpen: false,
-    setIsImportWizardOpen: (open) => set({ isImportWizardOpen: open })
+    setIsImportWizardOpen: (open: boolean) => set({ isImportWizardOpen: open })
   };
 });
